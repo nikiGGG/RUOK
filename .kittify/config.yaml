@@ -7,6 +7,6 @@ vcs:
   type: git
 agents:
   available:
-  - codex
+  - qwen
   auto_commit: true
   lint_on_edit: false
