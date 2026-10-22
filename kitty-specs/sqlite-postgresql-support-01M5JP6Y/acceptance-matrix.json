@@ -6,143 +6,143 @@
   "criteria": [
     {
       "criterion_id": "FR-001",
-      "description": "Verify FR-001 is satisfied",
+      "description": "Explicit DATABASE_TYPE=sqlite|postgres; omitted means sqlite. Preserve DATABASE_PATH and default data/okr.db; PostgreSQL requires DATABASE_URL. Reject invalid types and missing PostgreSQL URL; document unused settings and never auto-detect/fallback.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     },
     {
       "criterion_id": "FR-002",
-      "description": "Verify FR-002 is satisfied",
+      "description": "Support all 25 current tables, fields, relationships and defaults with canonical application types, explicit dialect codecs and constraint parity; retain text IDs and JSON strings.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     },
     {
       "criterion_id": "FR-003",
-      "description": "Verify FR-003 is satisfied",
+      "description": "Provide an awaitable, typed persistence boundary; remove application dependence on SQLite-only terminals, raw handles and dialect query types. Preserve API payloads, errors and missing-row behavior.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     },
     {
       "criterion_id": "FR-004",
-      "description": "Verify FR-004 is satisfied",
+      "description": "Maintain independent, versioned dialect migration histories. Preserve existing SQLite migration files. Upgrade supported legacy SQLite layouts through explicit fingerprinted adoption; reject unknown drift and never mark unapplied migrations as applied.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     },
     {
       "criterion_id": "FR-005",
-      "description": "Verify FR-005 is satisfied",
+      "description": "Initialize and migrate once before requests/jobs; separate migration execution from build. Bound connection waits and pool use, serialize concurrent migration attempts, and close connections/jobs on shutdown.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     },
     {
       "criterion_id": "FR-006",
-      "description": "Verify FR-006 is satisfied",
+      "description": "Preserve authentication, permissions, private notes, friend dashboards, admin restrictions and per-user isolation on both backends.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     },
     {
       "criterion_id": "FR-007",
-      "description": "Verify FR-007 is satisfied",
+      "description": "Preserve goals/KRs/progress, periods/journals/reflections, tasks/timers/attributes/tags, fixed/flexible metrics, saved queries/widgets, AI tools/configuration, plugin configuration/sync and query logs.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     },
     {
       "criterion_id": "FR-008",
-      "description": "Verify FR-008 is satisfied",
+      "description": "Read existing version-2 user backups on both backends; retain existing format compatibility and explicit field coverage. Restore is validated before mutation and atomic, including preferences, child deletes and reference remapping. Export uses a consistent snapshot.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     },
     {
       "criterion_id": "FR-009",
-      "description": "Verify FR-009 is satisfied",
+      "description": "Provide PostgreSQL pool limits/timeouts and verified TLS with custom CA support for CNPG. Redact credentials and connection URLs from errors/logs. No superuser or database creation requirement.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     },
     {
       "criterion_id": "FR-010",
-      "description": "Verify FR-010 is satisfied",
+      "description": "SQLite retains its simple file-based setup; enable foreign-key enforcement with a legacy integrity preflight, bounded busy timeout and supported journal configuration. WAL requires suitable local/block storage; no claim of NFS correctness.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     },
     {
       "criterion_id": "FR-011",
-      "description": "Verify FR-011 is satisfied",
+      "description": "Run the same behavioral contract suite against real SQLite and PostgreSQL; test migrations, upgrades, rollback, cross-backend backups, privacy, timestamp/boolean/numeric codecs and production startup.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     },
     {
       "criterion_id": "FR-012",
-      "description": "Verify FR-012 is satisfied",
+      "description": "Produce a reproducible non-root Node container for both modes; health/readiness accurately reflects database availability without requiring login.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     },
     {
       "criterion_id": "FR-013",
-      "description": "Verify FR-013 is satisfied",
+      "description": "Add GitHub Actions validation and GHCR publication for trusted branches/releases, immutable tags/digests and pull-request build-only checks. Registry owner and public visibility are execution-time settings; no publication is performed by this planning request.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     },
     {
       "criterion_id": "FR-014",
-      "description": "Verify FR-014 is satisfied",
-      "proof_type": "automated_test",
+      "description": "Document both setups, upgrades, native backup/recovery, migration execution, TLS and a CNPG deployment handoff referencing external infrastructure PR 11. No live cluster changes in this repository mission.",
+      "proof_type": "manual_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     }
   ],
   "negative_invariants": []

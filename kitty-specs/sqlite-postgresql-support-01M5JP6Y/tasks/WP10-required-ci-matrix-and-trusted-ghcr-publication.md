@@ -7,9 +7,9 @@ requirement_refs:
 - FR-011
 - FR-013
 tracker_refs: []
-planning_base_branch: main
-merge_target_branch: main
-branch_strategy: Planning artifacts for this mission were generated on main. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into main unless the human explicitly redirects the landing branch.
+planning_base_branch: plan/sqlite-postgresql-support
+merge_target_branch: plan/sqlite-postgresql-support
+branch_strategy: Planning artifacts for this mission were generated on plan/sqlite-postgresql-support. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into plan/sqlite-postgresql-support unless the human explicitly redirects the landing branch.
 subtasks:
 - T037
 - T038
@@ -29,6 +29,7 @@ create_intent:
 - .github/workflows/ruok-image.yml
 execution_mode: code_change
 owned_files:
+- okr-app/package.json
 - .github/workflows/ruok-ci.yml
 - .github/workflows/ruok-image.yml
 role: implementer
