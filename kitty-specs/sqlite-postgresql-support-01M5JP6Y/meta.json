@@ -10,5 +10,7 @@
   "purpose_tldr": "Keep SQLite simple and add PostgreSQL with equivalent RUOK behavior",
   "slug": "sqlite-postgresql-support-01M5JP6Y",
   "target_branch": "plan/sqlite-postgresql-support",
-  "topology": "single_branch"
+  "topology": "single_branch",
+  "vcs": "git",
+  "vcs_locked_at": "2026-10-22T21:36:59.521132+00:00"
 }

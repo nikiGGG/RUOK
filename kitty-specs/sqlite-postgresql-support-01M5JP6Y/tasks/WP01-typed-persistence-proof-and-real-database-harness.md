@@ -7,10 +7,12 @@ requirement_refs:
 - FR-003
 - FR-009
 - FR-011
-tracker_refs: []
 planning_base_branch: plan/sqlite-postgresql-support
 merge_target_branch: plan/sqlite-postgresql-support
 branch_strategy: Planning artifacts for this mission were generated on plan/sqlite-postgresql-support. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into plan/sqlite-postgresql-support unless the human explicitly redirects the landing branch.
+base_branch: kitty/mission-sqlite-postgresql-support-01M5JP6Y
+base_commit: 20ea8957a096eddd79a1cc4692c67f9df8d721d6
+created_at: '2026-10-22T21:36:59.799967+00:00'
 subtasks:
 - T001
 - T002
@@ -41,6 +43,7 @@ owned_files:
 role: implementer
 tags: []
 task_type: implement
+tracker_refs: []
 ---
 
 # WP01: Typed persistence proof and real database harness
