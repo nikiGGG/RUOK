@@ -1,7 +1,7 @@
 {
-  "event_count": 46,
-  "last_event_id": "01M5JXB6BF6TRVXHR9DPDK9GGW",
-  "materialized_at": "2026-10-22T22:57:39.695538+00:00",
+  "event_count": 48,
+  "last_event_id": "01M5JXBMP1D4NW03T2RZRZ39BC",
+  "materialized_at": "2026-10-22T22:57:54.369182+00:00",
   "mission_number": "",
   "mission_slug": "sqlite-postgresql-support-01M5JP6Y",
   "mission_type": "software-dev",
@@ -12,9 +12,9 @@
     "claimed": 0,
     "done": 0,
     "for_review": 0,
-    "in_progress": 0,
+    "in_progress": 1,
     "in_review": 0,
-    "planned": 7
+    "planned": 6
   },
   "work_packages": {
     "WP01": {
@@ -146,33 +146,34 @@
       }
     },
     "WP05": {
-      "actor": "user",
-      "agent": "qwen",
-      "agent_profile": "reviewer-renata",
+      "actor": "qwen",
+      "agent": null,
+      "agent_profile": "node-norris",
       "agent_profile_version": "1.0",
       "force_count": 1,
-      "lane": "planned",
-      "last_event_id": "01M5JXB6BF6TRVXHR9DPDK9GGW",
-      "last_transition_at": "2026-10-22T22:57:39.695538+00:00",
+      "lane": "in_progress",
+      "last_event_id": "01M5JXBMP1D4NW03T2RZRZ39BC",
+      "last_transition_at": "2026-10-22T22:57:54.369182+00:00",
       "model": "__resolved_model_absent__",
       "notes": [
         "Ready for review: periods/tasks/timers/tags/metrics migrated behind typed boundary on both adapters; planning+metrics domain suites added (sqlite green, postgres gated for CI); npm test 112 pass, test:db:sqlite 56 pass, build ok; live postgres not run locally"
       ],
       "provider": "__resolved_provider_absent__",
+      "review": null,
       "review_result": {
         "feedback_path": "/Users/n.gryaznev/Develop/OTHER/RUOK/kitty-specs/sqlite-postgresql-support-01M5JP6Y/tasks/WP05-periods-tasks-timers-tags-and-metrics-persistence/review-cycle-1.md",
         "reference": "review-cycle://sqlite-postgresql-support-01M5JP6Y/WP05-periods-tasks-timers-tags-and-metrics-persistence/review-cycle-1.md",
         "reviewer": "user",
         "verdict": "changes_requested"
       },
-      "role": "reviewer",
-      "shell_pid": 35676,
-      "shell_pid_created_at": "1792709666.396793",
+      "role": "implementer",
+      "shell_pid": null,
+      "shell_pid_created_at": null,
       "subtasks": {
-        "T017": "done",
-        "T018": "done",
-        "T019": "done",
-        "T020": "done"
+        "T017": "planned",
+        "T018": "planned",
+        "T019": "planned",
+        "T020": "planned"
       }
     },
     "WP06": {
