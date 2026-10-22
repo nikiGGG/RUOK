@@ -1,7 +1,7 @@
 {
-  "event_count": 66,
-  "last_event_id": "01M5K09MJ86DFM210BK3DHXRC4",
-  "materialized_at": "2026-10-22T23:49:14.440246+00:00",
+  "event_count": 68,
+  "last_event_id": "01M5K0B4A1S16AS5AD0439SCQ6",
+  "materialized_at": "2026-10-22T23:50:03.329216+00:00",
   "mission_number": "",
   "mission_slug": "sqlite-postgresql-support-01M5JP6Y",
   "mission_type": "software-dev",
@@ -12,9 +12,9 @@
     "claimed": 0,
     "done": 0,
     "for_review": 0,
-    "in_progress": 0,
+    "in_progress": 1,
     "in_review": 0,
-    "planned": 3
+    "planned": 2
   },
   "work_packages": {
     "WP01": {
@@ -251,7 +251,8 @@
       "last_transition_at": "2026-10-22T23:49:14.440246+00:00",
       "model": "__resolved_model_absent__",
       "notes": [
-        "Ready for review: WP08 complete. 25-table coverage ledger in docs/DATABASE-VERIFICATION.md + tests/db/coverage-ledger.test.ts. Added sqlite upgrade data-preservation test, sqlite native-recovery rehearsal (runs: better-sqlite3 .backup()), gated postgres pg_dump/pg_restore rehearsal, gated postgres operational tests. Validation: npm ci=0, npm test=0 (133), test:db:sqlite=0 (77), build=0, check=1 (18 preexisting UI errors recorded). Postgres paths CI-only."
+        "Ready for review: WP08 complete. 25-table coverage ledger in docs/DATABASE-VERIFICATION.md + tests/db/coverage-ledger.test.ts. Added sqlite upgrade data-preservation test, sqlite native-recovery rehearsal (runs: better-sqlite3 .backup()), gated postgres pg_dump/pg_restore rehearsal, gated postgres operational tests. Validation: npm ci=0, npm test=0 (133), test:db:sqlite=0 (77), build=0, check=1 (18 preexisting UI errors recorded). Postgres paths CI-only.",
+        "Review passed: WP08 verification complete. T029 coverage-ledger asserts exact 25-table inventory on production + both dialect schemas (real drizzle table inspection, no mocks). T030 upgrade/concurrency/operational evidence real (upgrade-preserves-data passed; postgres operations wired for CI, gated on RUOK_TEST_PG_ADMIN_URL, never falls back). T031 native SQLite recovery ran and passed (better-sqlite3 .backup, full install, distinct from FR-008); postgres dump/restore gated CI. T032 recorded: npm test 0 (133), test:db:sqlite 0 (77), build 0; npm run check 1 with 18 pre-existing UI errors recorded precisely, not suppressed. Postgres entry points throw without DB_BACKEND=postgres. No historical SQLite migrations modified. No anti-pattern FAIL."
       ],
       "provider": "__resolved_provider_absent__",
       "review_result": {
@@ -271,11 +272,19 @@
       }
     },
     "WP09": {
-      "actor": "finalize-tasks",
+      "actor": "qwen",
+      "agent": "qwen",
+      "agent_profile": "node-norris",
+      "agent_profile_version": "1.0",
       "force_count": 0,
-      "lane": "planned",
-      "last_event_id": "01M5JQ3V1WZ2TEHSSRBZGTTRGE",
-      "last_transition_at": "2026-10-22T21:08:47.292325+00:00"
+      "lane": "in_progress",
+      "last_event_id": "01M5K0B4A1S16AS5AD0439SCQ6",
+      "last_transition_at": "2026-10-22T23:50:03.329216+00:00",
+      "model": "__resolved_model_absent__",
+      "provider": "__resolved_provider_absent__",
+      "role": "implementer",
+      "shell_pid": 86936,
+      "shell_pid_created_at": "1792713000.288796"
     },
     "WP10": {
       "actor": "finalize-tasks",
