@@ -17,3 +17,7 @@ PostgreSQL acceptance: DATABASE_TYPE=postgres with a disposable DATABASE_URL and
 Backup acceptance: export/restore each of SQLite→SQLite, SQLite→PostgreSQL, PostgreSQL→SQLite and PostgreSQL→PostgreSQL. Compare every supported field/reference and verify rollback after deletes plus late insert failure. Separately rehearse native full-installation restore on each engine.
 
 Container/release acceptance: clean database-free image build; both production startup paths and migration command; PR build-only workflow; trusted release publication and pull-by-digest when execution is authorized and registry inputs exist. External deployment is a separate follow-up to PR 11, using docs/CNPG-HANDOFF.md produced by WP11.
+
+## Branch placement
+
+Planning and subsequent single-branch mission execution target `plan/sqlite-postgresql-support`. Integration into main is a later reviewed PR/merge; do not commit task bookkeeping directly to protected main. No application implementation or PR publication was performed during planning.
