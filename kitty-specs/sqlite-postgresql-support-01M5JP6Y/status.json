@@ -1,7 +1,7 @@
 {
-  "event_count": 21,
-  "last_event_id": "01M5JTJYX1R7TXMA8WVTHWW86Q",
-  "materialized_at": "2026-10-22T22:09:28.481901+00:00",
+  "event_count": 23,
+  "last_event_id": "01M5JTKDZ1B9P0AEQ1FFQN60SR",
+  "materialized_at": "2026-10-22T22:09:43.904902+00:00",
   "mission_number": "",
   "mission_slug": "sqlite-postgresql-support-01M5JP6Y",
   "mission_type": "software-dev",
@@ -12,9 +12,9 @@
     "claimed": 0,
     "done": 0,
     "for_review": 0,
-    "in_progress": 0,
+    "in_progress": 1,
     "in_review": 0,
-    "planned": 10
+    "planned": 9
   },
   "work_packages": {
     "WP01": {
@@ -29,7 +29,8 @@
       "model": "__resolved_model_absent__",
       "notes": [
         "Ready for review: typed persistence boundary proven on real SQLite (18/18) and PostgreSQL (18/18); build passes; zero new check errors",
-        "Fixed review cycle 1: FR-001 config tests, default test script, teardown guard"
+        "Fixed review cycle 1: FR-001 config tests, default test script, teardown guard",
+        "Review passed (cycle 2): FR-001 config tests, default test script fixed, teardown guard"
       ],
       "provider": "__resolved_provider_absent__",
       "review": null,
@@ -50,11 +51,19 @@
       }
     },
     "WP02": {
-      "actor": "finalize-tasks",
+      "actor": "qwen",
+      "agent": "qwen",
+      "agent_profile": "node-norris",
+      "agent_profile_version": "1.0",
       "force_count": 0,
-      "lane": "planned",
-      "last_event_id": "01M5JQ3T76Z44KWHDFAWMHNJB1",
-      "last_transition_at": "2026-10-22T21:08:46.438958+00:00"
+      "lane": "in_progress",
+      "last_event_id": "01M5JTKDZ1B9P0AEQ1FFQN60SR",
+      "last_transition_at": "2026-10-22T22:09:43.904902+00:00",
+      "model": "__resolved_model_absent__",
+      "provider": "__resolved_provider_absent__",
+      "role": "implementer",
+      "shell_pid": 93242,
+      "shell_pid_created_at": "1792706980.935376"
     },
     "WP03": {
       "actor": "finalize-tasks",
