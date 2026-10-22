@@ -1,0 +1,19 @@
+{
+  "wp_id": "WP03",
+  "captured_at": "2026-10-22T22:24:20Z",
+  "base_branch": "plan/sqlite-postgresql-support",
+  "base_commit": "b4379680e654ba9f9f4a57d89613fa056bfc47f5",
+  "test_runner": "pytest",
+  "total": 1,
+  "passed": 0,
+  "failed": 1,
+  "skipped": 0,
+  "failures": [
+    {
+      "test": "<gate-coverage-junit>",
+      "error": "no JUnit XML artifact produced by the scoped run",
+      "file": "unknown"
+    }
+  ],
+  "source_identity": "GateCoverageScopeSource/junit_xml"
+}
