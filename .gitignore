@@ -13,6 +13,7 @@ plugins/
 .kittify/preflight-warning.json
 
 # Added by Spec Kitty CLI (auto-managed)
+.worktrees/
 .codex/
 .vibe/
 .pi/
