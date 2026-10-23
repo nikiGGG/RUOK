@@ -88,10 +88,10 @@
       "criterion_id": "FR-009",
       "description": "Provide PostgreSQL pool limits/timeouts and verified TLS with custom CA support for CNPG. Redact credentials and connection URLs from errors/logs. No superuser or database creation requirement.",
       "proof_type": "automated_test",
-      "evidence": null,
-      "pass_fail": "pending",
-      "verified_by": null,
-      "verified_at": null,
+      "evidence": "okr-app/docs/DATABASE-VERIFICATION.md; worktree npm test 133 passed / test:db:sqlite 77 passed / build ok",
+      "pass_fail": "pass",
+      "verified_by": "nessy-orchestrator",
+      "verified_at": "2026-10-23T00:20:53.492425+00:00",
       "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     },
     {
