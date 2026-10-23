@@ -98,10 +98,10 @@
       "criterion_id": "FR-010",
       "description": "SQLite retains its simple file-based setup; enable foreign-key enforcement with a legacy integrity preflight, bounded busy timeout and supported journal configuration. WAL requires suitable local/block storage; no claim of NFS correctness.",
       "proof_type": "automated_test",
-      "evidence": null,
-      "pass_fail": "pending",
-      "verified_by": null,
-      "verified_at": null,
+      "evidence": "okr-app/docs/DATABASE-VERIFICATION.md; worktree npm test 133 passed / test:db:sqlite 77 passed / build ok",
+      "pass_fail": "pass",
+      "verified_by": "nessy-orchestrator",
+      "verified_at": "2026-10-23T00:20:56.129330+00:00",
       "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     },
     {
