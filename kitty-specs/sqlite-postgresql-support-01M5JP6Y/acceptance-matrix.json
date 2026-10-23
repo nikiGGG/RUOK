@@ -8,10 +8,10 @@
       "criterion_id": "FR-001",
       "description": "Explicit DATABASE_TYPE=sqlite|postgres; omitted means sqlite. Preserve DATABASE_PATH and default data/okr.db; PostgreSQL requires DATABASE_URL. Reject invalid types and missing PostgreSQL URL; document unused settings and never auto-detect/fallback.",
       "proof_type": "automated_test",
-      "evidence": null,
-      "pass_fail": "pending",
-      "verified_by": null,
-      "verified_at": null,
+      "evidence": "okr-app/docs/DATABASE-VERIFICATION.md; worktree npm test 133 passed / test:db:sqlite 77 passed / build ok",
+      "pass_fail": "pass",
+      "verified_by": "nessy-orchestrator",
+      "verified_at": "2026-10-23T00:20:32.742620+00:00",
       "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     },
     {
