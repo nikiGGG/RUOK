@@ -78,10 +78,10 @@
       "criterion_id": "FR-008",
       "description": "Read existing version-2 user backups on both backends; retain existing format compatibility and explicit field coverage. Restore is validated before mutation and atomic, including preferences, child deletes and reference remapping. Export uses a consistent snapshot.",
       "proof_type": "automated_test",
-      "evidence": null,
-      "pass_fail": "pending",
-      "verified_by": null,
-      "verified_at": null,
+      "evidence": "okr-app/docs/DATABASE-VERIFICATION.md; worktree npm test 133 passed / test:db:sqlite 77 passed / build ok",
+      "pass_fail": "pass",
+      "verified_by": "nessy-orchestrator",
+      "verified_at": "2026-10-23T00:20:50.664418+00:00",
       "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     },
     {
