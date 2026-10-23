@@ -118,10 +118,10 @@
       "criterion_id": "FR-012",
       "description": "Produce a reproducible non-root Node container for both modes; health/readiness accurately reflects database availability without requiring login.",
       "proof_type": "automated_test",
-      "evidence": null,
-      "pass_fail": "pending",
-      "verified_by": null,
-      "verified_at": null,
+      "evidence": "okr-app/docs/DATABASE-VERIFICATION.md; worktree npm test 133 passed / test:db:sqlite 77 passed / build ok",
+      "pass_fail": "pass",
+      "verified_by": "nessy-orchestrator",
+      "verified_at": "2026-10-23T00:21:01.310538+00:00",
       "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     },
     {
