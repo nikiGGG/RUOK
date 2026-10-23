@@ -137,11 +137,11 @@
     {
       "criterion_id": "FR-014",
       "description": "Document both setups, upgrades, native backup/recovery, migration execution, TLS and a CNPG deployment handoff referencing external infrastructure PR 11. No live cluster changes in this repository mission.",
-      "proof_type": "automated_test",
-      "evidence": "okr-app/docs/DATABASE-VERIFICATION.md; worktree npm test 133 passed / test:db:sqlite 77 passed / build ok",
+      "proof_type": "manual_test",
+      "evidence": "okr-app/docs/CNPG-HANDOFF.md; okr-app/docs/DATABASES.md; external PR-11 as context; deployment pending",
       "pass_fail": "pass",
       "verified_by": "nessy-orchestrator",
-      "verified_at": "2026-10-23T00:21:06.462474+00:00",
+      "verified_at": "2026-10-23T00:21:11.982241+00:00",
       "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
     }
   ],
