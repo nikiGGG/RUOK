@@ -1,6 +1,8 @@
 {
+  "accept_commit": "77a423c02060795c23358b48fdf4f079f4b2da9b",
   "acceptance_history": [
     {
+      "accept_commit": "77a423c02060795c23358b48fdf4f079f4b2da9b",
       "acceptance_mode": "pr",
       "accepted_at": "2026-10-23T00:21:17.683344+00:00",
       "accepted_by": "nessy-orchestrator",
