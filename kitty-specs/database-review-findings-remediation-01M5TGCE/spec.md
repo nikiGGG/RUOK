@@ -14,11 +14,19 @@ silently waive findings.
 ## Scope and authority
 
 The source review supplies the finding inventory and reproduction baseline.
-All seven named findings are mandatory, including DRIFT-5 regardless of its
-placement among non-blocking open items. The original mission
+The application work covers DRIFT-1 through DRIFT-5 and RISK-1, including
+DRIFT-5 regardless of its placement among non-blocking open items. The original mission
 `sqlite-postgresql-support-01M5JP6Y` specification, plan and persistence contract
 explain the promises being repaired. This follow-up preserves the operator's
 subsequent delivery-policy changes.
+
+**Operator scope amendment (2026-10-26)**: Focus this mission on application,
+tests and supporting documentation. Do not modify current CI/CD logic, GitHub
+Actions workflows, publication gates, triggers, permissions or repository branch
+settings. The operator will review and correct CI/CD separately later. RISK-2 is
+explicitly deferred to that operator-owned review, remains unresolved, and must
+not be reported as fixed or waived. DRIFT-4 remains in scope through application
+fixtures, container scripts and manually run checks, without workflow changes.
 
 Deliver fixes, regression tests, durable execution evidence and accurate operating
 and verification documentation. Preserve the historical review and record closure
@@ -100,29 +108,16 @@ and PostgreSQL, then manually validate production images in both modes.
    restart and read journey. Missing persisted data or readiness timeout makes
    validation exit nonzero; no warning followed by PASS is allowed.
 
-### User Story 4 — Verified publication with unchanged delivery policy (P1)
+### Verification prerequisite — Blocked Docker image download
 
-As a release operator, I need publication to require successful mandatory checks
-covering the published revision while CI remains PR-only and image validation manual.
-
-**Why this priority**: Recording a SHA proves identity, not test success.
-
-**Independent test**: Exercise publication eligibility with successful, failed,
-missing, pending, cancelled, stale, wrong-revision and unverifiable evidence.
-
-**Acceptance scenarios**:
-
-1. Successful required checks for the exact published revision permit publication
-   and produce durable check-run references, revision and image digest evidence.
-2. A direct main push without qualifying evidence, an unrelated successful
-   workflow, missing checks or unsuccessful/unverifiable evidence blocks
-   publication before registry login or push.
-3. Where a PR merge strategy changes the SHA, publication requires demonstrated
-   equivalence to the tested revision or fails closed. PR association or an
-   ancestor's green checks alone is insufficient.
-4. PR activity automatically runs only PR CI. Manual image validation covers
-   both backends without package-write permission or publication. Publication
-   remains automatic only on main pushes; dispatch never publishes.
+If any Docker image needed to build or run a check cannot be downloaded, stop
+mission work immediately and ask the operator for help. Corporate networking may
+block registry access. Report the exact image/tag or digest, registry, attempted
+command and redacted error. Mark the check blocked, not failed application
+behavior or PASS. Wait for operator help and explicit direction before resuming.
+Do not silently skip the check, substitute an image, switch registries, alter
+proxy/TLS/network settings or continue other mission work around this blocker.
+A corporate network block must not be treated as an application defect.
 
 ### Edge cases
 
@@ -134,7 +129,8 @@ missing, pending, cancelled, stale, wrong-revision and unverifiable evidence.
   bounded probes and retry behavior.
 - Required PostgreSQL/recovery execution without server access, credentials or
   matching dump/restore tools fails as missing prerequisites rather than skipping.
-- Publication evidence API/permission failures deny publication.
+- A blocked Docker image pull, including a base image pulled during a build,
+  triggers the stop-and-ask rule above.
 - Baseline UI type-check debt cannot hide new errors or backend test failures.
 
 ## Requirements
@@ -149,14 +145,14 @@ missing, pending, cancelled, stale, wrong-revision and unverifiable evidence.
 | FR-004 | Operational/image proof (DRIFT-4) | Migrate operational fixtures; make restart/readiness/persistence failures nonzero; manually execute both-backend production-image scenarios and require real PostgreSQL recovery with matching tools. | High | Open |
 | FR-005 | Application paths (DRIFT-5) | Test actual authentication/session, admin, privacy and two-user authorization paths, scheduler, plugin/QuickJS async bridge, saved queries, friend dashboard and AI-tool entrypoints on both real backends. | High | Open |
 | FR-006 | Recoverable probes (RISK-1) | Keep liveness independent of database initialization; readiness checks live availability; failed initialization retries and idle pool errors are handled; prove HTTP outage and recovery. | High | Open |
-| FR-007 | Verified publication (RISK-2) | Gate GHCR publication on successful mandatory checks covering the published revision; reject missing or invalid evidence and record revision proof. | High | Open |
-| FR-008 | Durable closure | Record a closure row for each finding linking changed behavior, requirements, regression tests, before/after execution, revision, environment and durable artifacts; align operating docs with demonstrated behavior. | High | Open |
+| FR-007 | Operator-owned CI/CD review (RISK-2) | Preserve current CI/CD behavior. Record RISK-2 as unresolved and explicitly deferred by the operator for separate personal review; no publication-gate implementation in this mission. | High | Deferred by operator |
+| FR-008 | Durable closure | Record a disposition row for each finding linking changed behavior, requirements, regression tests, before/after execution, revision, environment and durable artifacts; align operating docs with demonstrated behavior. | High | Open |
 
 ### Non-Functional Requirements
 
 | ID | Title | Requirement | Category | Priority | Status |
 |---|---|---|---|---|---|
-| NFR-001 | Complete evidence | All 7 findings require executed regression evidence; zero closures solely from inspection, builder assertions or scripts existing on disk. | Verification | High | Open |
+| NFR-001 | Complete evidence | All 6 in-scope findings require executed regression evidence; RISK-2 is recorded separately as unresolved/operator-deferred. Zero closures solely from inspection, builder assertions or scripts existing on disk. | Verification | High | Open |
 | NFR-002 | Bounded probes | HTTP probes complete within 5 seconds; readiness detects outage within 10 seconds and recovers within 30 seconds after storage/schema availability, without process restart. | Reliability | High | Open |
 | NFR-003 | Stable suites | Required/full/backend suites have zero failures; concurrency and no-init regressions pass 10 consecutive runs without hidden retries, optionalization or disabled assertions. | Reliability | High | Open |
 | NFR-004 | Safe evidence | Evidence records commands, exit codes, timestamps, revision and backend/tool versions, with zero passwords, session secrets or private CA keys. | Security | High | Open |
@@ -167,16 +163,17 @@ missing, pending, cancelled, stale, wrong-revision and unverifiable evidence.
 |---|---|---|---|---|---|
 | C-001 | PR-only CI | Preserve RUOK CI automatic triggering on pull_request only; do not add push, workflow_run or dispatch CI as a publication workaround. | Delivery | High | Open |
 | C-002 | Main-only GHCR | Preserve publication only on pushes to refs/heads/main, immutable SHA/digest identity and least-privilege separation. | Delivery | High | Open |
-| C-003 | Manual image validation | Preserve workflow_dispatch/manual image validation; cover both modes there without publication or package-write permission. | Delivery | High | Open |
-| C-004 | No weakening/waiver | Do not remove, skip, narrow, mock away or make required tests non-blocking to obtain green results. Missing execution stays open and blocks acceptance; no silent waiver, deferral or severity-based exclusion. | Quality | High | Open |
+| C-003 | Manual image validation | Preserve current manual image-validation workflow unchanged. Run both-mode validation manually using application/container scripts; do not add workflow steps or publication privileges. | Delivery | High | Open |
+| C-004 | No weakening/waiver | Do not remove, skip, narrow, mock away or make required tests non-blocking to obtain green results. Missing execution stays open and blocks acceptance; no silent waiver, deferral or severity-based exclusion. The explicit operator deferral of RISK-2 is the sole scope exception. | Quality | High | Open |
+| C-006 | Freeze CI/CD logic | Do not modify GitHub Actions workflows, CI/CD behavior, publication gates or repository settings. The operator owns any later review and correction outside this mission. | Scope | High | Open |
+| C-007 | Stop on image download blocker | If a required Docker image cannot be downloaded, stop all mission work, report image/registry/command/redacted error, ask the operator for help and wait for explicit direction before resuming. No silent skip, substitute or network workaround. | Execution | High | Open |
 | C-005 | Bounded scope | Preserve persistence/backup contracts and unrelated user edits; exclude deployment, external CNPG implementation, unrelated features and blanket UI-debt repair. | Scope | High | Open |
 
 ## Finding-to-evidence contract
 
-Each row needs a regression detecting the original defect or a documented,
+Each in-scope row needs a regression detecting the original defect or a documented,
 controlled equivalent fault, followed by a passing fixed run and durable evidence.
-Mocks may supplement publication-policy tests; real boundary claims require real
-execution. Test references alone are not execution evidence.
+Real boundary claims require real execution. Test references alone are not execution evidence.
 
 | Finding | Requirement | Required regression and evidence |
 |---|---|---|
@@ -186,7 +183,7 @@ execution. Test references alone are not execution evidence.
 | DRIFT-4 | FR-004 | Live migrated pool/outage fixtures and native recovery rehearsal; manual both-mode image runs with revision/digest, objective persistence after restart and failing lost-write/readiness negative cases. |
 | DRIFT-5 | FR-005 | Both-backend HTTP/session/admin/two-user scenarios and real scheduler/plugin/query/friend/AI paths; demonstrate relevant authorization/bridge regressions make tests fail. |
 | RISK-1 | FR-006 | Timed HTTP health/readiness traces through unavailable startup, recovery, later outage and second recovery; failed-promise retry, concurrent initialization and idle-error regressions. |
-| RISK-2 | FR-007 | Gate positive/negative cases, revision/equivalence proof under supported merge strategy, trigger/permission regression checks and durable check-run references. No actual release is needed solely to test denials. |
+| RISK-2 | FR-007 | Unresolved; explicitly deferred by the operator to separate personal CI/CD review. Preserve the original finding and record this disposition; no fix, regression execution or closure is claimed in this mission. |
 
 Evidence must be committed reports or durable CI/manual-run artifacts linked from
 the closure report. Temporary local logs alone cannot close a finding. Record
@@ -196,33 +193,43 @@ unexecuted checks as incomplete; never infer PASS from a missing dependency.
 
 - This is the specify phase; implementation and live verification follow planning
   and work-package authoring. The historical review remains unchanged.
-- Repository-enforced publication verification is required; uninspected branch
-  protection is not evidence. Planning must choose a fail-closed revision policy
-  compatible with PR-only CI and document supported merge strategies.
+- CI/CD is intentionally unchanged. RISK-2 remains unresolved for separate
+  operator review and is not an acceptance blocker for the six-finding application
+  scope. This mission cannot claim all seven historical findings are resolved.
 - PostgreSQL 18 is the repository CI target. Live PostgreSQL, restricted roles,
   TLS fixtures, matching native recovery tools and Docker are acceptance
   prerequisites. Their absence prevents closure rather than permitting a waiver.
+  Any required Docker image download failure stops all mission work and requires
+  operator assistance and explicit direction to resume.
 - The historical 18 errors/4 warnings are observations, not a permanent allowance.
   Record a reproducible UI baseline and distinguish new failures.
 - Diagnose the reported concurrency and no-init failures and repair them as needed
   for truthful green required suites; never convert them to skips.
 - The 5/10/30-second probe bounds are acceptance targets chosen for this mission;
   planning must reconcile runtime timeouts and polling with those bounds.
-- Correct stale PostgreSQL-version, automatic image-check, release-gating and
-  no-DDL documentation where it affects these findings; no unrelated docs rewrite.
+- Correct application/database verification and no-DDL documentation where it
+  affects in-scope findings. Do not redesign or change CI/CD through documentation
+  instructions; record its separate operator-owned review instead.
 
 ## Success Criteria
 
-- **SC-001**: All seven findings have linked regression tests and durable
-  before/after execution evidence, with none omitted, deferred or waived.
+- **SC-001**: All six in-scope findings have linked regression tests and durable
+  before/after execution evidence. RISK-2 is explicitly recorded as unresolved
+  and operator-deferred; no in-scope finding is omitted or waived.
 - **SC-002**: Required suites finish with zero failures and all mandatory live
   scenarios executed; stability cases pass ten consecutive runs.
 - **SC-003**: Both supported storage modes preserve recorded user objectives
   across production restart in manually initiated image validation.
 - **SC-004**: Every outage/recovery scenario meets the probe bounds and restores
   service without process restart while preserving process liveness.
-- **SC-005**: Every invalid-evidence publication case is denied, valid evidence
-  covers the published revision, and all three delivery constraints hold.
+- **SC-005**: CI/CD logic and workflows remain unchanged, including PR-only CI,
+  main-only GHCR publication and manual image validation. RISK-2 is handed back
+  to the operator for separate review without a closure claim.
 - **SC-006**: A follow-up reviewer can reproduce each closure from durable,
-  redacted artifacts and reports zero unresolved named findings. Missing evidence
+  redacted artifacts and reports zero unresolved in-scope findings while explicitly
+  retaining RISK-2 as unresolved/operator-deferred. Missing evidence
   remains incomplete and blocks acceptance.
+
+- **SC-007**: Any required Docker image download failure results in an immediate
+  stop, a redacted blocker report and a request for operator help; work resumes
+  only after explicit operator direction, with no skipped validation claim.

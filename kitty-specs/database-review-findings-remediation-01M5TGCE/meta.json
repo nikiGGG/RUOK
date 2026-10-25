@@ -6,8 +6,8 @@
   "mission_number": null,
   "mission_slug": "database-review-findings-remediation-01M5TGCE",
   "mission_type": "software-dev",
-  "purpose_context": "Remediate the SQLite/PostgreSQL mission review while preserving PR-only CI, main-only GHCR publication and manual both-backend image validation; no test weakening or silent waivers.",
-  "purpose_tldr": "Resolve DRIFT-1 through DRIFT-5 and RISK-1 through RISK-2 with regression tests and durable evidence.",
+  "purpose_context": "Focus on application fixes without changing current CI/CD logic or GitHub Actions. Preserve PR-only CI, main-only GHCR publication and manual image validation. Stop all mission work and ask the operator for help if a required Docker image cannot be downloaded; wait for explicit direction before resuming.",
+  "purpose_tldr": "Fix DRIFT-1 through DRIFT-5 and RISK-1 with regression evidence; RISK-2 deferred to separate operator CI/CD review.",
   "slug": "database-review-findings-remediation-01M5TGCE",
   "target_branch": "plan/sqlite-postgresql-support",
   "topology": "single_branch"
