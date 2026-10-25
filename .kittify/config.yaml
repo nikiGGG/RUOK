@@ -5,6 +5,8 @@ project:
   build_id: 51220d82-7fb2-59a3-b2f4-32dcf765f5e6
 vcs:
   type: git
+mission_type_activations:
+- software-dev
 agents:
   available:
   - qwen

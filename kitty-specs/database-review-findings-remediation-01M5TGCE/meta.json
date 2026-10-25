@@ -1,0 +1,14 @@
+{
+  "created_at": "2026-10-25T21:45:04.367310+00:00",
+  "flattened": false,
+  "friendly_name": "database review findings remediation",
+  "mission_id": "01M5TGCE2YM9ND5B5HY1HQQM74",
+  "mission_number": null,
+  "mission_slug": "database-review-findings-remediation-01M5TGCE",
+  "mission_type": "software-dev",
+  "purpose_context": "Remediate the SQLite/PostgreSQL mission review while preserving PR-only CI, main-only GHCR publication and manual both-backend image validation; no test weakening or silent waivers.",
+  "purpose_tldr": "Resolve DRIFT-1 through DRIFT-5 and RISK-1 through RISK-2 with regression tests and durable evidence.",
+  "slug": "database-review-findings-remediation-01M5TGCE",
+  "target_branch": "plan/sqlite-postgresql-support",
+  "topology": "single_branch"
+}
