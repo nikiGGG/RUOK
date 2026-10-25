@@ -27,11 +27,6 @@
 name: RUOK CI
 
 on:
-  push:
-    branches:
-      - main
-      - master
-      - 'plan/**'
   pull_request:
 
 concurrency:
