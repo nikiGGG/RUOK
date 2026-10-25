@@ -37,6 +37,7 @@
 name: RUOK Image Build & Publish
 
 on:
+  pull_request:
   push:
     branches:
       - main
@@ -59,8 +60,6 @@ permissions:
 env:
   NODE_VERSION: '22'      # matches the node:22-alpine production image
   REGISTRY: ghcr.io
-  # GHCR owner/repo derived from GitHub context — never hard-coded.
-  IMAGE_NAME: ${{ github.repository }}
 
 defaults:
   run:
@@ -78,28 +77,34 @@ jobs:
       contents: read # least-read; intentionally NO packages:write
     steps:
       - name: Checkout PR head
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Set up Node (pinned + npm cache)
-        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: okr-app/package-lock.json
 
       - name: Reproducible install from lockfile
-        run: npm ci
+        run: |
+          node --version
+          npm --version
+          npm ci || {
+            cat "$(npm config get cache)"/_logs/*-debug-0.log
+            exit 1
+          }
 
       - name: Production build (SvelteKit / adapter-node)
         run: npm run build
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@6526bf1b3c5ccacce6d05af7b0f9b1b4df4d8a4c # v3.8.0
+        uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
 
       - name: Build image from okr-app context (push=false, load=true)
         # push: false guarantees the PR job can never publish; load: true makes
         # the image available in the local daemon for the smoke check below.
-        uses: docker/build-push-action@b32b51a8eda65d6793cd0494a773d4f6bcef32dc # v6.9.0
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
         with:
           context: ./okr-app
           file: okr-app/Dockerfile
@@ -157,7 +162,7 @@ jobs:
         # push / release events are trusted; we checkout the exact commit that
         # triggered the run (github.sha). NOT pull_request_target, so no
         # untrusted PR content is ever checked out or built.
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Same-revision guard — record the exact commit being published
         run: |
@@ -166,15 +171,30 @@ jobs:
           # The build below uses this exact checked-out working tree, so the
           # published digest always corresponds to the tested commit.
 
+      - name: Normalize image name and ref tag
+        env:
+          REPOSITORY: ${{ github.repository }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          echo "IMAGE_NAME=${REPOSITORY,,}" >> "$GITHUB_ENV"
+          tag=$(printf '%s' "$REF_NAME" | sed 's/[^a-zA-Z0-9_.-]/-/g; s/^[.-]/_/')
+          echo "IMAGE_REF_TAG=${tag:0:128}" >> "$GITHUB_ENV"
+
       - name: Set up Node (pinned + npm cache)
-        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: okr-app/package-lock.json
 
       - name: Reproducible install from lockfile
-        run: npm ci
+        run: |
+          node --version
+          npm --version
+          npm ci || {
+            cat "$(npm config get cache)"/_logs/*-debug-0.log
+            exit 1
+          }
 
       - name: Production build (SvelteKit / adapter-node)
         run: npm run build
@@ -182,15 +202,15 @@ jobs:
       - name: Set up QEMU
         # Needed only if a multi-platform build is configured. Kept to a single
         # platform by default; see the registry prerequisite comment.
-        uses: docker/setup-qemu-action@2b82ce82d56a2a04d2637cd93a637ae1b359c0a7 # v3.2.0
+        uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3.2.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@6526bf1b3c5ccacce6d05af7b0f9b1b4df4d8a4c # v3.8.0
+        uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
 
       - name: Log in to GHCR
         # Uses the automatic GITHUB_TOKEN — no embedded/committed secret.
         # packages:write (job-scoped) is what authorises the push to GHCR.
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.2.0
+        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446 # v3.2.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -198,7 +218,7 @@ jobs:
 
       - name: Build, tag and push image to GHCR
         id: push
-        uses: docker/build-push-action@b32b51a8eda65d6793cd0494a773d4f6bcef32dc # v6.9.0
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
         with:
           context: ./okr-app
           file: okr-app/Dockerfile
@@ -206,7 +226,7 @@ jobs:
           platforms: linux/amd64 # default; add linux/arm64 only when a multi-arch builder is configured
           tags: |
             ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
-            ghcr.io/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+            ghcr.io/${{ env.IMAGE_NAME }}:${{ env.IMAGE_REF_TAG }}
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}

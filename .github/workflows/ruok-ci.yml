@@ -1,9 +1,9 @@
 # ============================================================================
-# RUOK CI — required backend matrix (WP10 / T037).
+# RUOK CI — required backend checks (WP10 / T037).
 #
 # Gates BOTH database backends with the same behavioural contract suite:
 #   - SQLite (default, no service)
-#   - PostgreSQL 16 and PostgreSQL 17 (real server services)
+#   - PostgreSQL 18 (latest stable major, real server service)
 #
 # Both backends are REQUIRED gates: no matrix entry, test step or build step is
 # allowed to fail (`continue-on-error` is never set on a test/build step, and
@@ -65,17 +65,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Set up Node (pinned + npm cache)
-        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: okr-app/package-lock.json
 
       - name: Reproducible install from lockfile
-        run: npm ci
+        run: |
+          node --version
+          npm --version
+          npm ci || {
+            cat "$(npm config get cache)"/_logs/*-debug-0.log
+            exit 1
+          }
 
       - name: Type-check (pre-existing UI baseline is non-blocking)
         # TODO: make this a required gate once the pre-existing `src/` baseline
@@ -96,17 +102,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Set up Node (pinned + npm cache)
-        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: okr-app/package-lock.json
 
       - name: Reproducible install from lockfile
-        run: npm ci
+        run: |
+          node --version
+          npm --version
+          npm ci || {
+            cat "$(npm config get cache)"/_logs/*-debug-0.log
+            exit 1
+          }
 
       - name: Required suite (npm test)
         # Output is captured so redacted failure evidence can be uploaded.
@@ -118,30 +130,25 @@ jobs:
 
       - name: Upload SQLite test evidence (on failure only)
         if: failure()
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8a75a5a1e # v4.4.3
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ci-sqlite-test-log
           path: ${{ runner.temp }}/ci-sqlite-test.log
           if-no-files-found: warn
 
   # ---------------------------------------------------------------------------
-  # test-postgres — required backend gates for PostgreSQL 16 and 17.
-  # Each matrix entry starts a REAL PostgreSQL server as a service and points
+  # test-postgres — required backend gate for PostgreSQL 18.
+  # Starts a REAL PostgreSQL server as a service and points
   # the real-backend suites at it via RUOK_TEST_PG_ADMIN_URL (the `postgres`
   # superuser owns CREATEDB, which the fixtures use to create a disposable
-  # database per test). `fail-fast: false` so one PG version failing never
-  # cancels the other. Neither entry is allowed to fail.
+  # database per test). This job is required to pass.
   # ---------------------------------------------------------------------------
   test-postgres:
-    name: Backend PostgreSQL ${{ matrix.pg-version }}
+    name: Backend PostgreSQL 18
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        pg-version: ['16', '17']
     services:
       postgres:
-        image: postgres:${{ matrix.pg-version }}
+        image: postgres:18
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -160,26 +167,32 @@ jobs:
       RUOK_TEST_PG_ADMIN_URL: postgres://postgres:postgres@localhost:5432/postgres
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Set up Node (pinned + npm cache)
-        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: okr-app/package-lock.json
 
       - name: Reproducible install from lockfile
-        run: npm ci
+        run: |
+          node --version
+          npm --version
+          npm ci || {
+            cat "$(npm config get cache)"/_logs/*-debug-0.log
+            exit 1
+          }
 
       - name: PostgreSQL contract matrix (npm run test:db:postgres)
         # Output is captured for redacted failure evidence (no secrets echoed).
-        run: npm run test:db:postgres 2>&1 | tee "$RUNNER_TEMP/ci-pg${{ matrix.pg-version }}-test.log"
+        run: npm run test:db:postgres 2>&1 | tee "$RUNNER_TEMP/ci-pg-test.log"
 
       - name: Upload PostgreSQL test evidence (on failure only)
         if: failure()
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8a75a5a1e # v4.4.3
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: ci-pg${{ matrix.pg-version }}-test-log
-          path: ${{ runner.temp }}/ci-pg${{ matrix.pg-version }}-test.log
+          name: ci-pg-test-log
+          path: ${{ runner.temp }}/ci-pg-test.log
           if-no-files-found: warn
