@@ -1,8 +1,8 @@
 # Mission Specification: Database review findings remediation
 
-**Mission**: `database-review-findings-remediation-01M5TGCE`  
-**Target Branch**: `plan/sqlite-postgresql-support`  
-**Created**: 2026-10-26  
+**Mission**: `database-review-findings-remediation-01M5TGCE`
+**Target Branch**: `plan/sqlite-postgresql-support`
+**Created**: 2026-10-26
 **Status**: Specified; implementation and verification pending
 
 **Input**: Fix all findings DRIFT-1 through DRIFT-5 and RISK-1 through RISK-2 in
