@@ -2,14 +2,14 @@
 # RUOK Image build & GHCR publication (WP10 / T038, T039, T040).
 #
 # Two strictly separated concerns:
-#   1. validate-image  — runs ONLY on pull_request. Builds the production image
+#   1. validate-image  — runs manually on the selected PR branch. Builds the production image
 #      from `okr-app` context (Dockerfile) and runs practical smoke checks.
 #      This job has LEAST-READ permissions, NO `packages:write`, NO push
 #      credentials, and NEVER performs a registry push or publication.
-#   2. publish         — runs ONLY on trusted push/release events. Has explicit
+#   2. publish         — runs ONLY on pushes to main. Has explicit
 #      `contents: read` + `packages: write` permissions and pushes an immutable
 #      SHA/digest-referenced image to GHCR. It checks out the trusted triggering
-#      ref directly (plain `push`/`release` events) — it never uses
+#      ref directly (plain `push` events) — it never uses
 #      `pull_request_target`, so untrusted PR content is never checked out.
 #
 # REGISTRY OWNERSHIP / VISIBILITY PREREQUISITE (recorded, not automated):
@@ -37,20 +37,15 @@
 name: RUOK Image Build & Publish
 
 on:
-  pull_request:
   push:
     branches:
       - main
-      - master
-      - 'plan/**'
-    tags:
-      - 'v*'
-  release:
-    types: [published]
+  # Select the PR's source branch in Actions > Run workflow.
+  workflow_dispatch:
 
 concurrency:
   group: ruok-image-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false # never cancel a release publish
+  cancel-in-progress: false # never cancel an image publish
 
 # Default for the whole workflow is least-read. The publish job overrides with
 # `packages: write` (and is the ONLY job that may push to a registry).
@@ -67,16 +62,16 @@ defaults:
 
 jobs:
   # ---------------------------------------------------------------------------
-  # validate-image — PR build-only + smoke checks. NO push capability.
+  # validate-image — manual branch build + smoke checks. NO push capability.
   # ---------------------------------------------------------------------------
   validate-image:
-    name: Validate image (PR)
-    if: github.event_name == 'pull_request'
+    name: Validate image (manual)
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: read # least-read; intentionally NO packages:write
     steps:
-      - name: Checkout PR head
+      - name: Checkout selected branch
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Set up Node (pinned + npm cache)
@@ -145,11 +140,11 @@ jobs:
           echo "Image smoke check PASSED (ready=200, health=200)"
 
   # ---------------------------------------------------------------------------
-  # publish — trusted branch/release publication. Push capability isolated here.
+  # publish — main branch publication. Push capability isolated here.
   # ---------------------------------------------------------------------------
   publish:
     name: Publish GHCR image
-    if: github.event_name == 'push' || github.event_name == 'release'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read  # checkout
@@ -159,7 +154,7 @@ jobs:
       digest: ${{ steps.push.outputs.digest }}
     steps:
       - name: Checkout trusted triggering ref
-        # push / release events are trusted; we checkout the exact commit that
+        # Main pushes are trusted; we checkout the exact commit that
         # triggered the run (github.sha). NOT pull_request_target, so no
         # untrusted PR content is ever checked out or built.
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
