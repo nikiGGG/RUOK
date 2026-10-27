@@ -1,7 +1,7 @@
 {
-  "event_count": 17,
-  "last_event_id": "01M5ZQ2F19V2DD61TS7YYB99MQ",
-  "materialized_at": "2026-10-27T22:18:09.833789+00:00",
+  "event_count": 18,
+  "last_event_id": "01M5ZQ2V826TFTZY9QPPM7JVBD",
+  "materialized_at": "2026-10-27T22:18:22.338356+00:00",
   "mission_number": "",
   "mission_slug": "database-review-findings-remediation-01M5TGCE",
   "mission_type": "software-dev",
@@ -11,9 +11,9 @@
     "canceled": 0,
     "claimed": 0,
     "done": 0,
-    "for_review": 2,
+    "for_review": 1,
     "in_progress": 0,
-    "in_review": 0,
+    "in_review": 1,
     "planned": 9
   },
   "work_packages": {
@@ -23,17 +23,17 @@
       "agent_profile": "__resolved_profile_absent__",
       "agent_profile_version": "__resolved_profile_version_absent__",
       "force_count": 0,
-      "lane": "for_review",
-      "last_event_id": "01M5ZPY2JCTV3NZ3DHJF51E5Q9",
-      "last_transition_at": "2026-10-27T22:15:45.996200+00:00",
+      "lane": "in_review",
+      "last_event_id": "01M5ZQ2V826TFTZY9QPPM7JVBD",
+      "last_transition_at": "2026-10-27T22:18:22.338356+00:00",
       "model": "__resolved_model_absent__",
       "notes": [
         "Ready for review: enforce effective PostgreSQL TLS (parseUrlSslControls + sanitizePostgresConnectionString + explicit canonical ssl in buildPostgresPoolConfig); 55 non-live tests pass, WP01-owned tsc clean; live T003 pending image registry"
       ],
       "provider": "__resolved_provider_absent__",
-      "role": "implementer",
-      "shell_pid": 81758,
-      "shell_pid_created_at": "1793137523.204286",
+      "role": "reviewer",
+      "shell_pid": 8225,
+      "shell_pid_created_at": "1793139500.248042",
       "subtasks": {
         "T001": "done",
         "T002": "done",
@@ -51,6 +51,9 @@
       "last_event_id": "01M5ZQ2F19V2DD61TS7YYB99MQ",
       "last_transition_at": "2026-10-27T22:18:09.833789+00:00",
       "model": "__resolved_model_absent__",
+      "notes": [
+        "Ready for review"
+      ],
       "provider": "__resolved_provider_absent__",
       "role": "implementer",
       "shell_pid": 82225,
