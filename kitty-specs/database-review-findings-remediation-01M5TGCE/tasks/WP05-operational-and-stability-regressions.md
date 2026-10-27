@@ -12,7 +12,10 @@ requirement_refs:
 - NFR-004
 planning_base_branch: plan/sqlite-postgresql-support
 merge_target_branch: plan/sqlite-postgresql-support
-branch_strategy: Planning artifacts for this mission were generated on plan/sqlite-postgresql-support. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into plan/sqlite-postgresql-support unless the human explicitly redirects the landing branch.
+branch_strategy: Planning artifacts for this mission were generated on plan/sqlite-postgresql-support.
+  During /spec-kitty.implement this WP may branch from a dependency-specific base,
+  but completed changes must merge back into plan/sqlite-postgresql-support unless
+  the human explicitly redirects the landing branch.
 subtasks:
 - T021
 - T022
@@ -23,6 +26,10 @@ history:
 - at: '2026-10-27T20:28:34Z'
   actor: codex
   action: Prompt authored; implementation not started
+- at: '2026-10-27T21:33:04Z'
+  actor: codex
+  action: Applied authorized consistency-analysis recommendations; implementation
+    remains unstarted
 agent_profile: node-norris
 authoritative_surface: okr-app/tests/
 create_intent:
@@ -41,13 +48,14 @@ role: implementer
 tags: []
 task_type: implement
 tracker_refs: []
+agent: qwen
 ---
 
 ## ⚡ Do This First: Load Agent Profile
 
 Use `/ad-hoc-profile-load` to load `node-norris` from frontmatter
 before parsing the rest of this prompt. The canonical profile-load skill may
-resolve the alias. Apply the loaded profile as `implementer` with `codex`.
+resolve the alias. Apply the loaded profile as `implementer` using Qwen CLI (`qwen`).
 Do not infer a different profile from the file name.
 
 # WP05 — Repair PostgreSQL operations and stability evidence
@@ -92,7 +100,7 @@ Before implementation the mission requires persisted `analysis-report.md` from
 Use the runtime-selected action, for example:
 
 ```bash
-spec-kitty agent action implement WP05 --agent codex
+spec-kitty agent action implement WP05 --agent qwen --mission database-review-findings-remediation-01M5TGCE
 ```
 
 Pass mission `database-review-findings-remediation-01M5TGCE` on mission-aware
@@ -147,10 +155,10 @@ Record completion using the event-log task command, not markdown checkboxes.
 **Purpose**: Deliver this bounded part of WP05 without weakening its oracle.
 
 **Implementation**:
-Add a side-effect-free command preflight requiring RUOK_TEST_PG_ADMIN_URL, reachable disposable PG18 and matching pg_dump/pg_restore/psql. Report missing prerequisites nonzero without credential output. Coordinate package command wiring with WP04.
+Add a side-effect-free command preflight requiring RUOK_TEST_PG_ADMIN_URL, reachable disposable PG18 and matching pg_dump/pg_restore/psql. Report missing prerequisites nonzero without credential output. Export a reusable assertPostgresPrerequisites helper and provide an executable bundled CLI mode. Verify it directly during WP05; WP11 wires package commands after the helper and all suites exist.
 
 **Expected result / validation**:
-Required backend/recovery/application commands cannot silently describe.skip; missing restore binary is checked before rehearsal.
+Direct preflight/recovery execution fails nonzero for missing prerequisites and checks pg_restore before rehearsal. Required recovery tests no longer describe.skip. WP11 later activates this preflight for all required package commands.
 
 **Boundary condition**:
 No dependency install or image substitution to bypass a corporate registry blocker.
@@ -256,3 +264,7 @@ never executes or fixture setup fails before the claimed assertion.
 ## Activity log
 
 - 2026-10-27T20:28:34Z — codex — Authored prompt and ownership; implementation not started.
+
+- 2026-10-27T21:33:04Z — codex — Updated planning instructions for Qwen handoff; no implementation started.
+
+Planning remediation: Follow amended dependency/ownership boundaries and Qwen execution instructions.

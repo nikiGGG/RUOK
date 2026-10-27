@@ -13,7 +13,10 @@ requirement_refs:
 - NFR-004
 planning_base_branch: plan/sqlite-postgresql-support
 merge_target_branch: plan/sqlite-postgresql-support
-branch_strategy: Planning artifacts for this mission were generated on plan/sqlite-postgresql-support. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into plan/sqlite-postgresql-support unless the human explicitly redirects the landing branch.
+branch_strategy: Planning artifacts for this mission were generated on plan/sqlite-postgresql-support.
+  During /spec-kitty.implement this WP may branch from a dependency-specific base,
+  but completed changes must merge back into plan/sqlite-postgresql-support unless
+  the human explicitly redirects the landing branch.
 subtasks:
 - T025
 - T026
@@ -25,6 +28,10 @@ history:
 - at: '2026-10-27T20:28:34Z'
   actor: codex
   action: Prompt authored; implementation not started
+- at: '2026-10-27T21:33:04Z'
+  actor: codex
+  action: Applied authorized consistency-analysis recommendations; implementation
+    remains unstarted
 agent_profile: node-norris
 authoritative_surface: okr-app/tests/application/
 create_intent:
@@ -49,13 +56,14 @@ role: implementer
 tags: []
 task_type: implement
 tracker_refs: []
+agent: qwen
 ---
 
 ## ⚡ Do This First: Load Agent Profile
 
 Use `/ad-hoc-profile-load` to load `node-norris` from frontmatter
 before parsing the rest of this prompt. The canonical profile-load skill may
-resolve the alias. Apply the loaded profile as `implementer` with `codex`.
+resolve the alias. Apply the loaded profile as `implementer` using Qwen CLI (`qwen`).
 Do not infer a different profile from the file name.
 
 # WP06 — Prove HTTP authorization and outage recovery
@@ -100,7 +108,7 @@ Before implementation the mission requires persisted `analysis-report.md` from
 Use the runtime-selected action, for example:
 
 ```bash
-spec-kitty agent action implement WP06 --agent codex
+spec-kitty agent action implement WP06 --agent qwen --mission database-review-findings-remediation-01M5TGCE
 ```
 
 Pass mission `database-review-findings-remediation-01M5TGCE` on mission-aware
@@ -144,7 +152,7 @@ Start built adapter-node on isolated port with checked migrations, private datab
 Fixture proves real HTTP reaches hooks/auth/repositories and cleans processes/roles/files on failure.
 
 **Boundary condition**:
-Keep fixture helper owned by WP06; WP07 imports it and uses separate suite files.
+Keep fixture/helper and sqlite.test.ts/postgres.test.ts owned by WP06; each entry imports auth.suite.ts and probes.suite.ts only. Verify both entries directly with installed Vitest and explicit backend before WP07 exists. WP07 supplies integrations.sqlite.test.ts/integrations.postgres.test.ts and imports this helper; no forward imports, dynamic optional discovery or edits to WP06 files are needed. WP11 later lists both pairs explicitly in package commands.
 
 **Execution record**:
 Record exact command, exit status, revision and versions for this subtask's proof.
@@ -195,7 +203,7 @@ Record completion using the event-log task command, not markdown checkboxes.
 **Purpose**: Deliver this bounded part of WP06 without weakening its oracle.
 
 **Implementation**:
-Use one application process across unavailable startup, first recovery, later outage and second recovery. Poll once per second with bounded requests and record monotonic timings/PID; include concurrent initialization, idle errors, saturated pool and held SQLite lock controls.
+Use one application process across unavailable startup, first recovery, later outage and second recovery. Poll once per second with bounded requests and record monotonic timings/PID; include concurrent initialization, idle errors and saturated pool. For SQLite, hold a real external write lock after startup, issue an authenticated ordinary application write and concurrently probe health/readiness on the same PID. Repeat with busy timeouts 0, 5000 and 30000 ms; retain the configured values, bound readiness queue wait to 3s, issue overlapping probes to prove coalescing/backpressure, then release the lock and verify recovery. Record write result separately without retry/replay.
 
 **Expected result / validation**:
 Health stays 200; readiness returns 503/200 within 5-second request, 10-second detection and 30-second recovery bounds without restart.
@@ -285,3 +293,7 @@ never executes or fixture setup fails before the claimed assertion.
 ## Activity log
 
 - 2026-10-27T20:28:34Z — codex — Authored prompt and ownership; implementation not started.
+
+- 2026-10-27T21:33:04Z — codex — Updated planning instructions for Qwen handoff; no implementation started.
+
+Planning remediation: Follow amended dependency/ownership boundaries and Qwen execution instructions.

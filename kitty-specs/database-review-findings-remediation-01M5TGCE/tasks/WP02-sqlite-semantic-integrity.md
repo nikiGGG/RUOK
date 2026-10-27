@@ -9,7 +9,10 @@ requirement_refs:
 - NFR-004
 planning_base_branch: plan/sqlite-postgresql-support
 merge_target_branch: plan/sqlite-postgresql-support
-branch_strategy: Planning artifacts for this mission were generated on plan/sqlite-postgresql-support. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into plan/sqlite-postgresql-support unless the human explicitly redirects the landing branch.
+branch_strategy: Planning artifacts for this mission were generated on plan/sqlite-postgresql-support.
+  During /spec-kitty.implement this WP may branch from a dependency-specific base,
+  but completed changes must merge back into plan/sqlite-postgresql-support unless
+  the human explicitly redirects the landing branch.
 subtasks:
 - T005
 - T006
@@ -21,6 +24,10 @@ history:
 - at: '2026-10-27T20:28:34Z'
   actor: codex
   action: Prompt authored; implementation not started
+- at: '2026-10-27T21:33:04Z'
+  actor: codex
+  action: Applied authorized consistency-analysis recommendations; implementation
+    remains unstarted
 agent_profile: node-norris
 authoritative_surface: okr-app/src/lib/db/migrations/
 create_intent:
@@ -44,13 +51,14 @@ role: implementer
 tags: []
 task_type: implement
 tracker_refs: []
+agent: qwen
 ---
 
 ## ⚡ Do This First: Load Agent Profile
 
 Use `/ad-hoc-profile-load` to load `node-norris` from frontmatter
 before parsing the rest of this prompt. The canonical profile-load skill may
-resolve the alias. Apply the loaded profile as `implementer` with `codex`.
+resolve the alias. Apply the loaded profile as `implementer` using Qwen CLI (`qwen`).
 Do not infer a different profile from the file name.
 
 # WP02 — Reject incompatible SQLite definitions
@@ -95,7 +103,7 @@ Before implementation the mission requires persisted `analysis-report.md` from
 Use the runtime-selected action, for example:
 
 ```bash
-spec-kitty agent action implement WP02 --agent codex
+spec-kitty agent action implement WP02 --agent qwen --mission database-review-findings-remediation-01M5TGCE
 ```
 
 Pass mission `database-review-findings-remediation-01M5TGCE` on mission-aware
@@ -282,3 +290,5 @@ never executes or fixture setup fails before the claimed assertion.
 ## Activity log
 
 - 2026-10-27T20:28:34Z — codex — Authored prompt and ownership; implementation not started.
+
+- 2026-10-27T21:33:04Z — codex — Updated planning instructions for Qwen handoff; no implementation started.

@@ -10,7 +10,10 @@ requirement_refs:
 - NFR-004
 planning_base_branch: plan/sqlite-postgresql-support
 merge_target_branch: plan/sqlite-postgresql-support
-branch_strategy: Planning artifacts for this mission were generated on plan/sqlite-postgresql-support. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into plan/sqlite-postgresql-support unless the human explicitly redirects the landing branch.
+branch_strategy: Planning artifacts for this mission were generated on plan/sqlite-postgresql-support.
+  During /spec-kitty.implement this WP may branch from a dependency-specific base,
+  but completed changes must merge back into plan/sqlite-postgresql-support unless
+  the human explicitly redirects the landing branch.
 subtasks:
 - T030
 - T031
@@ -22,12 +25,18 @@ history:
 - at: '2026-10-27T20:28:34Z'
   actor: codex
   action: Prompt authored; implementation not started
+- at: '2026-10-27T21:33:04Z'
+  actor: codex
+  action: Applied authorized consistency-analysis recommendations; implementation
+    remains unstarted
 agent_profile: node-norris
 authoritative_surface: okr-app/tests/application/
 create_intent:
 - okr-app/tests/application/integrations.suite.ts
 - okr-app/tests/application/plugin-fixture.ts
 - okr-app/docs/reviews/evidence/database-review-remediation/WP07/
+- okr-app/tests/application/integrations.sqlite.test.ts
+- okr-app/tests/application/integrations.postgres.test.ts
 execution_mode: code_change
 owned_files:
 - okr-app/tests/application/integrations.suite.ts
@@ -39,17 +48,20 @@ owned_files:
 - okr-app/src/routes/api/ai/tool/
 - okr-app/src/lib/server/ai/tools/
 - okr-app/docs/reviews/evidence/database-review-remediation/WP07/
+- okr-app/tests/application/integrations.sqlite.test.ts
+- okr-app/tests/application/integrations.postgres.test.ts
 role: implementer
 tags: []
 task_type: implement
 tracker_refs: []
+agent: qwen
 ---
 
 ## ⚡ Do This First: Load Agent Profile
 
 Use `/ad-hoc-profile-load` to load `node-norris` from frontmatter
 before parsing the rest of this prompt. The canonical profile-load skill may
-resolve the alias. Apply the loaded profile as `implementer` with `codex`.
+resolve the alias. Apply the loaded profile as `implementer` using Qwen CLI (`qwen`).
 Do not infer a different profile from the file name.
 
 # WP07 — Verify scheduler query friend and AI paths
@@ -94,7 +106,7 @@ Before implementation the mission requires persisted `analysis-report.md` from
 Use the runtime-selected action, for example:
 
 ```bash
-spec-kitty agent action implement WP07 --agent codex
+spec-kitty agent action implement WP07 --agent qwen --mission database-review-findings-remediation-01M5TGCE
 ```
 
 Pass mission `database-review-findings-remediation-01M5TGCE` on mission-aware
@@ -118,6 +130,8 @@ specific rationale and coordinate ownership before implementation.
 - `okr-app/src/routes/api/ai/tool/`
 - `okr-app/src/lib/server/ai/tools/`
 - `okr-app/docs/reviews/evidence/database-review-remediation/WP07/`
+- `okr-app/tests/application/integrations.sqlite.test.ts`
+- `okr-app/tests/application/integrations.postgres.test.ts`
 
 Do not edit `.github/workflows/`, CI/CD logic, triggers, gates, permissions,
 publication settings or repository branch settings. Do not deploy or publish.
@@ -214,7 +228,7 @@ Apply a controlled async bridge-result fault in an isolated source copy; require
 Fault demonstrably breaks the expected async result, restored path passes and scheduler/query/friend/AI artifacts are durable.
 
 **Boundary condition**:
-Reuse WP06 fixture/entry files without editing their ownership; communicate fixture API changes to WP06.
+Import the WP06 fixture without editing its files. Create integrations.sqlite.test.ts and integrations.postgres.test.ts, each registering integrations.suite.ts with the selected real backend. Run these entry files directly with installed Vitest; they must fail if no tests or prerequisites are missing. WP11 later explicitly adds them to package commands.
 
 **Execution record**:
 Record exact command, exit status, revision and versions for this subtask's proof.
@@ -279,3 +293,7 @@ never executes or fixture setup fails before the claimed assertion.
 ## Activity log
 
 - 2026-10-27T20:28:34Z — codex — Authored prompt and ownership; implementation not started.
+
+- 2026-10-27T21:33:04Z — codex — Updated planning instructions for Qwen handoff; no implementation started.
+
+Planning remediation: Follow amended dependency/ownership boundaries and Qwen execution instructions.

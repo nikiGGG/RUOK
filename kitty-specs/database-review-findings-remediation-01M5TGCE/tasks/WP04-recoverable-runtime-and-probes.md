@@ -3,6 +3,7 @@ work_package_id: WP04
 title: Recover initialization and keep probes truthful
 dependencies:
 - WP03
+- WP10
 requirement_refs:
 - FR-003
 - FR-006
@@ -12,7 +13,10 @@ requirement_refs:
 - NFR-004
 planning_base_branch: plan/sqlite-postgresql-support
 merge_target_branch: plan/sqlite-postgresql-support
-branch_strategy: Planning artifacts for this mission were generated on plan/sqlite-postgresql-support. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into plan/sqlite-postgresql-support unless the human explicitly redirects the landing branch.
+branch_strategy: Planning artifacts for this mission were generated on plan/sqlite-postgresql-support.
+  During /spec-kitty.implement this WP may branch from a dependency-specific base,
+  but completed changes must merge back into plan/sqlite-postgresql-support unless
+  the human explicitly redirects the landing branch.
 subtasks:
 - T014
 - T015
@@ -26,11 +30,13 @@ history:
 - at: '2026-10-27T20:28:34Z'
   actor: codex
   action: Prompt authored; implementation not started
+- at: '2026-10-27T21:33:04Z'
+  actor: codex
+  action: Applied authorized consistency-analysis recommendations; implementation
+    remains unstarted
 agent_profile: node-norris
 authoritative_surface: okr-app/src/lib/db/
 create_intent:
-- okr-app/src/lib/db/migrations/startup-worker.ts
-- okr-app/scripts/build-startup-worker.ts
 - okr-app/tests/db/availability.test.ts
 - okr-app/docs/reviews/evidence/database-review-remediation/WP04/
 execution_mode: code_change
@@ -38,16 +44,10 @@ owned_files:
 - okr-app/src/lib/db/contracts.ts
 - okr-app/src/lib/db/lifecycle.ts
 - okr-app/src/lib/db/adapters/postgres.ts
-- okr-app/src/lib/db/adapters/sqlite.ts
 - okr-app/src/lib/server/database.ts
 - okr-app/src/hooks.server.ts
 - okr-app/src/routes/api/health/+server.ts
 - okr-app/src/routes/api/ready/+server.ts
-- okr-app/src/lib/db/migrations/startup-worker.ts
-- okr-app/scripts/build-startup-worker.ts
-- okr-app/package.json
-- okr-app/Dockerfile
-- okr-app/vite.config.ts
 - okr-app/tests/db/lifecycle.test.ts
 - okr-app/tests/db/failure.test.ts
 - okr-app/tests/db/availability.test.ts
@@ -56,13 +56,14 @@ role: implementer
 tags: []
 task_type: implement
 tracker_refs: []
+agent: qwen
 ---
 
 ## ⚡ Do This First: Load Agent Profile
 
 Use `/ad-hoc-profile-load` to load `node-norris` from frontmatter
 before parsing the rest of this prompt. The canonical profile-load skill may
-resolve the alias. Apply the loaded profile as `implementer` with `codex`.
+resolve the alias. Apply the loaded profile as `implementer` using Qwen CLI (`qwen`).
 Do not infer a different profile from the file name.
 
 # WP04 — Recover initialization and keep probes truthful
@@ -72,7 +73,7 @@ Do not infer a different profile from the file name.
 One retryable lifecycle owner supports explicit runtime verification, bounded live readiness and process-only health without stale attempts or leaked resources.
 
 Independent review evidence:
-Focused real-backend lifecycle/availability tests, mode propagation and built worker smoke; WP06 supplies full timed HTTP outage traces.
+Focused real-backend lifecycle/availability tests, mode propagation and packaged WP10 worker smoke; WP06 supplies full HTTP traces during authenticated writes blocked by real SQLite locks.
 
 Priority: P1. Tests and durable evidence are explicitly required by the spec.
 Requirement refs: FR-003, FR-006, FR-008, NFR-001, NFR-002, NFR-004.
@@ -98,7 +99,7 @@ No implementation or executed regression is claimed by this prompt.
 
 Planning base: `plan/sqlite-postgresql-support`.
 Final merge target: `plan/sqlite-postgresql-support`.
-Dependencies: WP03.
+Dependencies: WP03, WP10.
 Use computed `lanes.json` to find the actual execution branch/worktree.
 One worktree belongs to a computed lane, not automatically to each WP.
 Do not create an ad-hoc branch or edit the planning checkout during implementation.
@@ -107,7 +108,7 @@ Before implementation the mission requires persisted `analysis-report.md` from
 Use the runtime-selected action, for example:
 
 ```bash
-spec-kitty agent action implement WP04 --agent codex
+spec-kitty agent action implement WP04 --agent qwen --mission database-review-findings-remediation-01M5TGCE
 ```
 
 Pass mission `database-review-findings-remediation-01M5TGCE` on mission-aware
@@ -125,16 +126,10 @@ specific rationale and coordinate ownership before implementation.
 - `okr-app/src/lib/db/contracts.ts`
 - `okr-app/src/lib/db/lifecycle.ts`
 - `okr-app/src/lib/db/adapters/postgres.ts`
-- `okr-app/src/lib/db/adapters/sqlite.ts`
 - `okr-app/src/lib/server/database.ts`
 - `okr-app/src/hooks.server.ts`
 - `okr-app/src/routes/api/health/+server.ts`
 - `okr-app/src/routes/api/ready/+server.ts`
-- `okr-app/src/lib/db/migrations/startup-worker.ts`
-- `okr-app/scripts/build-startup-worker.ts`
-- `okr-app/package.json`
-- `okr-app/Dockerfile`
-- `okr-app/vite.config.ts`
 - `okr-app/tests/db/lifecycle.test.ts`
 - `okr-app/tests/db/failure.test.ts`
 - `okr-app/tests/db/availability.test.ts`
@@ -172,7 +167,7 @@ Record completion using the event-log task command, not markdown checkboxes.
 **Purpose**: Deliver this bounded part of WP04 without weakening its oracle.
 
 **Implementation**:
-Extend DatabaseServices with checkAvailability against a required application table. Bound pg checkout and query within a 3-second total probe budget, release/destroy timed-out resources and handle idle pool errors. Keep SQLite lock wait below budget.
+Extend DatabaseServices with checkAvailability against a required application table. Bound pg checkout and query within a 3-second total probe budget, release/destroy timed-out resources and handle idle pool errors. Use WP10 asynchronous worker availability request: readiness wait is at most 3s including queue time, while all SQLite lock waits stay in the worker with configured busy timeout preserved. Expired checks are not queued repeatedly and cannot cancel or replay an active business transaction.
 
 **Expected result / validation**:
 Saturated pool, actual outage and idle errors report unavailable without process termination or leaked work; later success can recover.
@@ -224,18 +219,18 @@ Keep failing-before and passing-after outputs distinguishable; fixture errors
 cannot stand in for the intended regression assertion.
 Record completion using the event-log task command, not markdown checkboxes.
 
-### T018 — Isolate SQLite startup work and package worker
+### T018 — Integrate worker-owned SQLite initialization
 
 **Purpose**: Deliver this bounded part of WP04 without weakening its oracle.
 
 **Implementation**:
-Run synchronous SQLite migration/lock waits off the HTTP event loop with an isolated worker-owned handle. Fence completion and await cleanup before replacement. Add explicit build helper and package worker artifact in adapter-node and existing production image.
+Consume WP10 runSqlitePreparation(config, options) and its worker-backed SqliteDatabaseServices facade; never invoke SQLite bootstrap or runtime SQL on the HTTP thread. Fence preparation/runtime generations and await owned-handle cleanup before replacement. Reuse WP10 packaging rather than editing worker/build files.
 
 **Expected result / validation**:
-Held SQLite lock leaves health responsive; production artifact resolves worker without dev dependencies.
+Worker-owned preparation, runtime writes and availability integrate with one lifecycle owner; no stale generation can publish after close. WP10 build output resolves worker entrypoints without dev dependencies.
 
 **Boundary condition**:
-Do not rewrite repositories around workers or copy secret environment data into generated bundles.
+Keep the existing awaitable repository/atomic-operation contract and use WP10 internal message APIs. Never replay writes on timeout or terminate the business worker merely because a readiness wait expired.
 
 **Execution record**:
 Record exact command, exit status, revision and versions for this subtask's proof.
@@ -243,18 +238,18 @@ Keep failing-before and passing-after outputs distinguishable; fixture errors
 cannot stand in for the intended regression assertion.
 Record completion using the event-log task command, not markdown checkboxes.
 
-### T019 — Register required test entrypoints without CI edits
+### T019 — Verify worker build and lifecycle integration
 
 **Purpose**: Deliver this bounded part of WP04 without weakening its oracle.
 
 **Implementation**:
-Wire package scripts for test:application:sqlite and test:application:postgres to WP06/WP07 suites and required prerequisite checks from WP05. Keep default/full/backend suites intact and extend discovery as appropriate. Coordinate exact paths before editing package.json.
+Build using WP10 Vite worker emission and the existing npm run build command; verify lazy imports and dev/test worker resolution plus startup/close behavior in the packaged app. Run focused existing lifecycle/failure and WP10 worker suites directly with installed Vitest. WP11 alone activates package commands after WP05/WP06/WP07 files exist; do not refer to absent downstream suites from current commands.
 
 **Expected result / validation**:
-No required suite is optionalized; production build includes worker and application test commands target the planned files.
+Existing commands continue to target existing files and build output contains worker artifacts; no new command requires a future package. Focused lifecycle and worker suites are independently executable before WP05/WP06.
 
 **Boundary condition**:
-WP04 alone owns package.json/Dockerfile/build config; other WPs report integration needs rather than editing them.
+WP10 owns SQLite facade/worker/build helper/Vite config/Dockerfile; WP11 owns package.json command wiring. WP04 consumes their established interfaces and owns lifecycle/probes/PostgreSQL adapter only.
 
 **Execution record**:
 Record exact command, exit status, revision and versions for this subtask's proof.
@@ -338,3 +333,7 @@ never executes or fixture setup fails before the claimed assertion.
 ## Activity log
 
 - 2026-10-27T20:28:34Z — codex — Authored prompt and ownership; implementation not started.
+
+- 2026-10-27T21:33:04Z — codex — Updated planning instructions for Qwen handoff; no implementation started.
+
+Planning remediation: Consumes WP10 runtime isolation; command activation belongs to WP11.

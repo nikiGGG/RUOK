@@ -4,6 +4,7 @@ title: Make manual image verification fail truthfully
 dependencies:
 - WP05
 - WP07
+- WP11
 requirement_refs:
 - FR-004
 - FR-008
@@ -12,7 +13,10 @@ requirement_refs:
 - NFR-004
 planning_base_branch: plan/sqlite-postgresql-support
 merge_target_branch: plan/sqlite-postgresql-support
-branch_strategy: Planning artifacts for this mission were generated on plan/sqlite-postgresql-support. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into plan/sqlite-postgresql-support unless the human explicitly redirects the landing branch.
+branch_strategy: Planning artifacts for this mission were generated on plan/sqlite-postgresql-support.
+  During /spec-kitty.implement this WP may branch from a dependency-specific base,
+  but completed changes must merge back into plan/sqlite-postgresql-support unless
+  the human explicitly redirects the landing branch.
 subtasks:
 - T035
 - T036
@@ -23,6 +27,10 @@ history:
 - at: '2026-10-27T20:28:34Z'
   actor: codex
   action: Prompt authored; implementation not started
+- at: '2026-10-27T21:33:04Z'
+  actor: codex
+  action: Applied authorized consistency-analysis recommendations; implementation
+    remains unstarted
 agent_profile: node-norris
 authoritative_surface: okr-app/tests/container/
 create_intent:
@@ -39,13 +47,14 @@ role: implementer
 tags: []
 task_type: implement
 tracker_refs: []
+agent: qwen
 ---
 
 ## ⚡ Do This First: Load Agent Profile
 
 Use `/ad-hoc-profile-load` to load `node-norris` from frontmatter
 before parsing the rest of this prompt. The canonical profile-load skill may
-resolve the alias. Apply the loaded profile as `implementer` with `codex`.
+resolve the alias. Apply the loaded profile as `implementer` using Qwen CLI (`qwen`).
 Do not infer a different profile from the file name.
 
 # WP08 — Make manual image verification fail truthfully
@@ -81,7 +90,7 @@ No implementation or executed regression is claimed by this prompt.
 
 Planning base: `plan/sqlite-postgresql-support`.
 Final merge target: `plan/sqlite-postgresql-support`.
-Dependencies: WP05, WP07.
+Dependencies: WP05, WP07, WP11.
 Use computed `lanes.json` to find the actual execution branch/worktree.
 One worktree belongs to a computed lane, not automatically to each WP.
 Do not create an ad-hoc branch or edit the planning checkout during implementation.
@@ -90,7 +99,7 @@ Before implementation the mission requires persisted `analysis-report.md` from
 Use the runtime-selected action, for example:
 
 ```bash
-spec-kitty agent action implement WP08 --agent codex
+spec-kitty agent action implement WP08 --agent qwen --mission database-review-findings-remediation-01M5TGCE
 ```
 
 Pass mission `database-review-findings-remediation-01M5TGCE` on mission-aware
@@ -253,3 +262,7 @@ never executes or fixture setup fails before the claimed assertion.
 ## Activity log
 
 - 2026-10-27T20:28:34Z — codex — Authored prompt and ownership; implementation not started.
+
+- 2026-10-27T21:33:04Z — codex — Updated planning instructions for Qwen handoff; no implementation started.
+
+Planning remediation: Follow amended dependency/ownership boundaries and Qwen execution instructions.

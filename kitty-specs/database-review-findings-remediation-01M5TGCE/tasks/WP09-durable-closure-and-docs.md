@@ -10,6 +10,8 @@ dependencies:
 - WP06
 - WP07
 - WP08
+- WP10
+- WP11
 requirement_refs:
 - FR-007
 - FR-008
@@ -18,7 +20,10 @@ requirement_refs:
 - NFR-004
 planning_base_branch: plan/sqlite-postgresql-support
 merge_target_branch: plan/sqlite-postgresql-support
-branch_strategy: Planning artifacts for this mission were generated on plan/sqlite-postgresql-support. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into plan/sqlite-postgresql-support unless the human explicitly redirects the landing branch.
+branch_strategy: Planning artifacts for this mission were generated on plan/sqlite-postgresql-support.
+  During /spec-kitty.implement this WP may branch from a dependency-specific base,
+  but completed changes must merge back into plan/sqlite-postgresql-support unless
+  the human explicitly redirects the landing branch.
 subtasks:
 - T039
 - T040
@@ -30,6 +35,10 @@ history:
 - at: '2026-10-27T20:28:34Z'
   actor: codex
   action: Prompt authored; implementation not started
+- at: '2026-10-27T21:33:04Z'
+  actor: codex
+  action: Applied authorized consistency-analysis recommendations; implementation
+    remains unstarted
 agent_profile: curator-carla
 authoritative_surface: okr-app/docs/
 create_intent:
@@ -45,13 +54,14 @@ role: curator
 tags: []
 task_type: implement
 tracker_refs: []
+agent: qwen
 ---
 
 ## ⚡ Do This First: Load Agent Profile
 
 Use `/ad-hoc-profile-load` to load `curator-carla` from frontmatter
 before parsing the rest of this prompt. The canonical profile-load skill may
-resolve the alias. Apply the loaded profile as `curator` with `codex`.
+resolve the alias. Apply the loaded profile as `curator` using Qwen CLI (`qwen`).
 Do not infer a different profile from the file name.
 
 # WP09 — Reconcile evidence and operating documentation
@@ -87,7 +97,7 @@ No implementation or executed regression is claimed by this prompt.
 
 Planning base: `plan/sqlite-postgresql-support`.
 Final merge target: `plan/sqlite-postgresql-support`.
-Dependencies: WP01, WP02, WP03, WP04, WP05, WP06, WP07, WP08.
+Dependencies: WP01, WP02, WP03, WP04, WP05, WP06, WP07, WP08, WP10, WP11.
 Use computed `lanes.json` to find the actual execution branch/worktree.
 One worktree belongs to a computed lane, not automatically to each WP.
 Do not create an ad-hoc branch or edit the planning checkout during implementation.
@@ -96,7 +106,7 @@ Before implementation the mission requires persisted `analysis-report.md` from
 Use the runtime-selected action, for example:
 
 ```bash
-spec-kitty agent action implement WP09 --agent codex
+spec-kitty agent action implement WP09 --agent qwen --mission database-review-findings-remediation-01M5TGCE
 ```
 
 Pass mission `database-review-findings-remediation-01M5TGCE` on mission-aware
@@ -129,7 +139,7 @@ Do not install or upgrade dependencies as an incidental fix.
 **Purpose**: Deliver this bounded part of WP09 without weakening its oracle.
 
 **Implementation**:
-Collect links from WP01–WP08 evidence directories and verify baseline/fault and fixed run commands, statuses, times, revisions/diffs, environment versions, image identities and checksums. Redact secret material and distinguish local IDs from digests.
+Collect links from WP01–WP08, WP10 and WP11 evidence directories and verify baseline/fault and fixed run commands, statuses, times, revisions/diffs, environment versions, image identities and checksums. Redact secret material and distinguish local IDs from digests.
 
 **Expected result / validation**:
 Each of six rows has replayable durable artifacts; missing or blocked proof remains incomplete.
@@ -276,3 +286,7 @@ never executes or fixture setup fails before the claimed assertion.
 ## Activity log
 
 - 2026-10-27T20:28:34Z — codex — Authored prompt and ownership; implementation not started.
+
+- 2026-10-27T21:33:04Z — codex — Updated planning instructions for Qwen handoff; no implementation started.
+
+Planning remediation: Follow amended dependency/ownership boundaries and Qwen execution instructions.

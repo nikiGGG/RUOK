@@ -80,28 +80,51 @@
       "parallel_group": 1
     },
     {
+      "lane_id": "lane-j",
+      "wp_ids": [
+        "WP10"
+      ],
+      "write_scope": [
+        "okr-app/Dockerfile",
+        "okr-app/docs/reviews/evidence/database-review-remediation/WP10/",
+        "okr-app/scripts/build-database-workers.ts",
+        "okr-app/src/lib/db/adapters/sqlite-local.ts",
+        "okr-app/src/lib/db/adapters/sqlite-worker-client.ts",
+        "okr-app/src/lib/db/adapters/sqlite-worker-protocol.ts",
+        "okr-app/src/lib/db/adapters/sqlite-worker.ts",
+        "okr-app/src/lib/db/adapters/sqlite.ts",
+        "okr-app/tests/db/sqlite-worker.test.ts",
+        "okr-app/vite.config.ts"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "artifact-rendering",
+        "legacy-cleanup",
+        "tests",
+        "tracker-integration"
+      ],
+      "depends_on_lanes": [
+        "lane-c"
+      ],
+      "parallel_group": 2
+    },
+    {
       "lane_id": "lane-d",
       "wp_ids": [
         "WP04"
       ],
       "write_scope": [
-        "okr-app/Dockerfile",
         "okr-app/docs/reviews/evidence/database-review-remediation/WP04/",
-        "okr-app/package.json",
-        "okr-app/scripts/build-startup-worker.ts",
         "okr-app/src/hooks.server.ts",
         "okr-app/src/lib/db/adapters/postgres.ts",
-        "okr-app/src/lib/db/adapters/sqlite.ts",
         "okr-app/src/lib/db/contracts.ts",
         "okr-app/src/lib/db/lifecycle.ts",
-        "okr-app/src/lib/db/migrations/startup-worker.ts",
         "okr-app/src/lib/server/database.ts",
         "okr-app/src/routes/api/health/+server.ts",
         "okr-app/src/routes/api/ready/+server.ts",
         "okr-app/tests/db/availability.test.ts",
         "okr-app/tests/db/failure.test.ts",
-        "okr-app/tests/db/lifecycle.test.ts",
-        "okr-app/vite.config.ts"
+        "okr-app/tests/db/lifecycle.test.ts"
       ],
       "predicted_surfaces": [
         "api",
@@ -110,9 +133,10 @@
         "tracker-integration"
       ],
       "depends_on_lanes": [
-        "lane-c"
+        "lane-c",
+        "lane-j"
       ],
-      "parallel_group": 2
+      "parallel_group": 3
     },
     {
       "lane_id": "lane-e",
@@ -136,7 +160,7 @@
       "depends_on_lanes": [
         "lane-d"
       ],
-      "parallel_group": 3
+      "parallel_group": 4
     },
     {
       "lane_id": "lane-f",
@@ -162,7 +186,7 @@
       "depends_on_lanes": [
         "lane-d"
       ],
-      "parallel_group": 3
+      "parallel_group": 4
     },
     {
       "lane_id": "lane-g",
@@ -177,6 +201,8 @@
         "okr-app/src/routes/api/ai/tool/",
         "okr-app/src/routes/api/friends/",
         "okr-app/src/routes/api/queries/",
+        "okr-app/tests/application/integrations.postgres.test.ts",
+        "okr-app/tests/application/integrations.sqlite.test.ts",
         "okr-app/tests/application/integrations.suite.ts",
         "okr-app/tests/application/plugin-fixture.ts"
       ],
@@ -190,7 +216,28 @@
       "depends_on_lanes": [
         "lane-f"
       ],
-      "parallel_group": 4
+      "parallel_group": 5
+    },
+    {
+      "lane_id": "lane-k",
+      "wp_ids": [
+        "WP11"
+      ],
+      "write_scope": [
+        "okr-app/docs/reviews/evidence/database-review-remediation/WP11/",
+        "okr-app/package.json",
+        "okr-app/tests/verification/command-coverage.test.ts"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "artifact-rendering",
+        "legacy-cleanup"
+      ],
+      "depends_on_lanes": [
+        "lane-e",
+        "lane-g"
+      ],
+      "parallel_group": 6
     },
     {
       "lane_id": "lane-h",
@@ -212,9 +259,10 @@
       ],
       "depends_on_lanes": [
         "lane-e",
-        "lane-g"
+        "lane-g",
+        "lane-k"
       ],
-      "parallel_group": 5
+      "parallel_group": 7
     },
     {
       "lane_id": "lane-i",
@@ -240,13 +288,15 @@
         "lane-e",
         "lane-f",
         "lane-g",
-        "lane-h"
+        "lane-h",
+        "lane-j",
+        "lane-k"
       ],
-      "parallel_group": 6
+      "parallel_group": 8
     }
   ],
-  "computed_at": "2026-10-27T20:35:20.066822+00:00",
+  "computed_at": "2026-10-27T21:36:12.418968+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [],
-  "planning_commit_sha": "4bce44fd0b6ed17a8c9324001c90960160198451"
+  "planning_commit_sha": "ba9011c8f3011bcfd208619d05aca72fa7cc7597"
 }

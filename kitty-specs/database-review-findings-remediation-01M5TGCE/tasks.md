@@ -2,15 +2,16 @@
 
 **Mission**: `database-review-findings-remediation-01M5TGCE`.
 **Planning base / merge target**: `plan/sqlite-postgresql-support`.
-**Status**: Task authoring only; implementation/review/execution pending.
+**Status**: Planning amendments only; implementation/review remain unstarted.
+**Execution handoff**: Qwen CLI (`qwen`) on the operator's other device.
 **Inputs**: [spec.md](spec.md), [plan.md](plan.md), [research.md](research.md),
 [data-model.md](data-model.md), [runtime contract](contracts/runtime-and-verification.md),
 [quickstart.md](quickstart.md).
 
 All six in-scope findings require executed regression and durable before/after
 proof. RISK-2 remains unresolved/operator-deferred. CI/CD/workflows/settings are
-frozen. A required Docker image download failure immediately stops ALL mission
-work until operator help and explicit direction; no workaround or substituted image.
+frozen. Any required image-download failure stops ALL mission work until explicit
+operator direction. No substitute image/registry/network workaround is allowed.
 
 ## Package graph and sequencing
 
@@ -18,48 +19,58 @@ work until operator help and explicit direction; no workaround or substituted im
 flowchart LR
  WP01[TLS] --> WP03[No-DDL mode]
  WP02[SQLite integrity] --> WP03
- WP03 --> WP04[Runtime and probes]
+ WP03 --> WP10[All SQLite execution isolation]
+ WP10 --> WP04[Lifecycle and probes]
+ WP03 --> WP04
  WP04 --> WP05[Operations and stability]
- WP04 --> WP06[HTTP auth and recovery]
- WP06 --> WP07[Application integrations]
- WP05 --> WP08[Manual image proof]
+ WP04 --> WP06[HTTP auth and lock recovery]
+ WP06 --> WP07[Application integration entry files]
+ WP05 --> WP11[Complete required command activation]
+ WP07 --> WP11
+ WP11 --> WP08[Manual production images]
+ WP05 --> WP08
  WP07 --> WP08
- WP08 --> WP09[Evidence and operating docs]
+ WP08 --> WP09[Final evidence and docs]
 ```
 
-WP09 also depends directly on WP01–WP07 for their evidence handoffs.
-WP01/WP02 are independent; WP05/WP06 can proceed independently after WP04.
-These are dependency opportunities only; actual execution lanes come from
-finalizer-generated lanes.json. No agent delegation is started by task authoring.
+WP09 also depends directly on every other package's evidence. Stable identifiers
+are retained: WP10 executes before WP04 and WP11 before WP08. Dependency/lane
+metadata determines ordering, not numeric IDs. WP01/WP02 and, after WP04,
+WP05/WP06 are independent. No agent delegation starts during planning.
 
 ## Ownership and interface safeguards
 
-- WP01 exclusively owns config.ts; shared migration-mode helper belongs to WP03.
-- WP02 owns SQLite descriptor contracts/inspection; WP03 consumes them and owns migration orchestration/PostgreSQL verification.
-- WP04 exclusively owns lifecycle/adapters/hooks/probes, package.json, Dockerfile and worker/build integration.
-- WP05 owns operational/recovery/stability tests and required PostgreSQL preflight; WP04 wires the commands.
-- WP06 owns the built HTTP fixture and backend entry files. WP07 imports that fixture and writes separate integration/provider files.
-- WP07 owns scheduler/query/friend/AI integration source changes if demonstrated necessary; no speculative product changes.
-- WP08 owns container scripts/README; package/build requests go to WP04.
-- Every WP owns a distinct evidence subdirectory. WP09 owns final reconciliation evidence and links earlier artifacts.
-- Coordinate small necessary out-of-map fixes explicitly. No two WPs may claim the same source path implicitly.
+- WP01 owns config.ts; WP03 owns shared migration mode and migration orchestration.
+- WP02 owns semantic SQLite descriptor/inspection files; checked histories are unchanged.
+- WP10 owns SQLite facade/private SQL engine/protocol/workers, helper, Vite config and Dockerfile. It preserves promise-returning DatabaseServices and all configured busy timeouts inside the worker.
+- WP04 owns lifecycle/contracts/PostgreSQL adapter/hooks/probes and consumes WP10 runSqlitePreparation plus worker facade; it never owns package.json or SQLite implementation/build files.
+- WP05 owns operational/recovery/stability tests and the executable PostgreSQL preflight; it verifies these directly before package activation.
+- WP06 owns HTTP fixture and sqlite.test.ts/postgres.test.ts, importing auth/probes suites only. No reference to absent WP07 suites is permitted.
+- WP07 owns integrations.suite.ts/provider fixture and integrations.sqlite.test.ts/integrations.postgres.test.ts. It imports WP06 helper but never rewrites WP06 entry files.
+- WP11 alone owns package.json; it explicitly activates both application entry pairs plus WP05 required preflight after those files exist. Existing full/backend coverage is preserved.
+- WP08 owns container scripts/README and consumes the complete WP11 commands/build boundary.
+- Every WP owns a separate evidence subdirectory. WP09 links earlier evidence without rewriting it.
+- Coordinate necessary out-of-map fixes explicitly; no implicit overlapping file ownership.
 
-No partial MVP can satisfy mission acceptance: all six findings need proof. WP01
-is the first independently reviewable security increment, not release readiness.
+WP01 is a reviewable security increment, not an acceptance MVP: all six findings
+still require final proof. Worker placement is internal; business APIs, atomic
+operations, schema, backup format, timeout configuration and probe targets remain.
 
 ## Work package overview
 
-| WP | Goal | Subtasks | Dependencies | Concern/finding |
+| WP | Goal | Subtasks | Dependencies | Requirement focus |
 |---|---|---:|---|---|
-| [WP01](tasks/WP01-effective-postgres-tls.md) | Enforce effective PostgreSQL TLS | 4 | None | IC-01 / DRIFT-1 |
-| [WP02](tasks/WP02-sqlite-semantic-integrity.md) | Reject incompatible SQLite definitions | 5 | None | IC-02 / DRIFT-2 |
-| [WP03](tasks/WP03-read-only-runtime-mode.md) | Honor no-DDL runtime verification | 4 | WP01, WP02 | IC-03 / DRIFT-3 |
-| [WP04](tasks/WP04-recoverable-runtime-and-probes.md) | Recover initialization and keep probes truthful | 7 | WP03 | IC-04 / RISK-1 + startup mode |
-| [WP05](tasks/WP05-operational-and-stability-regressions.md) | Repair PostgreSQL operations and stability evidence | 4 | WP04 | IC-05 / DRIFT-4 + stability |
-| [WP06](tasks/WP06-http-auth-and-probe-scenarios.md) | Prove HTTP authorization and outage recovery | 5 | WP04 | IC-05 / DRIFT-5 + RISK-1 HTTP |
-| [WP07](tasks/WP07-application-integrations.md) | Verify scheduler query friend and AI paths | 5 | WP06 | IC-05 / DRIFT-5 application |
-| [WP08](tasks/WP08-manual-production-images.md) | Make manual image verification fail truthfully | 4 | WP05, WP07 | IC-06 / DRIFT-4 images |
-| [WP09](tasks/WP09-durable-closure-and-docs.md) | Reconcile evidence and operating documentation | 5 | WP01, WP02, WP03, WP04, WP05, WP06, WP07, WP08 | IC-06 / FR-008 + RISK-2 disposition |
+| [WP01](tasks/WP01-effective-postgres-tls.md) | Enforce effective PostgreSQL TLS | 4 | None | FR-001, FR-008 |
+| [WP02](tasks/WP02-sqlite-semantic-integrity.md) | Reject incompatible SQLite definitions | 5 | None | FR-002, FR-008 |
+| [WP03](tasks/WP03-read-only-runtime-mode.md) | Honor no-DDL runtime verification | 4 | WP01, WP02 | FR-003, FR-008 |
+| [WP10](tasks/WP10-sqlite-execution-isolation.md) | Isolate all SQLite execution from HTTP | 5 | WP03 | FR-003, FR-006, FR-008 |
+| [WP04](tasks/WP04-recoverable-runtime-and-probes.md) | Recover initialization and keep probes truthful | 7 | WP03, WP10 | FR-003, FR-006, FR-008 |
+| [WP05](tasks/WP05-operational-and-stability-regressions.md) | Repair PostgreSQL operations and stability evidence | 4 | WP04 | FR-004, FR-006, FR-008 |
+| [WP06](tasks/WP06-http-auth-and-probe-scenarios.md) | Prove HTTP authorization and outage recovery | 5 | WP04 | FR-003, FR-005, FR-006, FR-008 |
+| [WP07](tasks/WP07-application-integrations.md) | Verify scheduler query friend and AI paths | 5 | WP06 | FR-005, FR-008 |
+| [WP11](tasks/WP11-required-command-integration.md) | Activate complete required verification commands | 4 | WP05, WP07 | FR-004, FR-005, FR-008 |
+| [WP08](tasks/WP08-manual-production-images.md) | Make manual image verification fail truthfully | 4 | WP05, WP07, WP11 | FR-004, FR-008 |
+| [WP09](tasks/WP09-durable-closure-and-docs.md) | Reconcile evidence and operating documentation | 5 | WP01, WP02, WP03, WP04, WP05, WP06, WP07, WP08, WP10, WP11 | FR-007, FR-008 |
 
 ## Work packages
 
@@ -82,13 +93,13 @@ T003 Execute real PostgreSQL TLS cases (WP01)
 
 T004 Publish TLS regression evidence (WP01)
 
-**Implementation sketch**: Complete the referenced subtasks in order: baseline/fault capture, bounded change, required negative/positive execution, durable evidence.
+**Implementation sketch**: Follow detailed prompt order, capture baseline/fault, preserve contracts, execute targeted negative/positive proofs and publish durable artifacts.
 
-**Parallel opportunities**: Independent of WP02.
+**Parallel opportunities**: Independent of WP02; subtasks sequential.
 
-**Risk**: URL aliases and repeated keys can bypass a first-value lookup; never preserve parser security controls in the final connection string.
+**Review boundary**: All referenced runtime/build/test inputs must exist in the dependency closure. Future package files cannot be imported or masked by skip/no-test success.
 
-**Prompt size**: 233 lines; 4 subtasks.
+**Estimated prompt size**: about 262 lines; 4 subtasks.
 
 ### WP02 — Reject incompatible SQLite definitions
 
@@ -111,13 +122,13 @@ T008 Integrate inspection before mutation and preserve atomic adoption (WP02)
 
 T009 Execute schema tamper and formatting matrix (WP02)
 
-**Implementation sketch**: Complete the referenced subtasks in order: baseline/fault capture, bounded change, required negative/positive execution, durable evidence.
+**Implementation sketch**: Follow detailed prompt order, capture baseline/fault, preserve contracts, execute targeted negative/positive proofs and publish durable artifacts.
 
-**Parallel opportunities**: Independent of WP01.
+**Parallel opportunities**: Independent of WP01; subtasks sequential.
 
-**Risk**: Expected metadata and actual metadata can share the same bug; use independent assertions and explicit supported variants.
+**Review boundary**: All referenced runtime/build/test inputs must exist in the dependency closure. Future package files cannot be imported or masked by skip/no-test success.
 
-**Prompt size**: 258 lines; 5 subtasks.
+**Estimated prompt size**: about 294 lines; 5 subtasks.
 
 ### WP03 — Honor no-DDL runtime verification
 
@@ -138,22 +149,51 @@ T012 Make SQLite verify noncreating (WP03)
 
 T013 Prove restricted-role no-DDL behavior (WP03)
 
-**Implementation sketch**: Complete the referenced subtasks in order: baseline/fault capture, bounded change, required negative/positive execution, durable evidence.
+**Implementation sketch**: Follow detailed prompt order, capture baseline/fault, preserve contracts, execute targeted negative/positive proofs and publish durable artifacts.
 
-**Parallel opportunities**: Follow declared dependency chain; do not edit another package surface.
+**Parallel opportunities**: Follow dependencies and disjoint owned surfaces; subtasks sequential.
 
-**Risk**: Verify must branch before createJournal; journal presence alone does not establish physical schema compatibility.
+**Review boundary**: All referenced runtime/build/test inputs must exist in the dependency closure. Future package files cannot be imported or masked by skip/no-test success.
 
-**Prompt size**: 237 lines; 4 subtasks.
+**Estimated prompt size**: about 274 lines; 4 subtasks.
 
-### WP04 — Recover initialization and keep probes truthful
+### WP10 — Isolate all SQLite execution from HTTP
 
 **Priority**: P1. **Dependencies**: WP03.
 **Requirements**: FR-003, FR-006, FR-008, NFR-001, NFR-002, NFR-004.
 
+Keep every synchronous SQLite operation, including ordinary application reads/writes, atomic operations, backup and initialization, off the HTTP event loop without changing the awaitable DatabaseServices or configured busy-timeout semantics.
+
+**Independent test**: Real locked runtime writes with configured busy timeouts 0/5000/30000 ms do not block host event-loop timers; repository/atomic/backup parity and production worker resolution pass before lifecycle integration.
+
+**Prompt**: [tasks/WP10-sqlite-execution-isolation.md](tasks/WP10-sqlite-execution-isolation.md).
+
+T044 Define worker protocol and preserve public contracts (WP10)
+
+T045 Move synchronous adapter behind the worker facade (WP10)
+
+T046 Bound readiness requests without replaying business operations (WP10)
+
+T047 Package lazy worker entrypoints for dev test and production (WP10)
+
+T048 Execute isolation parity and lock regressions (WP10)
+
+**Implementation sketch**: Follow detailed prompt order, capture baseline/fault, preserve contracts, execute targeted negative/positive proofs and publish durable artifacts.
+
+**Parallel opportunities**: Follow dependencies and disjoint owned surfaces; subtasks sequential.
+
+**Review boundary**: All referenced runtime/build/test inputs must exist in the dependency closure. Future package files cannot be imported or masked by skip/no-test success.
+
+**Estimated prompt size**: about 266 lines; 5 subtasks.
+
+### WP04 — Recover initialization and keep probes truthful
+
+**Priority**: P1. **Dependencies**: WP03, WP10.
+**Requirements**: FR-003, FR-006, FR-008, NFR-001, NFR-002, NFR-004.
+
 One retryable lifecycle owner supports explicit runtime verification, bounded live readiness and process-only health without stale attempts or leaked resources.
 
-**Independent test**: Focused real-backend lifecycle/availability tests, mode propagation and built worker smoke; WP06 supplies full timed HTTP outage traces.
+**Independent test**: Focused real-backend lifecycle/availability tests, mode propagation and packaged WP10 worker smoke; WP06 supplies full HTTP traces during authenticated writes blocked by real SQLite locks.
 
 **Prompt**: [tasks/WP04-recoverable-runtime-and-probes.md](tasks/WP04-recoverable-runtime-and-probes.md).
 
@@ -165,19 +205,19 @@ T016 Consume runtime mode and remove sticky accessor cache (WP04)
 
 T017 Separate exact probe routes from startup and auth (WP04)
 
-T018 Isolate SQLite startup work and package worker (WP04)
+T018 Integrate worker-owned SQLite initialization (WP04)
 
-T019 Register required test entrypoints without CI edits (WP04)
+T019 Verify worker build and lifecycle integration (WP04)
 
 T020 Execute lifecycle integration and publish evidence (WP04)
 
-**Implementation sketch**: Complete the referenced subtasks in order: baseline/fault capture, bounded change, required negative/positive execution, durable evidence.
+**Implementation sketch**: Follow detailed prompt order, capture baseline/fault, preserve contracts, execute targeted negative/positive proofs and publish durable artifacts.
 
-**Parallel opportunities**: Follow declared dependency chain; do not edit another package surface.
+**Parallel opportunities**: Follow dependencies and disjoint owned surfaces; subtasks sequential.
 
-**Risk**: Async wrappers do not make better-sqlite3 nonblocking; Promise.race alone does not cancel pg checkout/query work.
+**Review boundary**: All referenced runtime/build/test inputs must exist in the dependency closure. Future package files cannot be imported or masked by skip/no-test success.
 
-**Prompt size**: 302 lines; 7 subtasks.
+**Estimated prompt size**: about 339 lines; 7 subtasks.
 
 ### WP05 — Repair PostgreSQL operations and stability evidence
 
@@ -198,13 +238,13 @@ T023 Execute native full-installation recovery (WP05)
 
 T024 Diagnose and prove concurrency/no-init stability (WP05)
 
-**Implementation sketch**: Complete the referenced subtasks in order: baseline/fault capture, bounded change, required negative/positive execution, durable evidence.
+**Implementation sketch**: Follow detailed prompt order, capture baseline/fault, preserve contracts, execute targeted negative/positive proofs and publish durable artifacts.
 
-**Parallel opportunities**: Independent of WP06 after WP04.
+**Parallel opportunities**: WP05/WP06 may proceed independently after WP04; subtasks sequential.
 
-**Risk**: Broken fixture setup can fail before outage assertions; an entirely skipped recovery suite is not a successful required run.
+**Review boundary**: All referenced runtime/build/test inputs must exist in the dependency closure. Future package files cannot be imported or masked by skip/no-test success.
 
-**Prompt size**: 235 lines; 4 subtasks.
+**Estimated prompt size**: about 270 lines; 4 subtasks.
 
 ### WP06 — Prove HTTP authorization and outage recovery
 
@@ -227,13 +267,13 @@ T028 Record startup and repeated outage HTTP timing (WP06)
 
 T029 Demonstrate authorization regression sensitivity (WP06)
 
-**Implementation sketch**: Complete the referenced subtasks in order: baseline/fault capture, bounded change, required negative/positive execution, durable evidence.
+**Implementation sketch**: Follow detailed prompt order, capture baseline/fault, preserve contracts, execute targeted negative/positive proofs and publish durable artifacts.
 
-**Parallel opportunities**: Independent of WP05 after WP04.
+**Parallel opportunities**: WP05/WP06 may proceed independently after WP04; subtasks sequential.
 
-**Risk**: Injecting locals bypasses session auth; asserting only status can miss leaked data or unauthorized writes.
+**Review boundary**: All referenced runtime/build/test inputs must exist in the dependency closure. Future package files cannot be imported or masked by skip/no-test success.
 
-**Prompt size**: 256 lines; 5 subtasks.
+**Estimated prompt size**: about 299 lines; 5 subtasks.
 
 ### WP07 — Verify scheduler query friend and AI paths
 
@@ -256,17 +296,44 @@ T033 Prove AI-tool persistence and ownership (WP07)
 
 T034 Demonstrate bridge sensitivity and publish integration proof (WP07)
 
-**Implementation sketch**: Complete the referenced subtasks in order: baseline/fault capture, bounded change, required negative/positive execution, durable evidence.
+**Implementation sketch**: Follow detailed prompt order, capture baseline/fault, preserve contracts, execute targeted negative/positive proofs and publish durable artifacts.
 
-**Parallel opportunities**: Follow declared dependency chain; do not edit another package surface.
+**Parallel opportunities**: Follow dependencies and disjoint owned surfaces; subtasks sequential.
 
-**Risk**: Repository CRUD alone cannot establish the application chain; only external provider data may be simulated.
+**Review boundary**: All referenced runtime/build/test inputs must exist in the dependency closure. Future package files cannot be imported or masked by skip/no-test success.
 
-**Prompt size**: 256 lines; 5 subtasks.
+**Estimated prompt size**: about 299 lines; 5 subtasks.
+
+### WP11 — Activate complete required verification commands
+
+**Priority**: P1. **Dependencies**: WP05, WP07.
+**Requirements**: FR-004, FR-005, FR-008, NFR-001, NFR-003, NFR-004.
+
+Wire required package commands only after preflight, HTTP/auth/probe and integration suites exist, without missing-file references, skipped scenarios or ownership conflicts.
+
+**Independent test**: Both backend application commands explicitly execute their HTTP and integration entry files; required PostgreSQL/recovery preflight fails for missing inputs/tools; all existing command coverage remains intact.
+
+**Prompt**: [tasks/WP11-required-command-integration.md](tasks/WP11-required-command-integration.md).
+
+T049 Validate dependency-produced entrypoint inventory (WP11)
+
+T050 Wire explicit application and PostgreSQL preflight commands (WP11)
+
+T051 Prove command coverage and failure behavior (WP11)
+
+T052 Publish runnable command handoff and durable evidence (WP11)
+
+**Implementation sketch**: Follow detailed prompt order, capture baseline/fault, preserve contracts, execute targeted negative/positive proofs and publish durable artifacts.
+
+**Parallel opportunities**: Follow dependencies and disjoint owned surfaces; subtasks sequential.
+
+**Review boundary**: All referenced runtime/build/test inputs must exist in the dependency closure. Future package files cannot be imported or masked by skip/no-test success.
+
+**Estimated prompt size**: about 228 lines; 4 subtasks.
 
 ### WP08 — Make manual image verification fail truthfully
 
-**Priority**: P1. **Dependencies**: WP05, WP07.
+**Priority**: P1. **Dependencies**: WP05, WP07, WP11.
 **Requirements**: FR-004, FR-008, NFR-001, NFR-002, NFR-004.
 
 Manually initiated production-image validation proves both-backend objective persistence after restart and exits nonzero for loss or unreadiness.
@@ -283,17 +350,17 @@ T037 Run manual positive and negative image scenarios (WP08)
 
 T038 Document truthful image execution and evidence (WP08)
 
-**Implementation sketch**: Complete the referenced subtasks in order: baseline/fault capture, bounded change, required negative/positive execution, durable evidence.
+**Implementation sketch**: Follow detailed prompt order, capture baseline/fault, preserve contracts, execute targeted negative/positive proofs and publish durable artifacts.
 
-**Parallel opportunities**: Follow declared dependency chain; do not edit another package surface.
+**Parallel opportunities**: Follow dependencies and disjoint owned surfaces; subtasks sequential.
 
-**Risk**: Tolerated readiness failure or grep-only ID checks can produce false PASS; optional no-DB PostgreSQL mode cannot close live verification.
+**Review boundary**: All referenced runtime/build/test inputs must exist in the dependency closure. Future package files cannot be imported or masked by skip/no-test success.
 
-**Prompt size**: 234 lines; 4 subtasks.
+**Estimated prompt size**: about 268 lines; 4 subtasks.
 
 ### WP09 — Reconcile evidence and operating documentation
 
-**Priority**: P1. **Dependencies**: WP01, WP02, WP03, WP04, WP05, WP06, WP07, WP08.
+**Priority**: P1. **Dependencies**: WP01, WP02, WP03, WP04, WP05, WP06, WP07, WP08, WP10, WP11.
 **Requirements**: FR-007, FR-008, NFR-001, NFR-003, NFR-004.
 
 Every in-scope finding has complete durable before/after proof and accurate operating docs; RISK-2 remains explicitly unresolved/operator-deferred.
@@ -312,76 +379,86 @@ T042 Write closure report retaining operator deferral (WP09)
 
 T043 Verify mission constraints and hand off acceptance (WP09)
 
-**Implementation sketch**: Complete the referenced subtasks in order: baseline/fault capture, bounded change, required negative/positive execution, durable evidence.
+**Implementation sketch**: Follow detailed prompt order, capture baseline/fault, preserve contracts, execute targeted negative/positive proofs and publish durable artifacts.
 
-**Parallel opportunities**: Follow declared dependency chain; do not edit another package surface.
+**Parallel opportunities**: Follow dependencies and disjoint owned surfaces; subtasks sequential.
 
-**Risk**: Green test references are not executed evidence; historical UI error counts are not a permanent allowance.
+**Review boundary**: All referenced runtime/build/test inputs must exist in the dependency closure. Future package files cannot be imported or masked by skip/no-test success.
 
-**Prompt size**: 251 lines; 5 subtasks.
+**Estimated prompt size**: about 292 lines; 5 subtasks.
 
-## Completion tracking and final gates
+## Completion tracking and acceptance
 
-Reference rows above are not checkboxes and do not indicate completion.
-Record completion through the event log using `spec-kitty agent tasks mark-status`
-with explicit mission selection. All packages remain unstarted at task generation.
+Reference rows are not completion checkboxes. Use the event-log task-status API
+with explicit mission selection. All packages remain unstarted. Persist a fresh
+ready analysis-report.md after these planning amendments before implementing.
 
-Run `/spec-kitty.analyze` and persist analysis-report.md before implementing any WP.
-The implementation gate enforces this prerequisite. Runtime owns workspaces and
-review transitions. No implementation, lane allocation by hand or deployment is
-authorized by this task-generation artifact.
+Qwen CLI on the other device drives implementation and review through runtime.
+Load the profile in each WP before acting and use computed lanes.json. Preserve
+historical Codex authorship/analyzer entries; they do not select the execution agent.
 
-Final acceptance requires all required/full/backend/application suites green,
-native PG recovery, ten consecutive concurrency/no-init passes, measured 5/10/30s
-probe bounds, both-mode production restart proof and no missing evidence. Existing
-UI diagnostics need reproducible baseline comparison; no new errors may hide in debt.
-Verify CI/CD/workflows/settings and historical review unchanged. No in-scope
-waiver or deferral is allowed; RISK-2 is the explicit operator-owned exception.
+Final acceptance requires full/backend/application suites and native recovery,
+ten consecutive concurrency/no-init passes without retries, real both-mode image
+restart proof, complete durable evidence and bounded 5/10/30-second probes.
+The SQLite held-lock HTTP case must include an authenticated ordinary write
+concurrent with health/readiness at busy timeout values 0/5000/30000 ms, same PID,
+backpressure/coalescing and lock-release recovery. No main-thread SQLite work,
+write replay or silent reduction of configured busy timeout is permitted.
+CI/CD/settings/history remain unchanged; RISK-2 stays unresolved/operator-deferred.
 
 ## Subtask Index
 
 | Subtask | Description | Package | Parallel |
 |---|---|---|---|
-| T001 | Capture parser and TLS regression baseline | WP01 | Independent WP branch; subtasks sequential |
-| T002 | Normalize canonical TLS policy | WP01 | Independent WP branch; subtasks sequential |
-| T003 | Execute real PostgreSQL TLS cases | WP01 | Independent WP branch; subtasks sequential |
-| T004 | Publish TLS regression evidence | WP01 | Independent WP branch; subtasks sequential |
-| T005 | Reproduce expected-name drift and freeze supported layouts | WP02 | Independent WP branch; subtasks sequential |
-| T006 | Introduce shared semantic schema descriptors | WP02 | Independent WP branch; subtasks sequential |
-| T007 | Validate full journal integrity and classify safely | WP02 | Independent WP branch; subtasks sequential |
-| T008 | Integrate inspection before mutation and preserve atomic adoption | WP02 | Independent WP branch; subtasks sequential |
-| T009 | Execute schema tamper and formatting matrix | WP02 | Independent WP branch; subtasks sequential |
-| T010 | Establish shared migration-mode contract | WP03 | After dependencies |
-| T011 | Split PostgreSQL inspection from privileged migration | WP03 | After dependencies |
-| T012 | Make SQLite verify noncreating | WP03 | After dependencies |
-| T013 | Prove restricted-role no-DDL behavior | WP03 | After dependencies |
-| T014 | Capture failures and define lifecycle ownership | WP04 | After dependencies |
-| T015 | Add bounded live availability to adapters | WP04 | After dependencies |
-| T016 | Consume runtime mode and remove sticky accessor cache | WP04 | After dependencies |
-| T017 | Separate exact probe routes from startup and auth | WP04 | After dependencies |
-| T018 | Isolate SQLite startup work and package worker | WP04 | After dependencies |
-| T019 | Register required test entrypoints without CI edits | WP04 | After dependencies |
-| T020 | Execute lifecycle integration and publish evidence | WP04 | After dependencies |
-| T021 | Migrate disposable operational databases | WP05 | Independent WP branch; subtasks sequential |
-| T022 | Fail required PostgreSQL prerequisite checks explicitly | WP05 | Independent WP branch; subtasks sequential |
-| T023 | Execute native full-installation recovery | WP05 | Independent WP branch; subtasks sequential |
-| T024 | Diagnose and prove concurrency/no-init stability | WP05 | Independent WP branch; subtasks sequential |
-| T025 | Build isolated production HTTP fixture | WP06 | Independent WP branch; subtasks sequential |
-| T026 | Exercise real session and admin requests | WP06 | Independent WP branch; subtasks sequential |
-| T027 | Prove two-account objective ownership | WP06 | Independent WP branch; subtasks sequential |
-| T028 | Record startup and repeated outage HTTP timing | WP06 | Independent WP branch; subtasks sequential |
-| T029 | Demonstrate authorization regression sensitivity | WP06 | Independent WP branch; subtasks sequential |
-| T030 | Prove actual scheduled plugin persistence | WP07 | After dependencies |
-| T031 | Exercise real asynchronous QuickJS data access | WP07 | After dependencies |
-| T032 | Verify saved-query and friend-dashboard paths | WP07 | After dependencies |
-| T033 | Prove AI-tool persistence and ownership | WP07 | After dependencies |
-| T034 | Demonstrate bridge sensitivity and publish integration proof | WP07 | After dependencies |
-| T035 | Reproduce false positive and harden shared helpers | WP08 | After dependencies |
-| T036 | Enforce exact write restart read in both modes | WP08 | After dependencies |
-| T037 | Run manual positive and negative image scenarios | WP08 | After dependencies |
-| T038 | Document truthful image execution and evidence | WP08 | After dependencies |
-| T039 | Inventory finding evidence and provenance | WP09 | After dependencies |
-| T040 | Execute integrated required suites and UI comparison | WP09 | After dependencies |
-| T041 | Align database operating and verification docs | WP09 | After dependencies |
-| T042 | Write closure report retaining operator deferral | WP09 | After dependencies |
-| T043 | Verify mission constraints and hand off acceptance | WP09 | After dependencies |
+| T001 | Capture parser and TLS regression baseline | WP01 | Follow WP dependencies; inside package sequential |
+| T002 | Normalize canonical TLS policy | WP01 | Follow WP dependencies; inside package sequential |
+| T003 | Execute real PostgreSQL TLS cases | WP01 | Follow WP dependencies; inside package sequential |
+| T004 | Publish TLS regression evidence | WP01 | Follow WP dependencies; inside package sequential |
+| T005 | Reproduce expected-name drift and freeze supported layouts | WP02 | Follow WP dependencies; inside package sequential |
+| T006 | Introduce shared semantic schema descriptors | WP02 | Follow WP dependencies; inside package sequential |
+| T007 | Validate full journal integrity and classify safely | WP02 | Follow WP dependencies; inside package sequential |
+| T008 | Integrate inspection before mutation and preserve atomic adoption | WP02 | Follow WP dependencies; inside package sequential |
+| T009 | Execute schema tamper and formatting matrix | WP02 | Follow WP dependencies; inside package sequential |
+| T010 | Establish shared migration-mode contract | WP03 | Follow WP dependencies; inside package sequential |
+| T011 | Split PostgreSQL inspection from privileged migration | WP03 | Follow WP dependencies; inside package sequential |
+| T012 | Make SQLite verify noncreating | WP03 | Follow WP dependencies; inside package sequential |
+| T013 | Prove restricted-role no-DDL behavior | WP03 | Follow WP dependencies; inside package sequential |
+| T014 | Capture failures and define lifecycle ownership | WP04 | Follow WP dependencies; inside package sequential |
+| T015 | Add bounded live availability to adapters | WP04 | Follow WP dependencies; inside package sequential |
+| T016 | Consume runtime mode and remove sticky accessor cache | WP04 | Follow WP dependencies; inside package sequential |
+| T017 | Separate exact probe routes from startup and auth | WP04 | Follow WP dependencies; inside package sequential |
+| T018 | Integrate worker-owned SQLite initialization | WP04 | Follow WP dependencies; inside package sequential |
+| T019 | Verify worker build and lifecycle integration | WP04 | Follow WP dependencies; inside package sequential |
+| T020 | Execute lifecycle integration and publish evidence | WP04 | Follow WP dependencies; inside package sequential |
+| T021 | Migrate disposable operational databases | WP05 | Follow WP dependencies; inside package sequential |
+| T022 | Fail required PostgreSQL prerequisite checks explicitly | WP05 | Follow WP dependencies; inside package sequential |
+| T023 | Execute native full-installation recovery | WP05 | Follow WP dependencies; inside package sequential |
+| T024 | Diagnose and prove concurrency/no-init stability | WP05 | Follow WP dependencies; inside package sequential |
+| T025 | Build isolated production HTTP fixture | WP06 | Follow WP dependencies; inside package sequential |
+| T026 | Exercise real session and admin requests | WP06 | Follow WP dependencies; inside package sequential |
+| T027 | Prove two-account objective ownership | WP06 | Follow WP dependencies; inside package sequential |
+| T028 | Record startup and repeated outage HTTP timing | WP06 | Follow WP dependencies; inside package sequential |
+| T029 | Demonstrate authorization regression sensitivity | WP06 | Follow WP dependencies; inside package sequential |
+| T030 | Prove actual scheduled plugin persistence | WP07 | Follow WP dependencies; inside package sequential |
+| T031 | Exercise real asynchronous QuickJS data access | WP07 | Follow WP dependencies; inside package sequential |
+| T032 | Verify saved-query and friend-dashboard paths | WP07 | Follow WP dependencies; inside package sequential |
+| T033 | Prove AI-tool persistence and ownership | WP07 | Follow WP dependencies; inside package sequential |
+| T034 | Demonstrate bridge sensitivity and publish integration proof | WP07 | Follow WP dependencies; inside package sequential |
+| T035 | Reproduce false positive and harden shared helpers | WP08 | Follow WP dependencies; inside package sequential |
+| T036 | Enforce exact write restart read in both modes | WP08 | Follow WP dependencies; inside package sequential |
+| T037 | Run manual positive and negative image scenarios | WP08 | Follow WP dependencies; inside package sequential |
+| T038 | Document truthful image execution and evidence | WP08 | Follow WP dependencies; inside package sequential |
+| T039 | Inventory finding evidence and provenance | WP09 | Follow WP dependencies; inside package sequential |
+| T040 | Execute integrated required suites and UI comparison | WP09 | Follow WP dependencies; inside package sequential |
+| T041 | Align database operating and verification docs | WP09 | Follow WP dependencies; inside package sequential |
+| T042 | Write closure report retaining operator deferral | WP09 | Follow WP dependencies; inside package sequential |
+| T043 | Verify mission constraints and hand off acceptance | WP09 | Follow WP dependencies; inside package sequential |
+| T044 | Define worker protocol and preserve public contracts | WP10 | Follow WP dependencies; inside package sequential |
+| T045 | Move synchronous adapter behind the worker facade | WP10 | Follow WP dependencies; inside package sequential |
+| T046 | Bound readiness requests without replaying business operations | WP10 | Follow WP dependencies; inside package sequential |
+| T047 | Package lazy worker entrypoints for dev test and production | WP10 | Follow WP dependencies; inside package sequential |
+| T048 | Execute isolation parity and lock regressions | WP10 | Follow WP dependencies; inside package sequential |
+| T049 | Validate dependency-produced entrypoint inventory | WP11 | Follow WP dependencies; inside package sequential |
+| T050 | Wire explicit application and PostgreSQL preflight commands | WP11 | Follow WP dependencies; inside package sequential |
+| T051 | Prove command coverage and failure behavior | WP11 | Follow WP dependencies; inside package sequential |
+| T052 | Publish runnable command handoff and durable evidence | WP11 | Follow WP dependencies; inside package sequential |
