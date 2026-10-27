@@ -1,7 +1,7 @@
 {
-  "event_count": 18,
-  "last_event_id": "01M5ZQ2V826TFTZY9QPPM7JVBD",
-  "materialized_at": "2026-10-27T22:18:22.338356+00:00",
+  "event_count": 19,
+  "last_event_id": "01M5ZQ4E1SHV9S55XY2227CV2P",
+  "materialized_at": "2026-10-27T22:19:14.361283+00:00",
   "mission_number": "",
   "mission_slug": "database-review-findings-remediation-01M5TGCE",
   "mission_type": "software-dev",
@@ -13,24 +13,30 @@
     "done": 0,
     "for_review": 1,
     "in_progress": 0,
-    "in_review": 1,
-    "planned": 9
+    "in_review": 0,
+    "planned": 10
   },
   "work_packages": {
     "WP01": {
-      "actor": "nessy",
+      "actor": "user",
       "agent": "nessy",
       "agent_profile": "__resolved_profile_absent__",
       "agent_profile_version": "__resolved_profile_version_absent__",
-      "force_count": 0,
-      "lane": "in_review",
-      "last_event_id": "01M5ZQ2V826TFTZY9QPPM7JVBD",
-      "last_transition_at": "2026-10-27T22:18:22.338356+00:00",
+      "force_count": 1,
+      "lane": "planned",
+      "last_event_id": "01M5ZQ4E1SHV9S55XY2227CV2P",
+      "last_transition_at": "2026-10-27T22:19:14.361283+00:00",
       "model": "__resolved_model_absent__",
       "notes": [
         "Ready for review: enforce effective PostgreSQL TLS (parseUrlSslControls + sanitizePostgresConnectionString + explicit canonical ssl in buildPostgresPoolConfig); 55 non-live tests pass, WP01-owned tsc clean; live T003 pending image registry"
       ],
       "provider": "__resolved_provider_absent__",
+      "review_result": {
+        "feedback_path": "/Users/n.gryaznev/Develop/OTHER/RUOK/kitty-specs/database-review-findings-remediation-01M5TGCE/tasks/WP01-effective-postgres-tls/review-cycle-1.md",
+        "reference": "review-cycle://database-review-findings-remediation-01M5TGCE/WP01-effective-postgres-tls/review-cycle-1.md",
+        "reviewer": "user",
+        "verdict": "changes_requested"
+      },
       "role": "reviewer",
       "shell_pid": 8225,
       "shell_pid_created_at": "1793139500.248042",
