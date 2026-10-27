@@ -1,0 +1,252 @@
+{
+  "version": 1,
+  "mission_slug": "database-review-findings-remediation-01M5TGCE",
+  "mission_id": "01M5TGCE2YM9ND5B5HY1HQQM74",
+  "mission_branch": "kitty/mission-database-review-findings-remediation-01M5TGCE",
+  "target_branch": "plan/sqlite-postgresql-support",
+  "lanes": [
+    {
+      "lane_id": "lane-a",
+      "wp_ids": [
+        "WP01"
+      ],
+      "write_scope": [
+        "okr-app/docs/reviews/evidence/database-review-remediation/WP01/",
+        "okr-app/src/lib/db/config.ts",
+        "okr-app/tests/db/config.test.ts",
+        "okr-app/tests/db/tls-fixtures.ts",
+        "okr-app/tests/db/tls.test.ts"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "artifact-rendering",
+        "legacy-cleanup"
+      ],
+      "depends_on_lanes": [],
+      "parallel_group": 0
+    },
+    {
+      "lane_id": "lane-b",
+      "wp_ids": [
+        "WP02"
+      ],
+      "write_scope": [
+        "okr-app/docs/reviews/evidence/database-review-remediation/WP02/",
+        "okr-app/src/lib/db/migrations/contracts.ts",
+        "okr-app/src/lib/db/migrations/expected-sqlite.ts",
+        "okr-app/src/lib/db/migrations/fingerprint.ts",
+        "okr-app/src/lib/db/migrations/sqlite-inspect.ts",
+        "okr-app/src/lib/db/migrations/sqlite-migrator.ts",
+        "okr-app/src/lib/db/migrations/sqlite-verify.ts",
+        "okr-app/tests/db/legacy-adoption.test.ts",
+        "okr-app/tests/db/migration-fixtures.ts",
+        "okr-app/tests/db/migration.test.ts",
+        "okr-app/tests/db/sqlite-integrity.test.ts"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "legacy-cleanup"
+      ],
+      "depends_on_lanes": [],
+      "parallel_group": 0
+    },
+    {
+      "lane_id": "lane-c",
+      "wp_ids": [
+        "WP03"
+      ],
+      "write_scope": [
+        "okr-app/docs/reviews/evidence/database-review-remediation/WP03/",
+        "okr-app/scripts/db-migrate.ts",
+        "okr-app/src/lib/db/migration-mode.ts",
+        "okr-app/src/lib/db/migrations/migrate.ts",
+        "okr-app/src/lib/db/migrations/postgres-migrator.ts",
+        "okr-app/src/lib/db/migrations/postgres-verify.ts",
+        "okr-app/tests/db/postgres-no-ddl.test.ts",
+        "okr-app/tests/db/postgres.migration.test.ts",
+        "okr-app/tests/db/runtime-mode.test.ts"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "artifact-rendering",
+        "legacy-cleanup"
+      ],
+      "depends_on_lanes": [
+        "lane-a",
+        "lane-b"
+      ],
+      "parallel_group": 1
+    },
+    {
+      "lane_id": "lane-d",
+      "wp_ids": [
+        "WP04"
+      ],
+      "write_scope": [
+        "okr-app/Dockerfile",
+        "okr-app/docs/reviews/evidence/database-review-remediation/WP04/",
+        "okr-app/package.json",
+        "okr-app/scripts/build-startup-worker.ts",
+        "okr-app/src/hooks.server.ts",
+        "okr-app/src/lib/db/adapters/postgres.ts",
+        "okr-app/src/lib/db/adapters/sqlite.ts",
+        "okr-app/src/lib/db/contracts.ts",
+        "okr-app/src/lib/db/lifecycle.ts",
+        "okr-app/src/lib/db/migrations/startup-worker.ts",
+        "okr-app/src/lib/server/database.ts",
+        "okr-app/src/routes/api/health/+server.ts",
+        "okr-app/src/routes/api/ready/+server.ts",
+        "okr-app/tests/db/availability.test.ts",
+        "okr-app/tests/db/failure.test.ts",
+        "okr-app/tests/db/lifecycle.test.ts",
+        "okr-app/vite.config.ts"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "artifact-rendering",
+        "legacy-cleanup",
+        "tracker-integration"
+      ],
+      "depends_on_lanes": [
+        "lane-c"
+      ],
+      "parallel_group": 2
+    },
+    {
+      "lane_id": "lane-e",
+      "wp_ids": [
+        "WP05"
+      ],
+      "write_scope": [
+        "okr-app/docs/reviews/evidence/database-review-remediation/WP05/",
+        "okr-app/scripts/require-postgres-test.ts",
+        "okr-app/tests/db/_no-init-probe.ts",
+        "okr-app/tests/db/concurrency.test.ts",
+        "okr-app/tests/db/no-init.test.ts",
+        "okr-app/tests/db/postgres.operations.test.ts",
+        "okr-app/tests/recovery/postgres-recovery.test.ts"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "artifact-rendering",
+        "legacy-cleanup"
+      ],
+      "depends_on_lanes": [
+        "lane-d"
+      ],
+      "parallel_group": 3
+    },
+    {
+      "lane_id": "lane-f",
+      "wp_ids": [
+        "WP06"
+      ],
+      "write_scope": [
+        "okr-app/docs/reviews/evidence/database-review-remediation/WP06/",
+        "okr-app/src/routes/api/admin/",
+        "okr-app/src/routes/api/auth/",
+        "okr-app/src/routes/api/objectives/",
+        "okr-app/tests/application/auth.suite.ts",
+        "okr-app/tests/application/http-fixture.ts",
+        "okr-app/tests/application/postgres.test.ts",
+        "okr-app/tests/application/probes.suite.ts",
+        "okr-app/tests/application/sqlite.test.ts"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "artifact-rendering",
+        "legacy-cleanup"
+      ],
+      "depends_on_lanes": [
+        "lane-d"
+      ],
+      "parallel_group": 3
+    },
+    {
+      "lane_id": "lane-g",
+      "wp_ids": [
+        "WP07"
+      ],
+      "write_scope": [
+        "okr-app/docs/reviews/evidence/database-review-remediation/WP07/",
+        "okr-app/src/lib/server/ai/tools/",
+        "okr-app/src/lib/server/plugins/scheduler.ts",
+        "okr-app/src/lib/server/query/executor.ts",
+        "okr-app/src/routes/api/ai/tool/",
+        "okr-app/src/routes/api/friends/",
+        "okr-app/src/routes/api/queries/",
+        "okr-app/tests/application/integrations.suite.ts",
+        "okr-app/tests/application/plugin-fixture.ts"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "artifact-rendering",
+        "dashboard",
+        "legacy-cleanup",
+        "tracker-integration"
+      ],
+      "depends_on_lanes": [
+        "lane-f"
+      ],
+      "parallel_group": 4
+    },
+    {
+      "lane_id": "lane-h",
+      "wp_ids": [
+        "WP08"
+      ],
+      "write_scope": [
+        "okr-app/docs/reviews/evidence/database-review-remediation/WP08/",
+        "okr-app/tests/container/README.md",
+        "okr-app/tests/container/lib.sh",
+        "okr-app/tests/container/smoke-host-sqlite.sh",
+        "okr-app/tests/container/smoke-postgres.sh",
+        "okr-app/tests/container/smoke-sqlite.sh"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "artifact-rendering",
+        "legacy-cleanup"
+      ],
+      "depends_on_lanes": [
+        "lane-e",
+        "lane-g"
+      ],
+      "parallel_group": 5
+    },
+    {
+      "lane_id": "lane-i",
+      "wp_ids": [
+        "WP09"
+      ],
+      "write_scope": [
+        "okr-app/docs/DATABASE-VERIFICATION.md",
+        "okr-app/docs/DATABASES.md",
+        "okr-app/docs/reviews/database-review-findings-remediation.md",
+        "okr-app/docs/reviews/evidence/database-review-remediation/WP09/"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "artifact-rendering",
+        "legacy-cleanup"
+      ],
+      "depends_on_lanes": [
+        "lane-a",
+        "lane-b",
+        "lane-c",
+        "lane-d",
+        "lane-e",
+        "lane-f",
+        "lane-g",
+        "lane-h"
+      ],
+      "parallel_group": 6
+    }
+  ],
+  "computed_at": "2026-10-27T20:35:20.066822+00:00",
+  "computed_from": "dependency_graph+ownership",
+  "planning_artifact_wps": [],
+  "planning_commit_sha": "4bce44fd0b6ed17a8c9324001c90960160198451"
+}
