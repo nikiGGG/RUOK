@@ -35,10 +35,15 @@
     "WP02": {
       "actor": "nessy",
       "agent": "nessy",
+      "agent_profile": "__resolved_profile_absent__",
+      "agent_profile_version": "__resolved_profile_version_absent__",
       "force_count": 0,
       "lane": "in_progress",
       "last_event_id": "01M5ZN7Q2C5WNHBH6KWBQPDQP6",
       "last_transition_at": "2026-10-27T21:46:04.747598+00:00",
+      "model": "__resolved_model_absent__",
+      "provider": "__resolved_provider_absent__",
+      "role": "implementer",
       "shell_pid": 82225,
       "shell_pid_created_at": "1793137561.362116"
     },
