@@ -72,9 +72,12 @@ Use a 3-second probe budget, <=1-second retry cooldown and 1-second test polling
 **Alternatives**: Cached booleans cannot show outage; Promise.race without driver
 cleanup leaks work; a second pool can claim availability while application pool
 is exhausted. Probe the actual application service/pool.
-**SQLite boundary**: Synchronous lock/migration work on the HTTP event loop
-undermines liveness. Use an isolated startup worker with its own SQLite handle;
-include its artifact in production packaging. Keep repository API intact.
+**SQLite boundary (amended for U1)**: Synchronous runtime writes also block
+probes, so startup-only isolation is insufficient. Keep all SQLite driver work
+behind a worker facade, with the existing awaitable repositories and transaction
+semantics unchanged. Configured busy timeouts remain effective inside the worker;
+host readiness has its own bounded queue-inclusive wait and cannot replay writes.
+See D-07 below for ownership, protocol and concrete simultaneous-write regression.
 **Proof**: Same HTTP process across failed startup, recovery, later outage and
 second recovery; saturated pool, held SQLite lock, concurrent opening, idle error
 and shutdown races. Measure event-loop responsiveness, not just route unit tests.
@@ -108,3 +111,63 @@ No unresolved product/design question remains. Environmental prerequisites do no
 prevent task authoring but do prevent acceptance when unavailable. The existing
 charter is absent; no charter compliance pass is invented. No dependency security
 decision was made, so a dependency adversarial challenge is not applicable here.
+
+## Authorized consistency-analysis remediation
+
+The operator authorized all recommendations from the blocked analysis of
+`9d1f9ef139859d4325a014598528172f953a465a`. Changes here affect planning only;
+requirements, probe bounds, application APIs, timeout settings and CI freeze remain.
+
+### D-07 / U1 — Isolate ordinary SQLite work as well as startup
+
+**Decision**: New WP10 follows WP03 and precedes WP04. It moves existing SQL
+unchanged to a worker-private engine, with a typed async facade retaining every
+DatabaseServices repository/atomic/backup method. Structured clone preserves
+Date/Map and optional values. Preparation runs in its own worker and closes
+before runtime handle open; import/build never start a worker or open storage.
+
+**Rationale**: A 5000ms (or larger configured) synchronous runtime lock wait can
+starve the HTTP event loop even when the probe's own query has a shorter deadline.
+All driver work belongs off that thread. The SQLite dependency and SQL remain.
+
+**Alternatives rejected**: Clamp busy timeout silently (configuration behavior
+change, still no general event-loop isolation); move only readiness/startup to a
+worker (ordinary writes still block health); kill/replay writes when a probe times
+out (uncertain commit outcome and duplicate write risk).
+
+**Bounds**: At most 128 queued ordinary requests and one coalesced readiness command;
+readiness gets next-slot priority after active work, with a 3s host wait including
+queue time. Timeout marks unavailable without cancelling an active transaction
+or pretending its slot is free. Late replies are generation/request-fenced; worker
+crash does not imply rollback of an operation that may have committed.
+
+**Proof**: Real adapter/domain/backup/atomic parity and lock tests in WP10;
+WP06 actual authenticated write under external lock while concurrently probing
+same-PID HTTP at busy timeouts 0/5000/30000ms, overlapping probes, queue bounds and
+release recovery. No runtime PASS is claimed until these execute.
+
+### D-08 / I1 — Activate commands only after their files exist
+
+**Decision**: WP10 emits worker assets through existing Vite build hook without
+package.json edits. WP06 provides auth/probe backend entry files; WP07 provides
+separate integration backend entry files and imports only the earlier fixture.
+WP05 directly verifies executable preflight and recovery. New WP11 depends on
+WP05/WP07 and exclusively owns package.json, explicitly wiring both entry pairs
+and preflight only once all exist. WP08 depends on WP11; WP09 consumes all evidence.
+
+**Alternatives rejected**: Forward import/command paths, placeholder tests,
+passWithNoTests, conditional suite omission and later unowned package.json edits.
+Each earlier package uses direct installed-Vitest/build/helper commands and is
+independently verifiable. All current full/backend file coverage must be preserved.
+
+### D-09 / H1 — Qwen execution instructions, preserved provenance
+
+**Decision**: Active prompt examples/instructions and handoff select Qwen CLI
+(`qwen`), matching .kittify/config.yaml available agents and operator direction.
+Historical Codex authorship and analyzer identity stay unchanged. Finalizer-owned
+claim fields may be normalized out; prompt instructions and runtime selection
+remain authoritative for the handoff. No Qwen process is launched here.
+
+The other device must verify its own Spec Kitty/Qwen versions, profile resolution,
+branch/report freshness and execution prerequisites. This is an explicit handoff
+check, not a claim that the remote environment was inspected.

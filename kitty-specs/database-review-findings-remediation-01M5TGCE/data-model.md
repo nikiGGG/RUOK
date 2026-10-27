@@ -53,3 +53,24 @@ In-scope status moves open → implemented → verified only after required exec
 missing/blocked execution remains incomplete. RISK-2 remains unresolved and
 operator-deferred, outside the six-finding closure count. Planning creates no
 implemented/verified disposition.
+
+## SQLite worker protocol (U1 remediation)
+
+This internal transport preserves the existing awaitable service/backup APIs and
+SQL. A worker-private local engine owns each SQLite handle; HTTP code owns only
+facade/generation state. Preparation and runtime handles have separate lifetimes.
+
+| Record | Fields / invariant |
+|---|---|
+| WorkerRequest | generation, requestId, allowlisted repository/service method, structured-clone arguments; no functions or driver handles |
+| WorkerReply | matching generation/requestId, cloned value or redacted error; Date/Map/null/undefined preserved |
+| WorkerOwner | process-local generation, worker lifecycle, at most one active command, bounded ordinary queue (128 queued), request registry |
+| AvailabilityWait | one pending/in-flight coalesced readiness command, next-slot priority, host deadline <=3s including queue time; timeout means unavailable |
+
+Each atomic user/task command and backup snapshot/restore executes wholly inside
+one worker transaction, with no awaited statements in SQLite transaction callbacks.
+Host timeouts never replay writes, cancel an active business transaction or free
+its owned slot early. Worker crash reports uncertain outcomes without claiming
+all operations rolled back. Late replies cannot resurrect a closed generation.
+Configured busy timeouts, including >5s, stay inside the worker; host probe bounds
+are independent. No new persisted table, public test endpoint or backup version.

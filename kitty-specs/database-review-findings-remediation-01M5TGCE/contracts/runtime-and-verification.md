@@ -37,6 +37,22 @@ initialization is bypassed for exact probe routes only. Query strings do not
 broaden the bypass. Other routes keep existing authentication and ownership rules.
 No new public reset, retry, fault injection or test-control API is introduced.
 
+All synchronous SQLite driver work, including ordinary authenticated application
+writes/reads, handle operations, schema preparation and backup/atomic transactions,
+runs in workers. Preserve existing awaitable DatabaseServices and configured
+SQLite busy timeouts (including >5s); do not silently clamp them. Runtime queue
+is bounded to 128 queued ordinary requests; overflow rejects before dispatch.
+Readiness has at most one coalesced pending/in-flight worker request and a <=3s
+host wait including queue time. A readiness timeout does not cancel/replay a
+business write, release its active slot early or flood another readiness command.
+Late replies are generation/request-fenced. Crashed-worker writes may have an
+uncertain commit outcome; never automatically replay or claim universal rollback.
+
+The mandatory same-PID HTTP lock test holds an external SQLite write lock after
+startup, issues an authenticated write and concurrently times health/readiness.
+Repeat at configured busy timeouts 0/5000/30000ms, overlapping probes/backpressure
+and lock release; preserve the existing 5/10/30-second targets and verify cleanup.
+
 ## Initialization and resource ownership
 
 One open attempt per process/generation. Concurrent callers share it; rejection
@@ -55,6 +71,20 @@ shared friend data. Tests call actual query execution/QuickJS bridge, saved-quer
 paths, scheduled plugin callback/manager and AI-tool route/dispatcher. External
 provider fixture data is allowed; database/auth/bridge mocks cannot prove closure.
 Controlled guard/filter/bridge faults must fail their targeted regression.
+
+## Command activation and suite ownership
+
+WP10 builds worker assets through the existing Vite build hook; npm run build
+remains usable without future package files. WP05 directly verifies the executable
+PostgreSQL preflight; WP06 backend entries register auth/probes suites only.
+WP07 owns separate integrations.sqlite.test.ts/integrations.postgres.test.ts and
+imports the earlier HTTP fixture without changing earlier entry files.
+WP11 alone activates package commands after WP05/WP07 dependencies complete:
+SQLite application command explicitly names sqlite.test.ts plus
+integrations.sqlite.test.ts; PostgreSQL names postgres.test.ts plus
+integrations.postgres.test.ts. Required PostgreSQL/backend/recovery commands invoke
+the now-existing preflight. All current full/backend suites remain present.
+No missing-file forward references, optional discovery, skips or no-test success.
 
 ## Required verification and image scripts
 

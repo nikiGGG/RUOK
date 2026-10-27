@@ -38,7 +38,9 @@ and operating docs; no new business feature, deployment or backup redesign.
 
 ## Engineering alignment
 
-The spec and repository resolve the implementation choices: preserve default
+The operator authorized all consistency-analysis recommendations. Implementation
+and review will use Qwen CLI (`qwen`) on another device; this session edits
+planning artifacts only. The spec and repository resolve the implementation choices: preserve default
 migrate startup; honor explicit `MIGRATION_MODE=verify`; preserve recognized
 adoption; reject incompatible schemas before mutation; keep health independent;
 leave RISK-2 unresolved with the operator. These choices implement existing
@@ -53,6 +55,9 @@ Execution prerequisites and all before/after results remain unverified.
 | D-04 Recovery | One lifecycle owner serializes attempts, clears failures, fences stale completions | Independent sticky promises prevent retry and leak state |
 | D-05 Availability | Bounded live readiness query; share concurrent checks, no stale-success cache | Cached open/version cannot detect outages |
 | D-06 Proof | HTTP/application suites plus manual image checks; existing suites retained | Repository-only tests miss guards/bridging; workflow edits violate scope |
+| D-07 SQLite isolation (U1) | Keep synchronous startup and every runtime SQLite operation in worker-owned handles behind the existing awaitable service contract; preserve configured busy timeout | A startup-only worker or shorter probe query timeout leaves ordinary synchronous writes blocking health; silently clamping configured timeout changes behavior |
+| D-08 Command activation (I1) | WP11 owns package.json and activates complete explicit entrypoints only after preflight and all suites exist | Earlier wiring creates forward file dependencies; optional discovery/skips conceal absent proof |
+| D-09 Qwen handoff (H1) | Active execution instructions use qwen; preserve Codex authorship/analyzer provenance | Blanket author-name replacement destroys history; hardcoded Codex execution contradicts operator choice |
 
 Detailed inspection findings and alternatives: [research.md](research.md).
 
@@ -80,8 +85,13 @@ flowchart LR
     Access --> Lifecycle
     Lifecycle --> Validate[Migrate or read-only verify]
     Lifecycle --> Repos[Existing DatabaseServices]
-    Validate --> DB[(Selected backend)]
-    Repos --> DB
+    Validate --> PG
+    Validate --> Bootstrap[SQLite preparation worker]
+    Bootstrap --> SQLite
+    Repos --> PG[(PostgreSQL)]
+    Repos --> SQLiteFacade[SQLite async facade]
+    SQLiteFacade --> Worker[Worker-owned SQLite operations]
+    Worker --> SQLite[(SQLite)]
 ```
 
 Probe routes bypass startup-dependent auth/plugin work by exact route identity
@@ -197,11 +207,48 @@ Use a 3-second total probe budget including checkout/query/response overhead;
 set lower driver deadlines within it. Share in-flight availability checks, but
 never serve a cached successful result after a failed live check. Acceptance
 polling is every second. Initialization may run longer; probes return 503 while
-it continues. Run SQLite synchronous migration and lock waits in a Node worker
-with its own handle so they cannot block health. Package the worker for the
-production adapter-node build. Wait for worker cleanup before retry. SQLite
-availability queries use a lock wait below the probe budget; verify responsiveness
-under a held lock. Database-worker scope is startup work, not a repository rewrite.
+it continues. Isolate ALL synchronous SQLite execution, not just preparation:
+ordinary repository reads/writes, backup, atomic operations, schema preparation
+and handle open/close execute in workers. Keep sqlite.ts as the awaitable service
+facade; move existing SQL unchanged into private sqlite-local.ts imported only
+by the worker. No SQLite driver call may run on the HTTP thread. CLI preparation
+may remain synchronous in its separate process. This is execution placement
+within the existing typed boundary, not a new repository API or SQL redesign.
+
+WP10 supplies runSqlitePreparation(config, options) using a preparation worker
+that closes before runtime open, and a worker-backed SqliteDatabaseServices facade.
+The runtime worker owns one handle and executes typed allowlisted commands
+serially. Preserve Date/Map/null/undefined and numeric semantics with structured
+clone. Each existing atomic user/task command and backup snapshot/restore stays
+one complete worker command with its synchronous transaction wholly inside it.
+The existing promise-returning public methods and synchronous isOpen ownership
+flag remain compatible. Constructor/import/build remain I/O-free.
+
+Preserve configured SQLite busy timeouts, including values above five seconds,
+inside workers; do not silently clamp them or apply the probe deadline to writes.
+Bound queued ordinary requests to 128, rejecting overflow before dispatch. Share
+at most one pending/in-flight readiness command, prioritized after active work;
+its host wait includes queue time and expires within three seconds. Timeout
+reports unavailable but does not terminate the business worker, replay writes,
+release its active slot early or enqueue another check while one remains pending.
+Discard stale replies by request/generation identity. On crash reject outstanding
+work; report uncertain write outcomes without inventing rollback or replay.
+Shutdown fences requests, closes workers/handles and permits no replacement until
+cleanup. Pool/worker readiness timeouts cannot become successful stale results.
+
+WP10 owns worker/protocol/client/private engine, build helper, Vite configuration
+and Dockerfile. Use the existing Vite build hook and installed esbuild to emit
+worker entry assets inside build/, already copied to the production image.
+Existing npm run build needs no package.json edit and must work before future
+suites exist. Test dev/Vitest and production-only dependency resolution.
+
+Acceptance must hold an external SQLite write lock after startup, issue an
+authenticated ordinary write and simultaneously poll health/readiness on the
+same PID. Repeat for configured busy timeouts 0, 5000 and 30000 ms, overlapping
+probes/backpressure and lock release. Health remains responsive even while the
+business worker waits; readiness times out truthfully and recovers within the
+existing bound after availability returns. Record write outcomes without replay.
+WP10 proves adapter/event-loop isolation; WP06 supplies the real HTTP trace.
 
 Hooks clear failed plugin initialization in finally and start scheduler only once
 after storage is usable. Track/clear both initial timeout and recurring interval
@@ -225,6 +272,17 @@ and audit logs. Exercise scheduler's scheduled callback and manager writes using
 a deterministic upstream plugin provider; only external provider I/O may be a
 fixture. Do not mock auth, repositories, QuickJS or persistence, or add a public
 test endpoint. Keep existing repository suites intact.
+
+WP06 owns the fixture and sqlite.test.ts/postgres.test.ts importing only the
+existing-in-that-package auth/probes suites. WP07 creates separate
+integrations.sqlite.test.ts/integrations.postgres.test.ts importing integrations.suite.ts
+and the WP06 fixture. Verify each pair directly with installed Vitest when its
+package completes. Neither pair imports a future suite or uses optional discovery.
+WP05 supplies and directly verifies the bundled executable PostgreSQL preflight.
+WP11 follows WP05/WP07 and alone edits package.json to explicitly run both pairs
+from test:application:sqlite/postgres, preserve all existing suite files and
+activate fail-closed required PostgreSQL/backend/recovery commands. No command
+may name a file absent from its dependency closure. WP08 then follows WP11.
 
 Demonstrate sensitivity through recorded isolated controlled faults: remove an
 admin guard, remove an ownership filter, break async bridge result handling.
@@ -290,19 +348,22 @@ private CA keys or credential URLs. Preserve the historical review.
 ## Project Structure
 
 Planning artifacts under this mission: plan.md, research.md, data-model.md,
-quickstart.md and contracts/runtime-and-verification.md. No tasks generated here.
+quickstart.md and contracts/runtime-and-verification.md. Task prompts and their
+reference index are maintained under tasks/ and tasks.md; no implementation is
+performed during this planning amendment.
 
 | Implementation surface under `okr-app/` | Responsibility |
 |---|---|
 | src/lib/db/config.ts; scripts/db-migrate.ts | Canonical TLS/shared migration mode |
 | src/lib/db/contracts.ts; lifecycle.ts; adapters/ | Availability, serialized lifecycle, idle errors |
-| src/lib/db/migrations/ | Semantic descriptors, shared inspection, read-only verify, startup worker |
+| src/lib/db/migrations/ | Semantic descriptors, shared inspection and read-only verify |
+| src/lib/db/adapters/sqlite-{local,worker,worker-client,worker-protocol}.ts (new); scripts/build-database-workers.ts (new) | All SQLite execution and preparation off the HTTP event loop |
 | src/lib/server/database.ts; src/hooks.server.ts; src/routes/api/{health,ready}/ | Runtime mode, auth/plugin ordering and HTTP probes |
 | src/lib/server/plugins/scheduler.ts | Timer lifecycle and bounded internal test seam |
 | tests/db/; tests/recovery/ | Schema/TLS/no-DDL/stability/operational/native regressions |
 | tests/application/ (new) | Built-server HTTP and real application suites |
-| tests/container/; package.json | Truthful manual checks and required test entrypoints |
-| Dockerfile; build configuration if needed | Include startup worker in existing production build |
+| tests/container/; package.json | WP08 manual checks; WP11 activates complete required test entrypoints after suites exist |
+| Dockerfile; vite.config.ts | WP10 emits/resolves worker assets within existing build without changing package.json |
 | docs/DATABASES.md; docs/DATABASE-VERIFICATION.md; tests/container/README.md | Demonstrated behavior and execution instructions |
 | docs/reviews/database-review-findings-remediation.md; evidence/database-review-remediation/ (new) | Closure rows and durable artifacts |
 
@@ -317,14 +378,16 @@ Concerns guide later task decomposition; they are not work packages.
 | IC-01 | Effective TLS; FR-001 | config, effective Client tests, live TLS fixtures | None | Parser controls erase verification |
 | IC-02 | Schema/journal integrity; FR-002 | migration contracts, fingerprint, inspector, expected layouts, fixtures | None | Legacy false rejection or mutation before reject |
 | IC-03 | No-DDL startup; FR-003 | shared mode, CLI/accessor, migration/verify branches | IC-01; coordinate descriptors with IC-02 | Verify mutates before checking |
-| IC-04 | Recovery/probes; FR-006, NFR-002 | lifecycle/adapters/hooks/probes, startup worker, scheduler cleanup | IC-03 | Sticky state, leaked work, stale readiness, event-loop blocking |
+| IC-04 | Recovery/probes; FR-006, NFR-002 | WP10 all SQLite execution isolation; WP04 lifecycle/PostgreSQL/hooks/probes; scheduler cleanup | IC-03; WP04 follows WP10 | Sticky state, leaked work, stale readiness, blocking ordinary runtime writes |
 | IC-05 | Real application/operational tests; FR-004/005, NFR-003 | fixtures, HTTP/app suites, native recovery | IC-01–04 for final green runs; baseline capture before fixes | Fixture fails before target assertion |
-| IC-06 | Manual image proof/closure; FR-004/007/008, NFR-001/004 | container scripts, docs, report/evidence | IC-01–05 | False PASS, undurable logs, CI scope creep |
+| IC-06 | Required command activation/manual image proof/closure; FR-004/007/008, NFR-001/004 | WP11 package commands after WP05/WP07; WP08 images; WP09 docs/report/evidence | IC-01–05; WP08 follows WP11 | Forward file dependencies, false PASS, undurable logs, CI scope creep |
 
 ## Rollout, rollback and risks
 
-Capture regressions before each fix. Complete schema/mode integration before
-lifecycle integration and full application/image proof. Default migrate behavior
+Capture regressions before each fix. Complete schema/mode integration and WP10 SQLite worker isolation before
+WP04 lifecycle integration; complete WP05/WP06/WP07 direct suites before WP11
+command activation, then WP08 images and WP09 closure. Stable WP/task identifiers
+are retained; dependency order, not numeric identifiers, determines execution. Default migrate behavior
 remains available; verify deployments complete privileged migration first.
 Stricter recognition may expose existing drift: reject with actionable diagnostics
 and preserve storage for explicit operator remediation. Never auto-repair drift.
@@ -337,7 +400,7 @@ contracts remain unchanged and require matching-tool rehearsal.
 | Risk | Mitigation / proof |
 |---|---|
 | Inspector misses CHECK/default/index semantics | Explicit descriptors, bounded token handling, one tamper per dimension, supported-layout positives |
-| Deadline leaves outstanding work | Driver/worker cleanup, one attempt, shutdown fencing, held-lock/saturated-pool tests |
+| Deadline leaves outstanding work or blocks health | All SQLite operations in workers; one readiness request and bounded queue; no write replay; shutdown fencing; simultaneous authenticated-write/held-lock HTTP tests at 0/5000/30000ms |
 | HTTP fixture hides auth behavior | Actual built app, login cookies, separate accounts and DB state assertions |
 | Fixture DDL diverges | Checked migrations for new operational/application fixtures |
 | Missing PostgreSQL/recovery prerequisites | Explicit incomplete/failure of prerequisite, never skipped PASS |
@@ -348,5 +411,6 @@ contracts remain unchanged and require matching-tool rehearsal.
 
 Planning only: implementation, live verification and finding closure are pending.
 This design is ready for task decomposition; it claims no regression PASS.
-`/spec-kitty.tasks` is a separate explicit user invocation. Do not create work
-packages or implement changes as part of this phase.
+Work packages were authored and amended under explicit operator authorization.
+No implementation is authorized in this session. Revalidate/refinalize the amended
+tasks and persist a fresh ready analysis before the Qwen CLI handoff.

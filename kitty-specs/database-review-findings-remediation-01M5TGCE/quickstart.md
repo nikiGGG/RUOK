@@ -2,7 +2,8 @@
 
 This is an execution recipe for the later implementation, not a record of tests
 already run. Run shell commands from repository root using the indicated workdir.
-Do not invoke task generation or application implementation during planning.
+Do not invoke application implementation/review during planning remediation.
+The operator will execute/review with Qwen CLI (`qwen`) on another device.
 
 ## 1. Preflight and baseline
 
@@ -30,13 +31,21 @@ Planning has attempted no image download and makes no environment readiness clai
 For each finding, first execute its targeted baseline regression or documented
 controlled equivalent. Save redacted output/status before applying the fix.
 Implement canonical TLS and semantic descriptors, then startup mode/no-DDL,
-then lifecycle/probes, then integrate application and image checks. Preserve
+then WP10 all-SQLite worker isolation, then WP04 lifecycle/probes. WP05 and WP06
+can follow independently; WP07 follows WP06. WP11 activates complete package
+commands after WP05/WP07; WP08 manual images follows WP11; WP09 closes evidence.
+Stable WP/task IDs are retained: numeric order is not execution order. Preserve
 existing assertions; fixture bugs must not obscure intended operational assertions.
 
-Build the app in `okr-app/` with `npm run build`. The implementation must add
-explicit required application entrypoints `test:application:sqlite` and
-`test:application:postgres`, wired to the new real HTTP/application suites.
-The PostgreSQL entrypoint requires prerequisites rather than skipping.
+Build the app in `okr-app/` with existing `npm run build`: WP10 emits worker
+assets through the Vite hook without changing package.json. Before WP11, execute
+focused suites directly with the installed Vitest and explicit backend: WP06
+owns tests/application/sqlite.test.ts and postgres.test.ts (auth/probes only);
+WP07 adds integrations.sqlite.test.ts/integrations.postgres.test.ts. They import
+no absent future suites. WP05 bundles/executes its own PostgreSQL preflight directly.
+WP11 exclusively owns package.json and adds test:application:sqlite/postgres only
+once all four entry files/preflight exist, explicitly listing both backend pairs.
+Keep all existing full/backend coverage and fail missing prerequisites/no tests.
 
 ## 3. Required suites (workdir: okr-app)
 
@@ -51,8 +60,9 @@ npm run build
 npm run check
 ```
 
-The two application commands are planned additions, not commands claimed present
-today. The PostgreSQL backend/recovery commands must be hardened to fail missing
+Run this final npm command matrix only after WP11; earlier WPs use their direct
+commands. The application commands and workers are planned implementation, not
+commands/assets claimed present today. The PostgreSQL backend/recovery commands must be hardened to fail missing
 prerequisites. Record all exit codes; backend/required suites need zero failures
 and all mandatory cases executed. Compare UI diagnostics with captured baseline;
 no new failures may hide in historical debt.
@@ -66,7 +76,11 @@ Run actual HTTP traces every second through unavailable startup, first recovery,
 later outage and second recovery. Record response status, elapsed monotonic time
 and unchanged process identity. Health is always 200; readiness is truthful 503/200
 within 5/10/30-second bounds. Include idle pool errors, saturated checkout,
-concurrent init and held SQLite lock responsiveness.
+concurrent init and a held external SQLite write lock after startup. Issue an
+authenticated ordinary write while concurrently probing the same PID; test busy
+timeouts 0/5000/30000ms without clamping, multiple overlapping probes, bounded
+queue/coalescing and lock-release recovery. All SQLite work stays off the HTTP
+thread. A probe timeout never cancels/replays a business transaction.
 
 ## 4. Controlled fault sensitivity
 
@@ -107,3 +121,17 @@ review remains unchanged. RISK-2 stays unresolved and operator-deferred.
 Verify `.github/workflows/` has no mission changes and repository settings were
 not changed. Any missing live/evidence requirement remains incomplete and blocks
 acceptance. This quickstart itself is not evidence of any PASS.
+
+## 7. Qwen CLI handoff (after planning analysis is ready)
+
+Transfer the committed plan/sqlite-postgresql-support branch, mission directory,
+lanes.json and recorder-wrapped fresh ready analysis-report.md to the other device.
+No remote push or device setup is performed by this planning change. On that
+device verify git branch/revision, Spec Kitty version, Qwen CLI availability,
+profile resolution and actual Docker/PostgreSQL/TLS/native-tool prerequisites.
+Use explicit mission database-review-findings-remediation-01M5TGCE and runtime
+selection with `--agent qwen`; use dependency/lane order rather than WP numbers.
+Do not substitute Codex execution because a historical author/analyzer is Codex.
+Implementation and review remain unstarted until the operator runs the workflow
+on that device. A fresh ready consistency report is a planning gate, not evidence
+that application regressions or the six historical findings are already fixed.
