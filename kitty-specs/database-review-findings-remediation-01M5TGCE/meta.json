@@ -10,5 +10,7 @@
   "purpose_tldr": "Fix DRIFT-1 through DRIFT-5 and RISK-1 with regression evidence; RISK-2 deferred to separate operator CI/CD review.",
   "slug": "database-review-findings-remediation-01M5TGCE",
   "target_branch": "plan/sqlite-postgresql-support",
-  "topology": "single_branch"
+  "topology": "single_branch",
+  "vcs": "git",
+  "vcs_locked_at": "2026-10-27T21:45:26.399362+00:00"
 }
