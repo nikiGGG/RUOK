@@ -1,8 +1,8 @@
 # Implementation Plan: Database review findings remediation
 
-**Branch / planning base / merge target**: `plan/sqlite-postgresql-support`  
-**Date**: 2026-10-28 (Europe/Samara)  
-**Spec**: [spec.md](spec.md)  
+**Branch / planning base / merge target**: `plan/sqlite-postgresql-support`
+**Date**: 2026-10-28 (Europe/Samara)
+**Spec**: [spec.md](spec.md)
 **Inspected revision**: `0572599edc3e79dded5893aaaaef6867394a5288`
 
 ## Summary
