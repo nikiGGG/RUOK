@@ -1,0 +1,17 @@
+# WP11 source checksums (SHA-256)
+# generated: 2026-10-28T20:21:11Z
+# revision (pre-commit HEAD): 791a9f748cd62bd12fef2c743ba6bf65b8e71c48
+# lane: lane-k (mission database-review-findings-remediation-01M5TGCE)
+
+43d387177644de64eb846769c9c6d28ec87fb681d3168550272313c51599b448  package.json
+2aa8ecebefc2c72a0e0d6fcefd00d945986d475d6ab9d63063bddd98e0dc4427  tests/verification/command-coverage.test.ts
+2ec67d6c0ac87267cf188125185957644dd9bd118be5a200d0db3b417ad597a3  docs/reviews/evidence/database-review-remediation/WP11/manifest.md
+40214096e445ed65144396796194450160358fb76e53453cd2d6af1204a689da  docs/reviews/evidence/database-review-remediation/WP11/command-matrix.md
+69c3d65e6f6ce6068d5890c190eeaedf261e756cb2fe42cf5c20f22d4a58e645  docs/reviews/evidence/database-review-remediation/WP11/run-transcript.txt
+
+# Referenced dependency-closure entry points (unmodified by WP11, inventory check T049)
+80331c0312b8f1b4e5f59ed74f9870143b37d3334d634507c0115938f60351cb  scripts/require-postgres-test.ts
+dea0baf4980959b43c32e8ee1ff8374c0f84133e4e36dc2c9241fd949d195ce6  tests/application/sqlite.test.ts
+e4da2f80fbefb46bf7e45564d2fa499424b3e1dd5a1e68fc85e984fbaabd1018  tests/application/postgres.test.ts
+ef9b783ef5ca3fa6f7dd7f3896ef3013f74f9ed7c0aa518eb0fca801bdf89906  tests/application/integrations.sqlite.test.ts
+8b668264b1495d082f586744ec4c2fce55c83e164862176309032306c759f472  tests/application/integrations.postgres.test.ts

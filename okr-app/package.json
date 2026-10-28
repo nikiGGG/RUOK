@@ -16,15 +16,18 @@
 		"db:verify": "MIGRATION_MODE=verify npm run db:migrate",
 		"db:push": "drizzle-kit push",
 		"db:studio": "drizzle-kit studio",
-		"test": "DB_BACKEND=sqlite vitest run tests/db/config.test.ts tests/db/schema-parity.test.ts tests/db/lifecycle.test.ts tests/db/migration-files.test.ts tests/db/migration.test.ts tests/db/legacy-adoption.test.ts tests/db/failure.test.ts tests/db/concurrency.test.ts tests/db/no-init.test.ts tests/db/coverage-ledger.test.ts tests/db/lifecycle-isolation.test.ts tests/upgrade/upgrade-preserves-data.test.ts tests/recovery/native-recovery.test.ts tests/domains/auth/sqlite.test.ts tests/domains/goals/sqlite.test.ts tests/domains/planning/sqlite.test.ts tests/domains/metrics/sqlite.test.ts tests/domains/integrations/sqlite.test.ts tests/backup/sqlite.test.ts",
+		"test": "DB_BACKEND=sqlite vitest run tests/db/config.test.ts tests/db/schema-parity.test.ts tests/db/lifecycle.test.ts tests/db/migration-files.test.ts tests/db/migration.test.ts tests/db/legacy-adoption.test.ts tests/db/failure.test.ts tests/db/concurrency.test.ts tests/db/no-init.test.ts tests/db/coverage-ledger.test.ts tests/db/lifecycle-isolation.test.ts tests/upgrade/upgrade-preserves-data.test.ts tests/recovery/native-recovery.test.ts tests/domains/auth/sqlite.test.ts tests/domains/goals/sqlite.test.ts tests/domains/planning/sqlite.test.ts tests/domains/metrics/sqlite.test.ts tests/domains/integrations/sqlite.test.ts tests/backup/sqlite.test.ts tests/application/sqlite.test.ts tests/application/integrations.sqlite.test.ts",
 		"test:db:lifecycle": "vitest run tests/db/lifecycle.test.ts",
 		"test:db:isolation": "vitest run tests/db/lifecycle-isolation.test.ts",
 		"test:db:parity": "vitest run tests/db/schema-parity.test.ts",
 		"test:db:sqlite": "DB_BACKEND=sqlite vitest run tests/db/sqlite.contract.test.ts tests/db/schema-parity.test.ts tests/db/coverage-ledger.test.ts tests/db/lifecycle-isolation.test.ts tests/upgrade/upgrade-preserves-data.test.ts tests/recovery/native-recovery.test.ts tests/domains/auth/sqlite.test.ts tests/domains/goals/sqlite.test.ts tests/domains/planning/sqlite.test.ts tests/domains/metrics/sqlite.test.ts tests/domains/integrations/sqlite.test.ts tests/backup/sqlite.test.ts",
-		"test:db:postgres": "DB_BACKEND=postgres vitest run tests/db/postgres.contract.test.ts tests/db/postgres.migration.test.ts tests/db/postgres.operations.test.ts tests/db/schema-parity.test.ts tests/domains/auth/postgres.test.ts tests/domains/goals/postgres.test.ts tests/domains/planning/postgres.test.ts tests/domains/metrics/postgres.test.ts tests/domains/integrations/postgres.test.ts tests/backup/postgres.test.ts tests/recovery/postgres-recovery.test.ts",
+		"test:db:postgres": "npm run preflight:postgres && DB_BACKEND=postgres vitest run tests/db/postgres.contract.test.ts tests/db/postgres.migration.test.ts tests/db/postgres.operations.test.ts tests/db/schema-parity.test.ts tests/domains/auth/postgres.test.ts tests/domains/goals/postgres.test.ts tests/domains/planning/postgres.test.ts tests/domains/metrics/postgres.test.ts tests/domains/integrations/postgres.test.ts tests/backup/postgres.test.ts tests/recovery/postgres-recovery.test.ts",
 		"test:upgrade": "DB_BACKEND=sqlite vitest run tests/upgrade/upgrade-preserves-data.test.ts",
 		"test:recovery:sqlite": "vitest run tests/recovery/native-recovery.test.ts",
-		"test:recovery:postgres": "vitest run tests/recovery/postgres-recovery.test.ts"
+		"test:recovery:postgres": "npm run preflight:postgres && vitest run tests/recovery/postgres-recovery.test.ts",
+		"test:application:sqlite": "DB_BACKEND=sqlite vitest run tests/application/sqlite.test.ts tests/application/integrations.sqlite.test.ts",
+		"test:application:postgres": "npm run preflight:postgres && DB_BACKEND=postgres vitest run tests/application/postgres.test.ts tests/application/integrations.postgres.test.ts",
+		"preflight:postgres": "esbuild scripts/require-postgres-test.ts --bundle --platform=node --packages=external --format=esm --outfile=node_modules/.cache/require-postgres-test.mjs && node node_modules/.cache/require-postgres-test.mjs"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^7.0.0",
