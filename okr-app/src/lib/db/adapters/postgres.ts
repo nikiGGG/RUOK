@@ -519,9 +519,18 @@ export class PostgresDatabaseServices implements DatabaseServices {
 		this.friendNotes = this.createFriendNoteRepository();
 	}
 
+	/** Total live-probe budget (checkout + query + response overhead), <=3s (NFR-002). */
+	private readonly availabilityTimeoutMs = 3000;
+
 	async open(): Promise<void> {
 		if (this._open) return;
 		const pool = new Pool(buildPostgresPoolConfig(this.config));
+		// Idle-client errors must never crash the process (T015): an idle pool
+		// connection that dies is surfaced by the next checkAvailability()/statement
+		// rather than raising an unhandled 'error' event. Log a redacted message.
+		pool.on('error', (err: Error) => {
+			console.error('[postgres] idle pool error:', err.message);
+		});
 		this.pool = pool;
 		this.db = drizzle(pool, { schema });
 
@@ -538,6 +547,71 @@ export class PostgresDatabaseServices implements DatabaseServices {
 
 	isOpen(): boolean {
 		return this._open;
+	}
+
+	/**
+	 * Bounded live-availability probe (T015 / NFR-002).
+	 *
+	 * Runs a real query against a required application table (`users`) within a
+	 * 3-second total budget covering checkout + query. On timeout or error it
+	 * destroys the checked-out client (never returns a possibly-stuck connection
+	 * to the pool) and reports `false`, so saturation, outage and idle errors
+	 * report unavailable without process termination or leaked work. A later
+	 * success can recover. Uses the real application pool — no separate healthy
+	 * pool masks exhaustion.
+	 */
+	async checkAvailability(): Promise<boolean> {
+		if (!this._open || !this.pool) return false;
+		let client: PoolClient | undefined;
+		let destroyed = false;
+		let settled = false;
+		const releaseOrDestroy = () => {
+			if (!client || destroyed) return;
+			destroyed = true;
+			try {
+				client.release(true); // destroy: never pool a possibly-stuck client
+			} catch {
+				/* already released/destroyed */
+			}
+		};
+		return new Promise<boolean>((resolve) => {
+			const timer = setTimeout(() => {
+				if (settled) return;
+				settled = true;
+				releaseOrDestroy();
+				resolve(false);
+			}, this.availabilityTimeoutMs);
+			(async () => {
+				try {
+					client = await this.pool!.connect();
+					if (settled) {
+						releaseOrDestroy(); // late checkout after timeout -> clean up
+						return;
+					}
+					await client.query('SELECT 1 FROM users LIMIT 1');
+					if (settled) {
+						releaseOrDestroy();
+						return;
+					}
+					settled = true;
+					destroyed = true;
+					try {
+						client.release(); // healthy: return to the pool
+					} catch {
+						/* already destroyed */
+					}
+					resolve(true);
+				} catch {
+					if (!settled) {
+						settled = true;
+						releaseOrDestroy();
+						resolve(false);
+					}
+				} finally {
+					clearTimeout(timer);
+				}
+			})();
+		});
 	}
 
 	async close(): Promise<void> {
