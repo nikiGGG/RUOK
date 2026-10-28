@@ -226,7 +226,8 @@
       "model": "__resolved_model_absent__",
       "notes": [
         "Ready for review: scheduler lifecycle repair + real scheduler/query/saved-query/friend/AI integration suite on both backends; T034 bridge fault demonstrated; sqlite run green",
-        "Postgres entry now passes"
+        "Postgres entry now passes",
+        "Review passed (cycle 2): previously-blocking backend-specific audit-log assertion resolved. Commit 82995db changed expect(logs[0].success).toEqual(1) to toBeTruthy() on the boolean-mode 'success' column (raw better-sqlite3 returns integer 1; pg returns JS true), preserving intent (still verifies the audit log records a successful query, backed by code_snippet and exact-value checks). Corroborated on both backends: sqlite integrations 8/8 exit 0, postgres integrations 8/8 exit 0 (live PG18.6 at 127.0.0.1:55432), sqlite regression 19/19 exit 0. T030-T034 scenarios all green on both backends; scheduler start/stop has live production callers (no dead code); fix commit touches only WP07-owned files."
       ],
       "provider": "__resolved_provider_absent__",
       "review": null,
