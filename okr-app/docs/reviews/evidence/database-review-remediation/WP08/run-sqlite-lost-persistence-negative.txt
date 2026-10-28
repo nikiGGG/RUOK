@@ -1,0 +1,26 @@
+# WP08 SQLite lost-persistence NEGATIVE control (isolated copy, not committed)
+command: bash tests/container/.wp08-lost-persistence-control.tmp.sh (isolated control derived from smoke-host-sqlite.sh)
+control: switch to a fresh migrated-but-empty data dir before restart so the account+objective are lost
+start_utc: 2026-10-28T20:32:34Z
+end_utc: 2026-10-28T20:32:34Z
+exit_code: 1 (expected nonzero)
+revision: 2912ff7012eecb15ec8442bc5e4eaf372dcece5d
+node: v22.20.0
+--- transcript ---
+### [host] migration-only invocation (production deps) on empty DB
+[db-migrate] backend=sqlite mode=migrate
+[db-migrate] OK classification=fresh applied=7 recorded=7 schemaVersion=6
+    migration-only invocation exit=0
+### [host] starting production runtime (node build)
+    server pid=83698
+    /api/ready -> 200
+### [host] liveness /api/health
+    /api/health -> 200
+### [host] register user + create objective
+    created objective id=6afe6c6a-b868-483a-b95c-c5916384b16c title='WP08 Host SQLite Persistence Objective'
+    DB file present at /var/folders/g_/0hwm4sq12xn42jj4x73z23300000gq/T/tmp.zmwmKBw0Yz/okr.db
+### [host] restarting production runtime and verifying EXACT persistence
+    [CONTROL] switching to fresh migrated-but-empty data dir (simulated lost persistence)
+    server pid=83992
+    /api/ready -> 200
+    FAIL re-login after restart HTTP 401

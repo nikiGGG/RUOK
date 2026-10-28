@@ -1,0 +1,15 @@
+# WP08 never-ready NEGATIVE control (host-level, unreachable postgres)
+command: PORT=3192 DATABASE_TYPE=postgres DATABASE_URL=<redacted-unreachable> node build  (started with node build; /api/ready polled)
+control: production runtime in postgres mode against an UNREACHABLE database; /api/ready must never become 200; wait_ready treats this as FATAL (nonzero) after RUOK_SMOKE_READY_TIMEOUT
+start_utc: 2026-10-28T20:33:02Z
+revision: 2912ff7012eecb15ec8442bc5e4eaf372dcece5d
+node: v22.20.0
+--- probes ---
+probe 1: /api/ready -> 503
+probe 2: /api/ready -> 503
+probe 3: /api/ready -> 503
+probe 4: /api/ready -> 503
+probe 5: /api/ready -> 503
+probe 6: /api/ready -> 503
+RESULT: never 200 (wait_ready would exit nonzero after timeout)
+end_utc: 2026-10-28T20:33:14Z

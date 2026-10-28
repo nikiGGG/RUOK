@@ -1,0 +1,32 @@
+# WP08 PostgreSQL host-level positive run (live traggo-test-pg, disposable DB)
+command: host-level production runtime (node build) with DATABASE_TYPE=postgres against a disposable PG18 database
+database: ruok_smoke_1793219599_30930 (created then dropped on the already-running traggo-test-pg PG 18.6 container; C-007-safe reuse, no image pulled)
+start_utc: 2026-10-28T20:33:19Z
+revision: 2912ff7012eecb15ec8442bc5e4eaf372dcece5d
+node: v22.20.0
+backend: postgres
+--- create database ---
+CREATE DATABASE
+--- migrate ---
+[db-migrate] backend=postgres mode=migrate
+[db-migrate] OK classification=fresh applied=1 recorded=1 schemaVersion=0
+--- start ---
+server pid=85060
+ready 200
+--- register ---
+register=200
+--- create objective ---
+create=201
+created id=2e3b1af0-130e-4c0b-935a-34d36fee7aa4 title=WP08 Host Postgres Persistence Objective
+--- restart ---
+server pid=85159
+ready 200
+--- re-login + exact read ---
+login=200
+read=200
+read id=2e3b1af0-130e-4c0b-935a-34d36fee7aa4 title=WP08 Host Postgres Persistence Objective
+RESULT: PASS (exact persistence)
+--- drop database ---
+DROP DATABASE
+end_utc: 2026-10-28T20:33:28Z
+exit_code: 0

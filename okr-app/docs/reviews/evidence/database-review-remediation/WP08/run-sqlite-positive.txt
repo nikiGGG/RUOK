@@ -1,0 +1,27 @@
+# WP08 SQLite host-level positive run
+command: bash tests/container/smoke-host-sqlite.sh
+start_utc: 2026-10-28T20:31:48Z
+end_utc: 2026-10-28T20:32:09Z
+exit_code: 0
+revision: 2912ff7012eecb15ec8442bc5e4eaf372dcece5d
+node: v22.20.0
+backend: sqlite (host-level production runtime, node build)
+--- transcript ---
+### [host] migration-only invocation (production deps) on empty DB
+[db-migrate] backend=sqlite mode=migrate
+[db-migrate] OK classification=fresh applied=7 recorded=7 schemaVersion=6
+    migration-only invocation exit=0
+### [host] starting production runtime (node build)
+    server pid=83248
+    /api/ready -> 200
+### [host] liveness /api/health
+    /api/health -> 200
+### [host] register user + create objective
+    created objective id=bc3ddc35-a715-4aeb-a2cf-29473eb74844 title='WP08 Host SQLite Persistence Objective'
+    DB file present at /var/folders/g_/0hwm4sq12xn42jj4x73z23300000gq/T/tmp.uJXxkXjZ8o/okr.db
+### [host] restarting production runtime and verifying EXACT persistence
+    server pid=83405
+    /api/ready -> 200
+    exact read OK id=bc3ddc35-a715-4aeb-a2cf-29473eb74844 title='WP08 Host SQLite Persistence Objective'
+### [host] PASS
+    port=3181 data=/var/folders/g_/0hwm4sq12xn42jj4x73z23300000gq/T/tmp.uJXxkXjZ8o
