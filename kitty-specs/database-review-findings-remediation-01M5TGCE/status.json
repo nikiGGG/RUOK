@@ -1,19 +1,19 @@
 {
-  "event_count": 50,
-  "last_event_id": "01M61ZA3YSZZT52WBS2SQPPPCN",
-  "materialized_at": "2026-10-28T19:20:38.105046+00:00",
+  "event_count": 51,
+  "last_event_id": "01M61ZCEPM7XPD1CTB0NFFMQ50",
+  "materialized_at": "2026-10-28T19:21:54.645050+00:00",
   "mission_number": "",
   "mission_slug": "database-review-findings-remediation-01M5TGCE",
   "mission_type": "software-dev",
   "summary": {
-    "approved": 4,
+    "approved": 5,
     "blocked": 0,
     "canceled": 0,
     "claimed": 0,
     "done": 0,
     "for_review": 0,
     "in_progress": 0,
-    "in_review": 1,
+    "in_review": 0,
     "planned": 6
   },
   "work_packages": {
@@ -116,19 +116,25 @@
       }
     },
     "WP04": {
-      "actor": "nessy",
+      "actor": "user",
       "agent": "nessy",
       "agent_profile": "__resolved_profile_absent__",
       "agent_profile_version": "__resolved_profile_version_absent__",
       "force_count": 0,
-      "lane": "in_review",
-      "last_event_id": "01M61ZA3YSZZT52WBS2SQPPPCN",
-      "last_transition_at": "2026-10-28T19:20:38.105046+00:00",
+      "lane": "approved",
+      "last_event_id": "01M61ZCEPM7XPD1CTB0NFFMQ50",
+      "last_transition_at": "2026-10-28T19:21:54.645050+00:00",
       "model": "__resolved_model_absent__",
       "notes": [
         "Ready for review: single lifecycle owner (shared attempt/cooldown/fencing), async live readiness (checkAvailability), probe-route separation, dialect-bound DatabaseServices. npm test exit 0 (146), focused WP04 suites exit 0 (44 pass/1 skip), build emits worker artifacts. Live PG checkAvailability PENDING (no admin URL)."
       ],
       "provider": "__resolved_provider_absent__",
+      "review_result": {
+        "feedback_path": "/Users/n.gryaznev/Develop/OTHER/RUOK/kitty-specs/database-review-findings-remediation-01M5TGCE/tasks/WP04-recoverable-runtime-and-probes/review-cycle-1.md",
+        "reference": "review-cycle://database-review-findings-remediation-01M5TGCE/WP04-recoverable-runtime-and-probes/review-cycle-1.md",
+        "reviewer": "user",
+        "verdict": "approved"
+      },
       "role": "reviewer",
       "shell_pid": 4655,
       "shell_pid_created_at": "1793215235.263528",
