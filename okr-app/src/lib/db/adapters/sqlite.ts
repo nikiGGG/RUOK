@@ -14,5 +14,5 @@
  * The synchronous implementation intentionally lives in `sqlite-local.ts`,
  * which is imported only by the worker threads and never here.
  */
-export { SqliteDatabaseServices, runSqlitePreparation } from './sqlite-worker-client';
+export { SqliteDatabaseServices, runPreparation, runSqlitePreparation } from './sqlite-worker-client';
 export type { SqliteDatabaseServices as SqliteDatabaseServicesInstance } from './sqlite-worker-client';

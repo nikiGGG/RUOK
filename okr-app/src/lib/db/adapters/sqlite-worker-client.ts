@@ -24,7 +24,7 @@
 import { Worker } from 'node:worker_threads';
 import { existsSync, mkdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import type { DatabaseServices, SqliteConfig } from '../contracts';
+import type { DatabaseConfig, DatabaseServices, SqliteConfig } from '../contracts';
 import type {
 	BackupRepository,
 	CreateUserWithInitialDataInput,
@@ -131,11 +131,15 @@ function spawnWorker(entry: string): Worker {
 // ---------------------------------------------------------------------------
 
 /**
- * Run SQLite migrate/verify in a separate preparation worker that closes before
- * the runtime worker opens. Performs no SQLite I/O on the HTTP thread.
+ * Run backend migrate/verify in a separate preparation worker that closes before
+ * the runtime worker opens. Performs no SQLite I/O on the HTTP thread. Works for
+ * any configured backend (SQLite migrate/verify and PostgreSQL migrate/verify),
+ * so the lifecycle routes migration solely through this worker boundary and
+ * never imports the dialect migration runners (or the SQLite driver) on the
+ * HTTP thread.
  */
-export async function runSqlitePreparation(
-	config: SqliteConfig,
+export async function runPreparation(
+	config: DatabaseConfig,
 	options: MigrateOptions = {}
 ): Promise<MigrationResult> {
 	const mode = options.mode ?? 'migrate';
@@ -160,6 +164,16 @@ export async function runSqlitePreparation(
 		});
 		worker.postMessage({ type: 'preparation', requestId: 1, config, mode });
 	});
+}
+
+/**
+ * SQLite-only alias for {@link runPreparation} (kept for tests / compatibility).
+ */
+export function runSqlitePreparation(
+	config: SqliteConfig,
+	options: MigrateOptions = {}
+): Promise<MigrationResult> {
+	return runPreparation(config, options);
 }
 
 // ---------------------------------------------------------------------------

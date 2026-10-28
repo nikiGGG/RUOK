@@ -13,7 +13,7 @@
 import { parentPort } from 'node:worker_threads';
 import { migrateDatabase } from '../migrations';
 import type { MigrationResult } from '../migrations/contracts';
-import type { SqliteConfig } from '../contracts';
+import type { DatabaseConfig } from '../contracts';
 import type { SqliteWorkerRole } from './sqlite-worker-protocol';
 
 // The preparation worker is referenced only as a worker entry point.
@@ -22,7 +22,7 @@ export const ROLE: SqliteWorkerRole = 'preparation';
 export interface SqlitePreparationCommand {
 	type: 'preparation';
 	requestId: number;
-	config: SqliteConfig;
+	config: DatabaseConfig;
 	mode: 'migrate' | 'verify';
 }
 
