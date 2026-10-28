@@ -217,10 +217,15 @@
     "WP07": {
       "actor": "nessy",
       "agent": "nessy",
+      "agent_profile": "__resolved_profile_absent__",
+      "agent_profile_version": "__resolved_profile_version_absent__",
       "force_count": 0,
       "lane": "in_progress",
       "last_event_id": "01M6214MGGCAH0XB29EN9T0S75",
       "last_transition_at": "2026-10-28T19:52:35.600533+00:00",
+      "model": "__resolved_model_absent__",
+      "provider": "__resolved_provider_absent__",
+      "role": "implementer",
       "shell_pid": 40918,
       "shell_pid_created_at": "1793217149.555651"
     },
