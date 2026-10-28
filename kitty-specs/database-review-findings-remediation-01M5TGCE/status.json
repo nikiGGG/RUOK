@@ -61,7 +61,8 @@
       "last_transition_at": "2026-10-28T04:41:06.939163+00:00",
       "model": "__resolved_model_absent__",
       "notes": [
-        "Ready for review"
+        "Ready for review",
+        "Review passed: semantic SQLite integrity implemented correctly. Shared inspectSqlite + classifyLegacy reject incompatible index/column/FK/CHECK and corrupt/unknown/duplicate journal records with no-mutation guarantees; journal_mode deferred until post-commit, FK-orphan preflight preserved, shared inspector live-called from migrator+verifier. Tests: sqlite-integrity 15/15, test:db:sqlite 77/77, migration suites 23/23. Both out-of-map edits (migration-files.test.ts compile fix, index.ts additive re-export) are justified. No dead code."
       ],
       "provider": "__resolved_provider_absent__",
       "review_result": {
