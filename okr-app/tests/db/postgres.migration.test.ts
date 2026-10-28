@@ -16,9 +16,11 @@ import { describe, expect, it } from 'vitest'
 import {
 	acquirePostgresMigrationLock,
 	createPostgresMigrationClient,
+	parsePostgresTables,
 	readMigrationFolder,
 	releasePostgresMigrationLock,
-	runPostgresMigrations
+	runPostgresMigrations,
+	runPostgresVerify
 } from '../../src/lib/db/migrations'
 import type { PostgresConfig } from '../../src/lib/db'
 
@@ -37,6 +39,11 @@ describe('postgres migration history (T009)', () => {
 		expect(typeof acquirePostgresMigrationLock).toBe('function')
 		expect(typeof releasePostgresMigrationLock).toBe('function')
 		expect(typeof createPostgresMigrationClient).toBe('function')
+	})
+
+	it('exports the separate read-only verify surface (no-DDL path, T011)', () => {
+		expect(typeof runPostgresVerify).toBe('function')
+		expect(typeof parsePostgresTables).toBe('function')
 	})
 })
 

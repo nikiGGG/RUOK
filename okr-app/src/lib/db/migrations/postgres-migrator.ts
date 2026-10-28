@@ -7,9 +7,12 @@
  * a single transaction on that pinned connection. There is no legacy SQLite
  * adoption here — PostgreSQL is a fresh backend with its own versioned history.
  *
- * Supports a schema-verification mode (`verifyOnly`) for deployments where the
- * runtime role may not execute DDL: it verifies the expected history is fully
- * recorded without mutating anything.
+ * This module is PRIVILEGED migration ONLY (FR-003 / T011). Runtime
+ * verification is a different, read-only execution path in
+ * `postgres-verify.ts` (`runPostgresVerify`), which must NOT call
+ * `createJournal` and must NOT take the advisory lock. Keeping DDL out of the
+ * verify path means a data-only runtime role without CREATE can still verify
+ * migrated storage.
  *
  * PostgreSQL reads/writes are asynchronous; every awaited statement runs on
  * the pinned client (never a pool). This is a separate process from any
@@ -44,41 +47,26 @@ async function appliedWhen(client: Client): Promise<Set<number>> {
 }
 
 export interface PostgresMigrationOptions {
-	/** Verify the expected history is fully recorded without mutating (no-DDL role). */
-	verifyOnly?: boolean
+	// Runtime verification is intentionally NOT exposed here (T011): it lives
+	// in `postgres-verify.ts` as a separate read-only execution path.
 }
 
 /**
- * Run (or verify) PostgreSQL migrations on a pinned, advisory-locked client.
- * The caller owns the connection lifecycle (connect/close).
+ * Run PostgreSQL migrations on a pinned, advisory-locked client. The caller
+ * owns the connection lifecycle (connect/close). This path ALWAYS applies DDL;
+ * read-only verification belongs in {@link ./postgres-verify}.
  */
 export async function runPostgresMigrations(
 	client: Client,
 	config: PostgresConfig,
 	migrationsFolder: string,
-	options: PostgresMigrationOptions = {}
+	_options: PostgresMigrationOptions = {}
 ): Promise<MigrationResult> {
 	const { migrations } = readMigrationFolder(migrationsFolder)
 	await createJournal(client)
 	const existing = await appliedWhen(client)
 
 	const pending = migrations.filter((m) => !existing.has(m.when))
-
-	if (options.verifyOnly) {
-		if (pending.length > 0) {
-			throw new Error(
-				`PostgreSQL schema verification failed: ${pending.length} migration(s) not applied ` +
-					`(${pending.map((m) => m.tag).join(', ')}). Run the migration role first; the runtime role cannot DDL.`
-			)
-		}
-		return {
-			dialect: 'postgres',
-			classification: 'ready',
-			appliedCount: migrations.length,
-			recorded: 0,
-			schemaVersion: migrations.length - 1
-		}
-	}
 
 	const appliedCount = migrations.length - pending.length
 	if (pending.length === 0) {

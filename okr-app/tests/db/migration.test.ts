@@ -6,7 +6,7 @@
  * that the process-wide lifecycle exposes correct readiness after open.
  */
 import Database from 'better-sqlite3'
-import { mkdtempSync, rmSync } from 'fs'
+import { mkdtempSync, rmSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -110,6 +110,10 @@ describe('lifecycle readiness (T011/T012)', () => {
 describe('schema verification mode (T011)', () => {
 	it('verify fails on a fresh database (nothing applied, no DDL)', async () => {
 		const path = tempPath('verify-fresh')
+		// An existing-but-unmigrated (fresh) database: verify opens it read-only
+		// and rejects it without creating any tables (T012). A *missing* file is
+		// rejected at open and left uncreated (covered by runtime-mode.test.ts).
+		writeFileSync(path, '')
 		const config = loadConfig({ DATABASE_PATH: path })
 		await expect(
 			migrateDatabase(config, { mode: 'verify', migrationsFolder: SQLITE_FOLDER })

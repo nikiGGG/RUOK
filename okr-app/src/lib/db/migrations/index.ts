@@ -20,3 +20,9 @@ export {
 	releasePostgresMigrationLock,
 	createPostgresMigrationClient
 } from './postgres-migrator'
+export {
+	runPostgresVerify,
+	parsePostgresTables,
+	type PostgresTableDescriptor,
+	type PostgresTableColumn
+} from './postgres-verify'
