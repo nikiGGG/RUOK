@@ -85,10 +85,15 @@
     "WP03": {
       "actor": "nessy",
       "agent": "nessy",
+      "agent_profile": "__resolved_profile_absent__",
+      "agent_profile_version": "__resolved_profile_version_absent__",
       "force_count": 0,
       "lane": "in_progress",
       "last_event_id": "01M60D05XABT9YR7FVMH10T4C4",
       "last_transition_at": "2026-10-28T04:41:23.625656+00:00",
+      "model": "__resolved_model_absent__",
+      "provider": "__resolved_provider_absent__",
+      "role": "implementer",
       "shell_pid": 60506,
       "shell_pid_created_at": "1793162475.429384"
     },
