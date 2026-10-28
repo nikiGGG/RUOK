@@ -1,11 +1,11 @@
 # WP05 source checksums (SHA-256)
-# generated: 2026-10-28T19:28:46Z
-# revision (pre-commit HEAD): c9332429de15890b0101fb2f841f5fc1a26e3e65
+# generated: 2026-10-28T23:35:00Z (cycle 2 — T023 executed for real)
+# revision (pre-commit HEAD): 493cb7be4a76923dbe9b52263e466fc9a82b8ee2
 
 80331c0312b8f1b4e5f59ed74f9870143b37d3334d634507c0115938f60351cb  scripts/require-postgres-test.ts
 3fda0f5dfe3a8dc37002c7bcbcb03557ca7f1dc4ec988001ae7b9543548e6911  tests/db/postgres.operations.test.ts
 eae50b099df94ffd8fc27da3f6ec940439fae51a3542d67347688f45adc78734  tests/db/concurrency.test.ts
 87feb8fb3c6690155e543fa48d9a3e2b4ef3788e06c95dade6d9040ed65bfea8  tests/db/no-init.test.ts
-52697b7f0344a74d8b8b300d168071c53e5ddce4c013beba9cbdb596c56c0f42  tests/recovery/postgres-recovery.test.ts
-878e399e1251b0232d36d1ce95ba6e716ab308bb4e4aae2b0fc5ffa952a909d6  docs/reviews/evidence/database-review-remediation/WP05/manifest.md
-81463aea5ed0a3b9fa6941b5f5b60eb3b919788668505f334e4429c59f1b51c8  docs/reviews/evidence/database-review-remediation/WP05/run-transcript.txt
+630a0aa379641cc1affbf5994036260ad4ddf6ae3d12b8d5c5c233621e2004f0  tests/recovery/postgres-recovery.test.ts
+d1f18cdb115033d1139a933e4705110f61f53e170c9862b8d2718f82e9e68652  docs/reviews/evidence/database-review-remediation/WP05/manifest.md
+28089a8b45ca6ce1a95a60ec863b18af1583db74ec1b9075bbd268756c572723  docs/reviews/evidence/database-review-remediation/WP05/run-transcript.txt

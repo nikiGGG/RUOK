@@ -6,12 +6,28 @@ exit: 1
   | [require-postgres] Missing PostgreSQL test prerequisites:
   |   - RUOK_TEST_PG_ADMIN_URL is not set. Set it to a DBA/owner connection string for a disposable PostgreSQL 18+ server (no password will be printed).
 
-## T022 preflight CLI — admin URL present but host tools v14 vs server 18 (expect nonzero)
+## T022 preflight CLI — admin URL present but host tools v14 vs server 18 (expect nonzero; gate preserved)
 cmd: RUOK_TEST_PG_ADMIN_URL=<redacted-admin-url> node node_modules/.cache/require-postgres-test.mjs
 exit: 1
   | [require-postgres] Missing PostgreSQL test prerequisites:
   |   - pg_dump major 14 does not match PostgreSQL server major 18; the native dump requires pg_dump >= the server version.
   |   - pg_restore major 14 does not match PostgreSQL server major 18; the native restore requires pg_restore >= the dump's server version.
+
+## C-007-safe tooling confirmation (reuses already-running container; no image pull/substitute)
+cmd: docker ps
+  | traggo-test-pg  docker-proxy.artifactory.tcsbank.ru/postgres:18  Up 3 days
+cmd: docker exec traggo-test-pg ls /usr/lib/postgresql/18/bin/pg_dump /usr/lib/postgresql/18/bin/pg_restore /usr/lib/postgresql/18/bin/psql
+  | /usr/lib/postgresql/18/bin/pg_dump
+  | /usr/lib/postgresql/18/bin/pg_restore
+  | /usr/lib/postgresql/18/bin/psql
+cmd: docker exec traggo-test-pg /usr/lib/postgresql/18/bin/pg_dump --version
+  | pg_dump (PostgreSQL) 18.6 (Debian 18.6-1.pgdg13+2)
+cmd: docker exec traggo-test-pg /usr/lib/postgresql/18/bin/pg_restore --version
+  | pg_restore (PostgreSQL) 18.6 (Debian 18.6-1.pgdg13+2)
+cmd (host): psql 'postgres://postgres@127.0.0.1:55432/postgres' -tAc "select version()"
+  | PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+Host PATH tools: pg_dump/pg_restore/psql 14.15 (Homebrew) — v14 < server 18, so the
+rehearsal resolved the matching pg18.6 toolchain from the running container.
 
 ## T024 concurrency + no-init (10 consecutive runs each; retries disabled)
 cmd: DB_BACKEND=sqlite npx vitest run tests/db/concurrency.test.ts tests/db/no-init.test.ts
@@ -20,18 +36,36 @@ exit: 0
 ## T021 live postgres.operations (disposable PG18, migrated; exit 0)
 cmd: RUOK_TEST_PG_ADMIN_URL=<redacted-admin-url> DB_BACKEND=postgres npx vitest run tests/db/postgres.operations.test.ts
 exit: 0
-  | [2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
-  | [2m      Tests [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+  |  Test Files  1 passed (1)
+  |       Tests  4 passed (4)
 
-## T023 native recovery rehearsal — BLOCKED (fail-closed: host pg tools v14 != server PG18)
+## T023 native recovery rehearsal — PASS (executed for real against live PG18)
+The host PATH tools (pg 14.15) do not match the live server major 18, so the suite's
+matching-toolchain resolver fell back to the pg18.6 binaries already present in the
+running `traggo-test-pg` container (`docker exec /usr/lib/postgresql/18/bin/...`,
+connection URI adapted to container-internal `127.0.0.1:5432`, shared container-local
+dump path). C-007 respected: no image pulled/substituted.
 cmd: RUOK_TEST_PG_ADMIN_URL=<redacted-admin-url> DB_BACKEND=postgres npx vitest run tests/recovery/postgres-recovery.test.ts
-exit: 1 (expected fail-closed; requires matching pg_dump/pg_restore >= 18)
-  |  [31m❯[39m tests/recovery/postgres-recovery.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 48[2mms[22m[39m
-  | [31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
-  | [31m[1mAssertionError[22m: pg_dump major 14 does not match PostgreSQL server major 18; the native dump requires pg_dump >= the server version.; pg_restore major 14 does not match PostgreSQL server major 18; the native restore requires pg_restore >= the dump's server version.: expected false to be true // Object.is equality[39m
-  | [2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
-  | [2m      Tests [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+exit: 0
+  |  ✓ tests/recovery/postgres-recovery.test.ts (1 test)
+  |    ✓ T031 PostgreSQL native recovery rehearsal (1)
+  |      ✓ pg_dump + pg_restore preserves a full migrated installation
+  |  Test Files  1 passed (1)
+  |       Tests  1 passed (1)
+Scenario steps actually executed against live PG18.6 (server): pg_dump -Fc of a
+migrated+seeded disposable db (exit 0) → DROP DATABASE WITH (FORCE) + CREATE DATABASE
+(empty target) → pg_restore --no-owner --no-privileges (exit 0) → migrateDatabase
+classified `ready`, 0 migrations recorded → typed reads of users/systemConfig/
+friendships/plugins/userAiConfig/objectives/tasks all present.
 
 ## Declared validation command: npm test (SQLite suite incl. T024 + native-recovery; exit 0)
 cmd: npm test
 exit: 0
+  |  Test Files  19 passed (19)
+  |       Tests  146 passed (146)
+
+## Type-check (diff-scoped)
+cmd: npx tsc --noEmit
+  | 0 errors in WP05-owned files (postgres-recovery.test.ts, require-postgres-test.ts).
+  | Pre-existing errors in other files (e.g. src/lib/server/ai/providers.ts, oura.ts)
+  | are unrelated to WP05 and were not touched.
