@@ -64,6 +64,8 @@ const integration = adminUrl ? describe : describe.skip
 interface Provisioned {
 	runtimeConfig: PostgresConfig
 	role: string
+	/** Admin (owner) connection string re-pointed at the freshly-created database. */
+	adminConnectionString: string
 	cleanup(): Promise<void>
 }
 
@@ -79,6 +81,11 @@ async function provision(migrated: boolean): Promise<Provisioned> {
 	const dbName = `ruok_noddl_${Math.random().toString(36).slice(2, 10)}`
 	const role = `ruok_runtime_${Math.random().toString(36).slice(2, 10)}`
 	const password = `p_${Math.random().toString(36).slice(2, 12)}`
+	// Second admin session re-pointed at the freshly-created database, used for
+	// the schema/table/sequence grants below (they must target the new database,
+	// where the `drizzle` schema/journal live — not the admin URL's original
+	// database, which has no `drizzle` schema).
+	let dbAdmin: Client | undefined
 	try {
 		await admin.query(`CREATE DATABASE ${dbName}`)
 		await admin.query(`CREATE ROLE "${role}" LOGIN PASSWORD '${password}'`)
@@ -98,19 +105,27 @@ async function provision(migrated: boolean): Promise<Provisioned> {
 			await migrateDatabase(adminConfig)
 		}
 
+		// Re-point an admin session at the newly-created database before running
+		// the schema/table/sequence grants below.
+		await admin.end()
+		dbAdmin = new Client({ connectionString: appUrl.toString() })
+		await dbAdmin.connect()
+
 		// Least-privilege runtime grants (no CREATE anywhere).
-		await admin.query(`GRANT USAGE ON SCHEMA public TO "${role}"`)
-		await admin.query(`GRANT USAGE ON SCHEMA drizzle TO "${role}"`)
-		await admin.query(`GRANT SELECT ON TABLE drizzle.__drizzle_migrations TO "${role}"`)
+		await dbAdmin.query(`GRANT USAGE ON SCHEMA public TO "${role}"`)
 		if (migrated) {
-			await admin.query(`GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO "${role}"`)
-			await admin.query(`GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO "${role}"`)
+			await dbAdmin.query(`GRANT USAGE ON SCHEMA drizzle TO "${role}"`)
+			await dbAdmin.query(`GRANT SELECT ON TABLE drizzle.__drizzle_migrations TO "${role}"`)
+			await dbAdmin.query(`GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO "${role}"`)
+			await dbAdmin.query(`GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO "${role}"`)
+			await dbAdmin.query(`GRANT USAGE ON ALL SEQUENCES IN SCHEMA drizzle TO "${role}"`)
 		}
-		await admin.query(`GRANT USAGE ON ALL SEQUENCES IN SCHEMA drizzle TO "${role}"`)
 		// Ensure PUBLIC cannot create in the application schema.
-		await admin.query(`REVOKE CREATE ON SCHEMA public FROM PUBLIC`)
-		await admin.query(`REVOKE ALL ON SCHEMA public FROM PUBLIC`).catch(() => undefined)
-		await admin.query(`REVOKE ALL ON SCHEMA drizzle FROM PUBLIC`).catch(() => undefined)
+		await dbAdmin.query(`REVOKE CREATE ON SCHEMA public FROM PUBLIC`)
+		await dbAdmin.query(`REVOKE ALL ON SCHEMA public FROM PUBLIC`).catch(() => undefined)
+		if (migrated) {
+			await dbAdmin.query(`REVOKE ALL ON SCHEMA drizzle FROM PUBLIC`).catch(() => undefined)
+		}
 
 		const runtimeUrl = new URL(appUrl.toString())
 		runtimeUrl.username = role
@@ -127,6 +142,7 @@ async function provision(migrated: boolean): Promise<Provisioned> {
 		return {
 			runtimeConfig,
 			role,
+			adminConnectionString: appUrl.toString(),
 			cleanup: async () => {
 				const admin2 = new Client({ connectionString: adminUrl })
 				await admin2.connect()
@@ -139,7 +155,8 @@ async function provision(migrated: boolean): Promise<Provisioned> {
 			}
 		}
 	} finally {
-		await admin.end()
+		await admin.end().catch(() => undefined)
+		await dbAdmin?.end().catch(() => undefined)
 	}
 }
 
@@ -178,10 +195,18 @@ async function inventory(client: Client): Promise<Record<string, unknown>> {
 		`SELECT n.nspname, c.relname FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace ` +
 			`WHERE c.relkind = 'S' AND n.nspname IN ('public','drizzle') ORDER BY 1, 2`
 	)
-	const journal = await client.query(
-		`SELECT hash, created_at FROM drizzle.__drizzle_migrations ORDER BY created_at`
-	)
-	return { tables: tables.rows, columns: columns.rows, seqs: seqs.rows, journal: journal.rows }
+	// The journal table only exists once storage is migrated; for unmigrated
+	// (empty) storage it is absent and inventories as an empty journal.
+	let journal: Array<{ hash: string; created_at: string }> = []
+	try {
+		const res = await client.query(
+			`SELECT hash, created_at FROM drizzle.__drizzle_migrations ORDER BY created_at`
+		)
+		journal = res.rows as Array<{ hash: string; created_at: string }>
+	} catch {
+		// journal table/schema absent (empty storage) — treated as empty.
+	}
+	return { tables: tables.rows, columns: columns.rows, seqs: seqs.rows, journal }
 }
 
 integration('restricted-role no-DDL runtime verify (T013, live server)', () => {
@@ -263,7 +288,7 @@ integration('restricted-role no-DDL runtime verify (T013, live server)', () => {
 
 	it('rejects outdated storage (journal incomplete) with zero DDL', async () => {
 		const p = await provision(true)
-		const admin = new Client({ connectionString: adminUrl })
+		const admin = new Client({ connectionString: p.adminConnectionString })
 		await admin.connect()
 		try {
 			// Remove the only journal record as admin -> the history is incomplete.
@@ -290,7 +315,7 @@ integration('restricted-role no-DDL runtime verify (T013, live server)', () => {
 
 	it('rejects incompatible storage (missing column) with zero DDL', async () => {
 		const p = await provision(true)
-		const admin = new Client({ connectionString: adminUrl })
+		const admin = new Client({ connectionString: p.adminConnectionString })
 		await admin.connect()
 		try {
 			// Drop an expected column as admin -> physical catalog mismatch.

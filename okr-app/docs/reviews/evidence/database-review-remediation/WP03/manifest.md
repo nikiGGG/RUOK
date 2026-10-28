@@ -69,15 +69,58 @@ debt in unrelated files (`src/lib/server/ai/providers.ts`,
 
 ## PENDING (live-PostgreSQL restricted-role runs)
 
-`RUOK_TEST_PG_ADMIN_URL` is not set in this environment, so the live
+~~`RUOK_TEST_PG_ADMIN_URL` is not set in this environment, so the live
 restricted-role no-DDL integration tests in `tests/db/postgres-no-ddl.test.ts`
-(guarded on that URL) SKIP here. They are fully implemented and will execute in
-CI/a live-PG environment. Each case provisions a least-privilege runtime role
-(owns no objects, PUBLIC CREATE revoked), runs `runPostgresVerify` on
-migrated/empty/outdated/incompatible storage, and asserts zero attempted DDL via
-statement capture + unchanged object inventories. These runs must be executed
-to close DRIFT-3's live boundary claim; they are recorded as PENDING, not PASS.
-No Docker image was required or pulled for any WP03 check.
+(guarded on that URL) SKIP here.~~ RESOLVED in cycle 2 — see the live run below.
+
+## Live restricted-role no-DDL runs (T013) — PASS (cycle 2)
+
+Executed against a live PostgreSQL (see environment below). The harness bug
+that previously aborted every live case in `provision()` was fixed:
+
+1. `provision()` now re-points an admin session at the freshly-created database
+   (reconnect via `appUrl` after `CREATE DATABASE`) before running the
+   schema/table/sequence grants, so the `drizzle` grants target the new
+   database instead of the admin URL's original `postgres` database.
+2. The `drizzle` GRANTs (`GRANT USAGE ON SCHEMA drizzle`, `GRANT SELECT ON
+   TABLE drizzle.__drizzle_migrations`, `GRANT USAGE ON ALL SEQUENCES IN SCHEMA
+   drizzle`, `REVOKE ALL ON SCHEMA drizzle FROM PUBLIC`) are now guarded by
+   `if (migrated)`, so the empty/unmigrated case can reach its assertion.
+3. The outdated/incompatible cases' admin mutation connections now use the
+   provisioned database's admin URL (`p.adminConnectionString`) instead of the
+   admin URL's original `postgres` database.
+4. `inventory()` treats an absent journal table (empty storage) as an empty
+   journal instead of throwing.
+
+Live environment: PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2), trust auth,
+`127.0.0.1:55432`; driver `pg ^8.23.1`; vitest 5.0.3; node v22.20.0.
+
+Command (workdir `okr-app/`):
+```
+RUOK_TEST_PG_ADMIN_URL='postgres://postgres@127.0.0.1:55432/postgres' \
+  ./node_modules/.bin/vitest run tests/db/postgres-no-ddl.test.ts --reporter=verbose
+```
+Result: `6 passed (6)` — exit 0. Full transcript: `live-run-transcript.txt`.
+
+Each live case provisions a least-privilege runtime role (owns no objects,
+PUBLIC CREATE revoked), runs `runPostgresVerify`, and asserts zero attempted
+DDL via statement capture + unchanged object inventories. Real per-case capture
+(actual inventories + captured statements): `live-capture.json`.
+
+| Case | Classification | Error | Inv. equal (before→after) | Attempted DDL |
+|---|---|---|---|---|
+| migrated (success) | `ready` | none | 26 tables / 1 journal → same | `[]` |
+| empty (unmigrated) | rejected | `journal is missing` | 0 / 0 → same | `[]` |
+| outdated (journal cleared) | rejected | `not applied` | 26 / 0 → same | `[]` |
+| incompatible (column dropped) | rejected | `is_secret` missing | 26 / 1 → same | `[]` |
+
+Runtime DML on migrated storage succeeds as the least-privilege role
+(`INSERT`/`SELECT` on `system_config`); the role owns zero objects and lacks
+`CREATE` on `public`. The captured statement lists contain only `BEGIN ...
+READ ONLY`, `SELECT`, and `ROLLBACK` — zero DDL on both success and rejection,
+closing DRIFT-3's live boundary claim. No Docker image was pulled for any WP03
+check (an already-running container on `127.0.0.1:55432` was reused, honoring
+C-007).
 
 ## No-DDL contract notes
 
