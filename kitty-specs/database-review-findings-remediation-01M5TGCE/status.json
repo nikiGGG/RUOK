@@ -299,10 +299,15 @@
     "WP11": {
       "actor": "nessy",
       "agent": "nessy",
+      "agent_profile": "__resolved_profile_absent__",
+      "agent_profile_version": "__resolved_profile_version_absent__",
       "force_count": 0,
       "lane": "in_progress",
       "last_event_id": "01M622BS6WANMH66BKJ21VNA5J",
       "last_transition_at": "2026-10-28T20:13:58.364320+00:00",
+      "model": "__resolved_model_absent__",
+      "provider": "__resolved_provider_absent__",
+      "role": "implementer",
       "shell_pid": 64163,
       "shell_pid_created_at": "1793218432.763685"
     }
