@@ -1,0 +1,37 @@
+### WP05 run transcript (redacted)
+
+## T022 preflight CLI — missing admin URL (expect nonzero)
+cmd: env -u RUOK_TEST_PG_ADMIN_URL node node_modules/.cache/require-postgres-test.mjs
+exit: 1
+  | [require-postgres] Missing PostgreSQL test prerequisites:
+  |   - RUOK_TEST_PG_ADMIN_URL is not set. Set it to a DBA/owner connection string for a disposable PostgreSQL 18+ server (no password will be printed).
+
+## T022 preflight CLI — admin URL present but host tools v14 vs server 18 (expect nonzero)
+cmd: RUOK_TEST_PG_ADMIN_URL=<redacted-admin-url> node node_modules/.cache/require-postgres-test.mjs
+exit: 1
+  | [require-postgres] Missing PostgreSQL test prerequisites:
+  |   - pg_dump major 14 does not match PostgreSQL server major 18; the native dump requires pg_dump >= the server version.
+  |   - pg_restore major 14 does not match PostgreSQL server major 18; the native restore requires pg_restore >= the dump's server version.
+
+## T024 concurrency + no-init (10 consecutive runs each; retries disabled)
+cmd: DB_BACKEND=sqlite npx vitest run tests/db/concurrency.test.ts tests/db/no-init.test.ts
+exit: 0
+
+## T021 live postgres.operations (disposable PG18, migrated; exit 0)
+cmd: RUOK_TEST_PG_ADMIN_URL=<redacted-admin-url> DB_BACKEND=postgres npx vitest run tests/db/postgres.operations.test.ts
+exit: 0
+  | [2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+  | [2m      Tests [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+
+## T023 native recovery rehearsal — BLOCKED (fail-closed: host pg tools v14 != server PG18)
+cmd: RUOK_TEST_PG_ADMIN_URL=<redacted-admin-url> DB_BACKEND=postgres npx vitest run tests/recovery/postgres-recovery.test.ts
+exit: 1 (expected fail-closed; requires matching pg_dump/pg_restore >= 18)
+  |  [31m❯[39m tests/recovery/postgres-recovery.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 48[2mms[22m[39m
+  | [31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+  | [31m[1mAssertionError[22m: pg_dump major 14 does not match PostgreSQL server major 18; the native dump requires pg_dump >= the server version.; pg_restore major 14 does not match PostgreSQL server major 18; the native restore requires pg_restore >= the dump's server version.: expected false to be true // Object.is equality[39m
+  | [2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+  | [2m      Tests [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+
+## Declared validation command: npm test (SQLite suite incl. T024 + native-recovery; exit 0)
+cmd: npm test
+exit: 0

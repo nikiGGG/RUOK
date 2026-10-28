@@ -1,5 +1,5 @@
 /**
- * PostgreSQL native dump/restore rehearsal (T031 / FR-014, US5).
+ * PostgreSQL native dump/restore rehearsal (T023 / T031 / FR-014, US5).
  *
  * This is the PostgreSQL half of the native installation-recovery rehearsal.
  * It is intentionally separate from the SQLite test (`native-recovery.test.ts`)
@@ -12,32 +12,22 @@
  * the restored installation is classified ready and every seeded row is
  * readable through the typed boundary.
  *
- * GATING: this test needs a live PostgreSQL (RUOK_TEST_PG_ADMIN_URL) AND the
- * `pg_dump`/`psql` binaries. When either is unavailable it SKIPS — it never
- * substitutes SQLite. Live execution is covered by CI. Native dumps cannot
- * switch backend engines: a PostgreSQL dump restores only to PostgreSQL.
+ * GATING (T022): this suite runs whenever the live-test prerequisites are met.
+ * It is NOT silently skipped. Missing prerequisites (no `RUOK_TEST_PG_ADMIN_URL`,
+ * no `pg_dump`/`pg_restore`/`psql`, or no reachable PG18 server) FAIL the suite
+ * with a credential-free report from {@link assertPostgresPrerequisites} — the
+ * recovery claim is fail-closed and never substitutes SQLite. Native dumps
+ * cannot switch backend engines: a PostgreSQL dump restores only to PostgreSQL.
  */
-import { execFile, execFileSync } from 'child_process'
+import { execFile } from 'child_process'
 import { Client } from 'pg'
 import { describe, expect, it } from 'vitest'
 import { createDatabaseServices, migrateDatabase } from '../../src/lib/db'
 import type { PostgresConfig } from '../../src/lib/db/contracts'
+import { assertPostgresPrerequisites } from '../../scripts/require-postgres-test'
 import { seedInstall } from './seed'
 
 const adminUrl = process.env.RUOK_TEST_PG_ADMIN_URL
-
-function hasBinary(name: string): boolean {
-	try {
-		execFileSync(name, ['--version'])
-		return true
-	} catch {
-		return false
-	}
-}
-
-const toolsReady = adminUrl && hasBinary('pg_dump') && hasBinary('psql')
-// Use `describe` (run) only when a live server + tools are present; otherwise skip.
-const integration = toolsReady ? describe : describe.skip
 
 function run(cmd: string, args: string[]): Promise<{ code: number; stdout: string; stderr: string }> {
 	return new Promise((resolve) => {
@@ -83,8 +73,13 @@ async function withDisposableDb(
 	}
 }
 
-integration('T031 PostgreSQL native recovery rehearsal', () => {
+describe('T031 PostgreSQL native recovery rehearsal', () => {
 	it('pg_dump + pg_restore preserves a full migrated installation', async () => {
+		// Fail-closed prerequisite gate (T022): the preflight checks
+		// RUOK_TEST_PG_ADMIN_URL, pg_dump/pg_restore/psql and a reachable PG18.
+		const prereq = await assertPostgresPrerequisites(process.env)
+		expect(prereq.ok, prereq.missing.join('; ')).toBe(true)
+
 		await withDisposableDb(async (config, dbName) => {
 			// 1. Migrate + seed a full installation.
 			expect((await migrateDatabase(config)).classification).toBe('fresh')
@@ -99,7 +94,8 @@ integration('T031 PostgreSQL native recovery rehearsal', () => {
 			expect(dump.code).toBe(0)
 			expect(dump.stderr).toBe('')
 
-			// 3. Drop and recreate an empty database, then restore.
+			// 3. Drop and recreate an empty database, then restore. pg_restore was
+			//    already confirmed by the preflight before the rehearsal.
 			const admin = new Client({ connectionString: adminUrl })
 			await admin.connect()
 			try {
