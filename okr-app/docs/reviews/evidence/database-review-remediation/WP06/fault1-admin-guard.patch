@@ -1,0 +1,19 @@
+diff --git a/okr-app/src/routes/api/admin/users/+server.ts b/okr-app/src/routes/api/admin/users/+server.ts
+index 5f82d20..7e73e32 100644
+--- a/okr-app/src/routes/api/admin/users/+server.ts
++++ b/okr-app/src/routes/api/admin/users/+server.ts
+@@ -8,9 +8,11 @@ export const GET: RequestHandler = async ({ locals }) => {
+ 		return json({ error: 'Unauthorized' }, { status: 401 });
+ 	}
+ 
+-	if (!locals.user.isAdmin) {
+-		return json({ error: 'Admin access required' }, { status: 403 });
+-	}
++	// FAULT-1 (controlled): admin guard deliberately removed for T029 regression
++	// sensitivity proof. MUST be restored before the final commit.
++	// if (!locals.user.isAdmin) {
++	// 	return json({ error: 'Admin access required' }, { status: 403 });
++	// }
+ 
+ 	try {
+ 		const db = await getDatabase();

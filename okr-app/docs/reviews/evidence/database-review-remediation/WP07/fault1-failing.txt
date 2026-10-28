@@ -1,0 +1,46 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/Users/n.gryaznev/Develop/OTHER/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-g/okr-app[39m
+
+ [31m❯[39m tests/application/integrations.sqlite.test.ts [2m([22m[2m8 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m7 skipped[39m[2m)[22m[33m 4641[2mms[22m[39m
+   [31m❯[39m QuickJS async query bridge via /api/queries/execute (sqlite) [2m(2)[22m
+[31m     [31m×[31m executes Promise-based reads with exact values, renders, progress and audit log[39m[32m 43[2mms[22m[39m
+     [2m[90m↓[39m[22m isolates the async bridge: another user sees no foreign data
+   [2m[90m↓[39m[22m saved queries + friend dashboard via real routes (sqlite) [2m(2)[22m
+     [2m[90m↓[39m[22m creates, lists, updates and runs a saved query with ownership denial
+     [2m[90m↓[39m[22m enforces friendship for the friend dashboard and keeps notes per author
+   [2m[90m↓[39m[22m AI tool dispatcher via /api/ai/tool (sqlite) [2m(2)[22m
+     [2m[90m↓[39m[22m persists a write tool result for the current account and denies foreign IDs
+     [2m[90m↓[39m[22m blocks unauthenticated tool calls and leaves other accounts unchanged
+   [2m[90m↓[39m[22m scheduler persistence + lifecycle (sqlite) [2m(2)[22m
+     [2m[90m↓[39m[22m runs the scheduled callback through the manager and persists imported rows + last-sync
+     [2m[90m↓[39m[22m stop clears both timers and restart does not create duplicate timers
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/application/integrations.sqlite.test.ts[2m > [22mQuickJS async query bridge via /api/queries/execute (sqlite)[2m > [22mexecutes Promise-based reads with exact values, renders, progress and audit log
+[31m[1mAssertionError[22m: expected [] to deeply equal [ 'Query Target' ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [[39m
+[32m-   "Query Target",[39m
+[32m- ][39m
+[31m+ [][39m
+
+[36m [2m❯[22m tests/application/integrations.suite.ts:[2m218:24[22m[39m
+    [90m216|[39m    expect(res.status).toBe(200);
+    [90m217|[39m    const body = await readJson(res);
+    [90m218|[39m    expect(body.result).toEqual(['Query Target']);
+    [90m   |[39m                        [31m^[39m
+    [90m219|[39m    expect(body.progressValue).toBe(0.5);
+    [90m220|[39m    expect(body.renders).toHaveLength(1);
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m7 skipped[39m[90m (8)[39m
+[2m   Start at [22m 00:01:47
+[2m   Duration [22m 5.10s[2m (tests 92%, import 5%, transform 3%)[22m
+

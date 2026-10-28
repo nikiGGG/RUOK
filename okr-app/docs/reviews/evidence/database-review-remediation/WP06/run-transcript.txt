@@ -1,0 +1,24 @@
+=== WP06 fixed-run: SQLite application suite ===
+command: DB_BACKEND=sqlite npx vitest run tests/application/sqlite.test.ts
+start: 2026-10-28T19:46:09Z
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/Users/n.gryaznev/Develop/OTHER/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-f/okr-app[39m
+
+ [32m✓[39m tests/application/sqlite.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 68339[2mms[22m[39m
+   [32m✓[39m HTTP session + admin enforcement (sqlite) [2m(9)[22m
+     [33m[2m✓[22m[39m login with the wrong password is rejected 401[33m 488[2mms[22m[39m
+     [33m[2m✓[22m[39m admin user can list users (admin success)[33m 482[2mms[22m[39m
+   [32m✓[39m HTTP probes (sqlite) [2m(2)[22m
+     [33m[2m✓[22m[39m health returns 200 {status:ok, uptime} and ready returns 200 ready:true[33m 4072[2mms[22m[39m
+     [33m[2m✓[22m[39m health stays 200 and ready is 503 while storage is unavailable at startup[33m 571[2mms[22m[39m
+   [32m✓[39m HTTP startup→recovery→outage→recovery on one PID (sqlite) [2m(2)[22m
+     [33m[2m✓[22m[39m one process: unavailable startup -> first recovery -> later outage -> second recovery, unchanged PID, within bounds[33m 7936[2mms[22m[39m
+     [33m[2m✓[22m[39m repeated outage/recovery across SQLite busy timeouts 0/5000/30000 stays within bounds[33m 49215[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m19 passed[39m[22m[90m (19)[39m
+[2m   Start at [22m 23:46:10
+[2m   Duration [22m 68.49s[2m (tests 100%)[22m
+
+exit: 0
+end: 2026-10-28T19:47:19Z
