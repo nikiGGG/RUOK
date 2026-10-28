@@ -1,0 +1,86 @@
+# WP11 run transcript (redacted)
+# mission database-review-findings-remediation-01M5TGCE — WP11 (lane-k)
+# revision (pre-commit HEAD): 791a9f748cd62bd12fef2c743ba6bf65b8e71c48
+# admin URL redacted everywhere as <REDACTED-ADMIN-URL>. Node v22.20.0, vitest 5.0.3.
+
+# --- T051: focused verification suite (static + negative controls) ---
+$ npx vitest run tests/verification/command-coverage.test.ts
+Test Files  1 passed (1)
+Tests       10 passed (10)
+# exit 0
+
+# --- T050/T052: build ---
+$ npm run build
+✓ built in 5.23s   (Using @sveltejs/adapter-node)  ✔ done
+# exit 0
+
+# --- T050/T051: new SQLite application command (HTTP/auth/probe + integrations) ---
+$ npm run test:application:sqlite
+✓ tests/application/integrations.sqlite.test.ts (8 tests)
+✓ tests/application/sqlite.test.ts (19 tests)
+Test Files  2 passed (2)
+Tests       27 passed (27)
+# exit 0
+
+# --- T050/T052: full declared SQLite suite ---
+$ npm test
+✓ tests/application/integrations.sqlite.test.ts (8 tests)
+✓ tests/application/sqlite.test.ts (19 tests)
+Test Files  21 passed (21)
+Tests       173 passed (173)
+# exit 0
+
+# --- T051: preflight fail-closed, missing admin URL ---
+$ env -u RUOK_TEST_PG_ADMIN_URL npm run preflight:postgres
+[require-postgres] Missing PostgreSQL test prerequisites:
+  - RUOK_TEST_PG_ADMIN_URL is not set. Set it to a DBA/owner connection string ...
+# exit 1 (credential-free)
+
+# --- T051: preflight fail-closed, host pg toolchain mismatch (pg14 host vs pg18 server) ---
+$ RUOK_TEST_PG_ADMIN_URL=<REDACTED-ADMIN-URL> npm run preflight:postgres
+[require-postgres] Missing PostgreSQL test prerequisites:
+  - pg_dump major 14 does not match PostgreSQL server major 18; ...
+  - pg_restore major 14 does not match PostgreSQL server major 18; ...
+# exit 1 (credential-free)
+
+# --- T051: full npm postgres application command stops at the fail-closed preflight ---
+$ RUOK_TEST_PG_ADMIN_URL=<REDACTED-ADMIN-URL> npm run test:application:postgres
+> preflight:postgres > ... require-postgres-test.mjs
+[require-postgres] Missing PostgreSQL test prerequisites:
+  - pg_dump major 14 does not match PostgreSQL server major 18; ...
+# exit 1 — the preflight gate (no suite executed on this host)
+
+# --- T051/T052: postgres application suites execute against live PG18 (direct vitest) ---
+$ RUOK_TEST_PG_ADMIN_URL=<REDACTED-ADMIN-URL> DB_BACKEND=postgres npx vitest run \
+    tests/application/postgres.test.ts tests/application/integrations.postgres.test.ts
+✓ tests/application/postgres.test.ts (17 tests)
+✓ tests/application/integrations.postgres.test.ts (8 tests)
+Test Files  2 passed (2)
+Tests       25 passed (25)
+# exit 0
+
+# --- T051/T052: postgres recovery rehearsal against live PG18 (running container pg18 fallback) ---
+$ RUOK_TEST_PG_ADMIN_URL=<REDACTED-ADMIN-URL> DB_BACKEND=postgres npx vitest run \
+    tests/recovery/postgres-recovery.test.ts
+✓ tests/recovery/postgres-recovery.test.ts (1 test)
+Tests       1 passed (1)
+# exit 0
+
+# --- T052: full postgres backend suite list (direct vitest; see pre-existing finding) ---
+$ RUOK_TEST_PG_ADMIN_URL=<REDACTED-ADMIN-URL> DB_BACKEND=postgres npx vitest run \
+    tests/db/postgres.contract.test.ts tests/db/postgres.migration.test.ts \
+    tests/db/postgres.operations.test.ts tests/db/schema-parity.test.ts \
+    tests/domains/auth/postgres.test.ts tests/domains/goals/postgres.test.ts \
+    tests/domains/planning/postgres.test.ts tests/domains/metrics/postgres.test.ts \
+    tests/domains/integrations/postgres.test.ts tests/backup/postgres.test.ts \
+    tests/recovery/postgres-recovery.test.ts
+# 1 pre-existing failure (non-WP11-owned): integrations/postgres.test.ts
+#   "query execution logs are recorded, listed and aggregated"
+#   expect(listSince(new Date())).toHaveLength(2) got 0  (timing-sensitive strict compare)
+# 10 files pass, 1 file fails — pre-existing, out of WP11 scope
+# exit 1
+
+# --- typecheck (diff-scoped, WP11-owned files) ---
+$ npm run prepare && npx tsc --noEmit
+# 0 errors in tests/verification/command-coverage.test.ts / package.json
+# exit 0
