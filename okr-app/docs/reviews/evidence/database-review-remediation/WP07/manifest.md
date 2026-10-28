@@ -1,0 +1,127 @@
+# WP07 — Verify scheduler query friend and AI paths
+
+Evidence manifest for WP07 (`database-review-findings-remediation-01M5TGCE`).
+
+- WP: WP07 (phase: Application remediation)
+- Focus: scheduler persistence + lifecycle, QuickJS async query bridge, saved
+  queries, friend dashboard and AI-tool persistence exercised through REAL
+  application entrypoints on both real databases; a controlled broken-bridge
+  fault that demonstrably fails the targeted async test.
+- Requirement refs: FR-005, FR-008, NFR-001, NFR-004.
+- Inspected baseline: `0572599edc3e79dded5893aaaaef6867394a5288`
+  (historical review `okr-app/docs/reviews/sqlite-postgresql-support-2026-10-26.md`).
+- Source revision at implementation time: `2c74063af99e155dee4e933f2256831ea6b294e7`.
+
+## Environment (all runs)
+
+| Item | Value |
+|---|---|
+| Node | v22.20.0 |
+| npm | 11.6.4 |
+| Vitest | 5.0.3 |
+| better-sqlite3 | 12.5.0 |
+| pg | 8.23.1 |
+| drizzle-orm | 0.45.1 |
+| OS | darwin-arm64 |
+| Backend (executed) | real SQLite through the WP10 worker facade + real migrated in-process SQLite |
+| Docker | none pulled (C-007 image rule respected) |
+
+## Code changes (this WP)
+
+- `okr-app/src/lib/server/plugins/scheduler.ts` — T030 lifecycle repair: the
+  initial one-shot sync timeout is now tracked (`schedulerTimeout`) and cleared
+  by `stopScheduler`, and `startScheduler` clears any stale pending one-shot on
+  (re)start so shutdown/recovery creates no duplicate timers. `startScheduler`
+  gained an optional `initialDelayMs` so the scheduled callback can be driven
+  deterministically in tests (no public trigger-test endpoint was added).
+- `okr-app/tests/application/plugin-fixture.ts` — deterministic `DataImportPlugin`.
+- `okr-app/tests/application/integrations.suite.ts` — the integration suite.
+- `okr-app/tests/application/integrations.sqlite.test.ts` /
+  `okr-app/tests/application/integrations.postgres.test.ts` — live entry points
+  (backend selection mandatory). Postgres entry is structurally complete; no
+  local PG admin URL, so it is recorded PENDING below (never SQLite-substituted).
+
+## Runs
+
+### Fixed run — SQLite application integration suite (exit 0)
+
+Command (from `okr-app/`): `DB_BACKEND=sqlite npx vitest run tests/application/integrations.sqlite.test.ts`
+Result: 1 file passed, 8 tests passed, exit 0. Full output: `run-transcript.txt`.
+
+Coverage (real HTTP against the BUILT server + real in-process DB):
+
+- **T030 scheduler**: the real scheduled callback (`runScheduledSync` via the
+  initial one-shot) drove the deterministic plugin through the manager into the
+  typed repositories on a real migrated SQLite DB — imported
+  `testimport.steps=12345` daily metric value and `plugins.last_sync` set.
+  Lifecycle: start → double-start guarded → stop → restart works, no duplicate
+  timers; stop clears both the interval and the pending one-shot.
+- **T031 QuickJS async**: `POST /api/queries/execute` ran Promise-based
+  `await q.objectives({year})` against seeded data, returning exact `result`
+  `['Query Target']`, `progressValue 0.5`, a `table` render, and a persisted
+  `query_execution_logs` row (`success=1`). Isolation: a second user's identical
+  query returned `[]` (no foreign data).
+- **T032 saved queries + friends**: create/list/update/run of a saved query via
+  real routes with durable stored code; ownership denials (Bob 404 / empty list);
+  friend request → accept → dashboard 200; stranger dashboard/notes 403; notes
+  are per-author.
+- **T033 AI tools**: `POST /api/ai/tool` `create_objective` persisted (visible
+  via objectives route and DB); foreign-ID `create_key_result` and
+  `update_objective` denied (400) with other accounts unchanged; unauthenticated
+  call denied (401).
+- **T034 bridge sensitivity**: controlled fault below.
+
+### Controlled fault — broken async bridge (T034)
+
+Performed on an isolated source copy of `executor.ts` (`fetchObjectives`
+always resolves `[]`), then restored and re-run green. `fault1-bridge.patch`,
+`fault1-failing.txt`, `fault1-passing.txt`.
+
+| Fault | Removed behavior | Intended failing test | Before | After |
+|---|---|---|---|---|
+| 1 | `q.objectives()` async bridge always resolves empty | `executes Promise-based reads with exact values` → `expect(result).toEqual(['Query Target'])` | FAIL (result `[]` vs `['Query Target']`, exit 1) | PASS (result `['Query Target']`, exit 0) |
+
+No fault code remains in the final source (verified: `grep -c "CONTROLLED FAULT"` = 0 in `executor.ts`).
+
+## Type check
+
+Command (from `okr-app/`): `npm run check`
+- svelte-check reports the same pre-existing baseline: 19 errors / 4 warnings in
+  11 files, NONE in any WP07-owned file (`grep -c "tests/application|plugins/scheduler"` = 0).
+  No new TS errors.
+
+## Impacted existing suites
+
+Command (from `okr-app/`): `DB_BACKEND=sqlite npx vitest run tests/application/sqlite.test.ts`
+Result: 1 file passed, 19 tests passed, exit 0 (WP06 HTTP/auth/probe suite
+unaffected by the scheduler lifecycle change).
+
+## Integration verification (no dead code)
+
+- `integrations.sqlite.test.ts` / `integrations.postgres.test.ts` are live entry
+  points: each calls `integrationsSuite(...)` directly.
+- The suite imports and executes `startServer` (http-fixture), `testImportPlugin`
+  (plugin-fixture), `registerPlugin`, `getDatabase`, and
+  `startScheduler`/`stopScheduler`/`isSchedulerRunning`. The scheduler module is
+  also the production path used by `hooks.server.ts`.
+- The SQLite run above proves the new code is reached; `executor.ts` needed no
+  old-path redirection (it was already the `/api/queries/execute` path).
+
+## PENDING items (not fabricated, not claimed PASS)
+
+1. **Live PostgreSQL integration suites** (`integrations.postgres.test.ts`,
+   plus the postgres branch of the in-process scheduler test) — require
+   `RUOK_TEST_PG_ADMIN_URL` (with CREATEDB). No admin URL is configured locally,
+   so they are recorded PENDING and fail as a missing prerequisite when run
+   without it (never falls back to SQLite). Live PostgreSQL closure belongs to
+   CI with real PG.
+2. **RISK-2** remains unresolved/operator-deferred (per WP safeguards).
+
+## Artifacts (this directory)
+
+- `manifest.md` — this manifest.
+- `run-transcript.txt` — fixed-run transcript (SQLite integration suite, exit 0).
+- `fault1-bridge.patch` / `fault1-failing.txt` / `fault1-passing.txt` — T034.
+- `checksums.txt` — SHA-256 checksums of evidence artifacts and changed sources.
+
+Source of truth for implementation: `spec-kitty-implement-database-review-findings-remediation-01M5TGCE-WP07.md`.
