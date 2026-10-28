@@ -18,8 +18,8 @@
  * `RUOK_TEST_LIVE_TLS=1` (see tls.test.ts).
  */
 import { execFileSync } from 'child_process';
-import { chmodSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
-import { tmpdir } from 'os';
+import { chmodSync, copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import { homedir, tmpdir } from 'os';
 import { join } from 'path';
 import { createConnection } from 'net';
 import { randomUUID } from 'crypto';
@@ -152,16 +152,40 @@ function waitForPort(host: string, port: number, timeoutMs: number): Promise<voi
  * certificate. Returns a {@link TlsPostgres} once the port accepts TCP
  * connections. The caller must call `stop()` to remove the container.
  *
- * The image tag is pinned (`postgres:18`) so the stopped-on-download-failure
- * rule (C-007) reports a stable identity. A failed pull throws here and the
- * calling test fails as a missing prerequisite / blocked check.
+ * The image reference is pinned to a registry-qualified image already present
+ * locally (`docker-proxy.artifactory.tcsbank.ru/postgres:18`) so the
+ * stopped-on-download-failure rule (C-007) reports a stable identity and live
+ * runs need no pull. It is overridable via `RUOK_TEST_PG_IMAGE`. A failed
+ * start throws here and the calling test fails as a missing prerequisite /
+ * blocked check.
  */
+export function resolveTlsPgImage(): string {
+	return process.env.RUOK_TEST_PG_IMAGE ?? 'docker-proxy.artifactory.tcsbank.ru/postgres:18';
+}
+
 export async function startTlsPostgres(material: TlsMaterial): Promise<TlsPostgres> {
 	if (!dockerAvailable()) {
 		throw new Error('Missing prerequisite for live TLS: Docker daemon is not reachable.');
 	}
 	const name = `ruok-tls-${randomUUID()}`;
-	const image = 'postgres:18';
+	const image = resolveTlsPgImage();
+
+	// Stage the server cert/key into a directory the Docker VM actually shares.
+	// On macOS under colima only the home directory is mounted into the VM, so
+	// bind-mounts sourced from os.tmpdir() (/var/folders) or /tmp surface files
+	// as empty directories and Postgres fails with "no start line". A home-based
+	// staging dir is created here and removed by stop() / every error path.
+	const stagingDir = mkdtempSync(join(homedir(), '.ruok-tls-'));
+	const stagedCert = join(stagingDir, 'server.crt');
+	const stagedKey = join(stagingDir, 'server.key');
+	try {
+		copyFileSync(material.serverCertPath, stagedCert);
+		copyFileSync(material.serverKeyPath, stagedKey);
+		chmodSync(stagedKey, 0o600);
+	} catch (err) {
+		rmSync(stagingDir, { recursive: true, force: true });
+		throw err;
+	}
 
 	// Start the container with the server cert/key and ssl=on.
 	const args = [
@@ -170,16 +194,16 @@ export async function startTlsPostgres(material: TlsMaterial): Promise<TlsPostgr
 		'-e', 'POSTGRES_PASSWORD=postgres',
 		'-e', 'POSTGRES_USER=postgres',
 		'-e', 'POSTGRES_DB=postgres',
-		'-v', `${material.serverCertPath}:/var/lib/postgresql/server.crt`,
-		'-v', `${material.serverKeyPath}:/var/lib/postgresql/server.key`,
+		'-v', `${stagingDir}:/var/lib/postgresql/certs`,
 		image,
 		'-c', 'ssl=on',
-		'-c', 'ssl_cert_file=/var/lib/postgresql/server.crt',
-		'-c', 'ssl_key_file=/var/lib/postgresql/server.key'
+		'-c', 'ssl_cert_file=/var/lib/postgresql/certs/server.crt',
+		'-c', 'ssl_key_file=/var/lib/postgresql/certs/server.key'
 	];
 	try {
 		execFileSync('docker', args, { stdio: ['ignore', 'pipe', 'pipe'] });
 	} catch (err) {
+		rmSync(stagingDir, { recursive: true, force: true });
 		const e = err as { stderr?: Buffer; message?: string };
 		const detail = e.stderr ? e.stderr.toString() : e.message ?? '';
 		throw new Error(
@@ -190,7 +214,7 @@ export async function startTlsPostgres(material: TlsMaterial): Promise<TlsPostgr
 
 	// Postgres needs the key readable by the postgres user; fix perms in-container.
 	try {
-		execFileSync('docker', ['exec', name, 'sh', '-c', 'chmod 600 /var/lib/postgresql/server.key && chown postgres:postgres /var/lib/postgresql/server.key /var/lib/postgresql/server.crt'], { stdio: ['ignore', 'pipe', 'pipe'] });
+		execFileSync('docker', ['exec', name, 'sh', '-c', 'chmod 600 /var/lib/postgresql/certs/server.key && chown postgres:postgres /var/lib/postgresql/certs/server.key /var/lib/postgresql/certs/server.crt'], { stdio: ['ignore', 'pipe', 'pipe'] });
 	} catch {
 		// If chown is not permitted the container will fail to start; the port
 		// wait below will time out and surface it.
@@ -205,6 +229,7 @@ export async function startTlsPostgres(material: TlsMaterial): Promise<TlsPostgr
 		if (!port) throw new Error(`Could not parse docker port mapping from '${out.trim()}'`);
 	} catch (err) {
 		await stopContainer(name);
+		rmSync(stagingDir, { recursive: true, force: true });
 		throw err instanceof Error ? err : new Error(String(err));
 	}
 
@@ -214,12 +239,14 @@ export async function startTlsPostgres(material: TlsMaterial): Promise<TlsPostgr
 		await waitForPort(host, port, 30_000);
 	} catch (err) {
 		await stopContainer(name);
+		rmSync(stagingDir, { recursive: true, force: true });
 		throw new Error(`TLS PostgreSQL did not accept connections within 30s: ${(err as Error).message}`);
 	}
 
 	const url = `postgresql://postgres:postgres@${host}:${port}/postgres`;
 	const stop = async (): Promise<void> => {
 		await stopContainer(name);
+		rmSync(stagingDir, { recursive: true, force: true });
 	};
 	return { url, host, port, caCertBody: material.caCertBody, stop };
 }

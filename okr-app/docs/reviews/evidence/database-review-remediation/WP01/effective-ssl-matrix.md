@@ -63,15 +63,29 @@ runtime pool (`adapters/postgres.ts`) and the migration Client
 Non-security URL parameters are preserved by sanitization (e.g.
 `application_name`, `options`, `target_session_attrs`).
 
-## T003 live boundary (not executed in implementation sandbox)
+## T003 live boundary (EXECUTED)
 
-`tests/db/tls.test.ts` `describe.runIf(RUOK_TEST_LIVE_TLS=1)` starts a real
-TLS-enabled `postgres:18` container (via `tls-fixtures.ts`) and asserts, through
-the production runtime pool and migration Client builders:
+`tests/db/tls.test.ts` `describe.runIf(RUOK_TEST_LIVE_TLS=1)` starts real
+TLS-enabled PostgreSQL 18 containers (via `tls-fixtures.ts`) and asserts,
+through the production runtime pool and migration Client builders:
 
 1. trusted matching CA + hostname → `SELECT 1` succeeds;
 2. untrusted CA → rejected (no plaintext fallback);
 3. hostname mismatch (cert lacks `IP:127.0.0.1`, connect to 127.0.0.1) → rejected.
 
-These runs require Docker + openssl and were NOT executed by the implementation
-agent (sandbox denies `docker`/`node`). See `manifest.md` run ledger.
+Executed live (see `manifest.md` run ledger, run **L1**): all 5 T003 cases PASS
+against the pinned image `docker-proxy.artifactory.tcsbank.ru/postgres:18`:
+
+| Case | Path | Result |
+|---|---|---|
+| trusted CA + hostname | runtime pool | `SELECT 1` = `1` (PASS) |
+| trusted CA + hostname | migration Client | `SELECT 1` = `1` (PASS) |
+| untrusted CA | runtime pool | rejected, no plaintext fallback (PASS) |
+| untrusted CA | migration Client | rejected, no plaintext fallback (PASS) |
+| hostname mismatch (correct CA, cert lacks `IP:127.0.0.1`) | runtime pool | rejected (PASS) |
+
+Fixture note: the image is pinned via `RUOK_TEST_PG_IMAGE` (default
+`docker-proxy.artifactory.tcsbank.ru/postgres:18`) and the server cert/key are
+staged into a home-based directory before `docker run` because colima (macOS)
+does not expose bind-mounts sourced from `/var/folders` or `/tmp` (files
+surface as empty directories and Postgres fails with "no start line").

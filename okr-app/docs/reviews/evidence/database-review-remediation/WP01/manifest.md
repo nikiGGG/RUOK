@@ -31,27 +31,36 @@ backend/driver/tool versions.
 |---|---|---|---|---|---|
 | B1 | Baseline parser matrix (T001) | `DB_BACKEND=sqlite node_modules/.bin/vitest run tests/db/config.test.ts tests/db/tls.test.ts` | 0 | `HEAD` (lane-a) | EXECUTED |
 | F1 | Fixed parser matrix + config suite (T002) | `DB_BACKEND=sqlite node_modules/.bin/vitest run tests/db/config.test.ts tests/db/tls.test.ts` | 0 | `HEAD` (lane-a) | EXECUTED |
-| L1 | Live TLS endpoint (T003) | `RUOK_TEST_LIVE_TLS=1 vitest run tests/db/tls.test.ts` (Docker + openssl) | — | `HEAD` (lane-a) | PENDING (see note) |
+| L1 | Live TLS endpoint (T003) | `RUOK_TEST_LIVE_TLS=1 node_modules/.bin/vitest run tests/db/tls.test.ts` (Docker + openssl) | 0 | `HEAD` (lane-a) | PASS |
 
 **B1/F1 detail:** 55 passed / 5 skipped across `config.test.ts` (46) and
-`tls.test.ts` (14 pass + 5 live T003 skipped). The 5 skipped are the opt-in live
-endpoint cases (`RUOK_TEST_LIVE_TLS=1` unset).
+`tls.test.ts` (14 pass + 5 live T003 skipped when `RUOK_TEST_LIVE_TLS=1` unset).
 
-> **Honest status:** The non-live parser matrix (B1), the fixed canonical
-> policy + config suite (F1) and a diff-scoped type-check
-> (`tsc --noEmit`, WP01-owned files clean) were executed and PASS (exit 0).
-> The LIVE endpoint suite (L1 / T003) remains PENDING: the local Docker daemon
-> has only `docker-proxy.artifactory.tcsbank.ru/postgres:18` and the short tag
-> `postgres:18` is not present locally, so running it would require a pull that
-> is not attempted per the mandatory image-download stop rule (C-007). This is
-> recorded as a blocked/pending check, never PASS, and does not yet close the
-> live-boundary portion of DRIFT-1/FR-001.
+**L1 detail (executed live, cycle 2):** 14 passed / 0 skipped (all 5 T003 live
+cases PASS) against the pinned image `docker-proxy.artifactory.tcsbank.ru/postgres:18`
+(already present locally; no pull — C-007 respected). Real endpoints verified:
+trusted CA + hostname `SELECT 1` succeeds on both the runtime pool and migration
+Client; untrusted CA rejected (no plaintext fallback) on both; hostname mismatch
+rejected despite the correct CA. Containers removed after the run.
+
+> **Honest status (updated):** The non-live parser matrix (B1), the fixed
+> canonical policy + config suite (F1), a diff-scoped type-check (WP01-owned
+> files clean), and the LIVE endpoint suite (L1 / T003) were ALL executed and
+> PASS (exit 0). L1 was previously PENDING because the local Docker daemon only
+> had `docker-proxy.artifactory.tcsbank.ru/postgres:18` while `tls-fixtures.ts`
+> used the short tag `postgres:18`; the image was not pulled (C-007). With
+> operator authorization to pin the fixture to the already-local registry image,
+> the fixture now uses `docker-proxy.artifactory.tcsbank.ru/postgres:18` (via
+> `RUOK_TEST_PG_IMAGE`, default) and the live suite executes and passes. This
+> closes the live-boundary portion of DRIFT-1 / FR-001 / FR-008 / NFR-001.
 
 ## Pinned versions / identity
 
 - node-postgres (`pg`) 8.23.1, `pg-connection-string` 2.14.1.
 - node v22.20.0, vitest 5.0.3.
-- PostgreSQL image: `postgres:18` (pinned for C-007 reporting).
+- PostgreSQL image: `docker-proxy.artifactory.tcsbank.ru/postgres:18`
+  (pinned; fixture default via `RUOK_TEST_PG_IMAGE`, present locally, no pull).
+- openssl 3.5.1; Docker server 27.3.1 (colima VM, Ubuntu 24.04).
 - Source revision: `HEAD` of
   `kitty/mission-database-review-findings-remediation-01M5TGCE-lane-a`.
 
@@ -59,9 +68,15 @@ endpoint cases (`RUOK_TEST_LIVE_TLS=1` unset).
 
 | Artifact | SHA-256 |
 |---|---|
-| `manifest.md` | `b191dc87dac936f5281afe7e2b38d1314c7317bf965379165e002924d657e6a0` |
-| `effective-ssl-matrix.md` | `3641dfdd089b0d26d77036bd7a24885640be9d1801a192286ac8f99dabe33096` |
-| `run-notes.md` | `4630bbcbbbbb023897fe9f19acb5bfe3562875eadd76e39a416e92c07d737fda` |
+| `manifest.md` | `49be92d7321c0f3f4d6d1c9e0be88a8924f5cf961626fa7a223846f83569b8ba` |
+| `effective-ssl-matrix.md` | `61314fefb4b2553d6cdecb98920c5e61f9cc93cde1e8bb2cfa0def4e4cb54aa5` |
+| `run-notes.md` | `eebef5dc41f540ac3ddcb9f8642bfdf921ee809ff0ba9ef410ee8434a80a1c7b` |
+
+## Before / after (T004)
+
+Cycle-1 PENDING state is preserved in git history (commit `76204c2`); cycle-2
+PASS state is this manifest. Live evidence (T003) executed with real endpoints;
+see run-notes.md.
 
 ## Redaction
 

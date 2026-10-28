@@ -30,23 +30,34 @@ Status: EXECUTED in `src/lib/db/config.ts`
 
 ## T003 — Execute real PostgreSQL TLS cases
 
-Status: IMPLEMENTED (opt-in `RUOK_TEST_LIVE_TLS=1` suite in `tls.test.ts` +
-`tls-fixtures.ts`); NOT EXECUTED in the implementation environment.
+Status: EXECUTED (live, `tests/db/tls.test.ts` T003 against a real TLS
+PostgreSQL 18 endpoint) — all 5 cases PASS.
 
-- Command: `RUOK_TEST_LIVE_TLS=1 vitest run tests/db/tls.test.ts`
-- Prereqs: `openssl`, Docker daemon, `postgres:18` image pull.
-- Exit: (pending)
-- Reason not executed: the local Docker daemon has only
-  `docker-proxy.artifactory.tcsbank.ru/postgres:18`; the short tag `postgres:18`
-  used by `tls-fixtures.ts` is NOT present locally and would require a pull.
-  Per the mission's mandatory image-download stop rule (C-007), the pull was
-  NOT attempted to avoid substituting registries/images; this is recorded as a
-  blocked/pending check, never PASS. Await operator direction on image registry.
+- Command: `RUOK_TEST_LIVE_TLS=1 node_modules/.bin/vitest run tests/db/tls.test.ts`
+- Exit: 0 (14 passed / 0 skipped; T003 = 5 passed)
+- Image: `docker-proxy.artifactory.tcsbank.ru/postgres:18` (already present
+  locally; pinned via `RUOK_TEST_PG_IMAGE`, no pull — C-007 respected)
+- Revision: `HEAD` (lane-a)
+- Versions: `pg` 8.23.1, `pg-connection-string` 2.14.1, node v22.20.0,
+  vitest 5.0.3, openssl 3.5.1, Docker server 27.3.1 (colima), Ubuntu 24.04 VM
+- Outcome (real endpoints, via both the runtime pool and migration Client
+  builders):
+  - trusted matching CA + hostname → `SELECT 1` = `1` (PASS);
+  - untrusted CA → rejected, no plaintext fallback (PASS);
+  - hostname mismatch (cert lacks `IP:127.0.0.1`, connect to 127.0.0.1) →
+    rejected (PASS).
+- Containers cleaned up after run (`docker ps -a --filter name=ruok-tls` empty).
+- Note: fixture stages the cert/key into a home-based directory before
+  `docker run` because colima (macOS) does not expose bind-mounts from
+  `/var/folders`/`/tmp` (files surface as empty dirs → "no start line").
 
 ## T004 — Publish TLS regression evidence
 
-Status: ARTIFACTS COMMITTED (`manifest.md`, `effective-ssl-matrix.md`,
-`run-notes.md`). SHA-256 checksums computed in `manifest.md`.
+Status: EXECUTED + COMMITTED (`manifest.md`, `effective-ssl-matrix.md`,
+`run-notes.md`). Live run **L1** now PASS in the manifest ledger; SHA-256
+checksums computed and recorded for all three artifacts. Before/after evidence:
+the PENDING (cycle-1) state and the PASS (cycle-2) state both captured; the
+before state is preserved in git history (commit `76204c2`).
 
 ## Redaction
 
