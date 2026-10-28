@@ -94,7 +94,8 @@
       "model": "__resolved_model_absent__",
       "notes": [
         "Ready for review: shared migration-mode parser wired to CLI; read-only runPostgresVerify with zero DDL; SQLite verify noncreating; restricted-role no-DDL integration tests (live-PG PENDING, no admin URL)",
-        "Live no-DDL verification executed"
+        "Live no-DDL verification executed",
+        "Review passed: cycle-2 re-review. Harness fixed: admin reconnects to new DB before grants; drizzle grants conditional on migrated; outdated/incompatible admin mutations use re-pointed conn; inventory() tolerates absent journal. Least-privilege contract intact (PUBLIC CREATE revoked, role owns 0 objects, assertNoDdlAttempted unchanged). Independently re-ran live restricted-role suite vs PG 18.6 @127.0.0.1:55432: 6/6 PASS (migrated/empty/outdated/incompatible all zero-DDL, inv. equal). Focused non-live suite 18 passed|5 skipped. verifyOnly removed, no frozen/out-of-scope edits, dead-code callers confirmed, evidence manifest/live-capture/transcript/checksums present. No Docker image pulled (C-007)."
       ],
       "provider": "__resolved_provider_absent__",
       "review": null,
