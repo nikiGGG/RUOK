@@ -169,7 +169,8 @@
       "model": "__resolved_model_absent__",
       "notes": [
         "Ready for review: all SQLite execution isolated to worker threads behind the awaitable DatabaseServices facade (runtime + preparation workers); structured-clone protocol, bounded 128-slot queue, coalesced 3s readiness, generation fencing, graceful close; 13 WP10 tests, 77 sqlite-db tests, 144 npm-test, build emit workers all PASS; lock isolation (busy 0/5000/30000) proven.",
-        "SQLite preparation wired to worker; main-thread driver isolated"
+        "SQLite preparation wired to worker; main-thread driver isolated",
+        "Review passed: cycle-2 remediation resolves both blocking issues. (1) lifecycle.ts routes migrate/verify through runPreparation worker for both backends; independently rebuilt (npm run build exit 0) and grep confirms better-sqlite3/new Database(/runSqliteMigrations/fileMustExist are ABSENT from .svelte-kit/output/server (grep exit 1) and present only in build/workers/preparation.mjs + runtime.mjs; 4 flagged main-thread bundles have 0 matches. (2) tests/db/lifecycle-isolation.test.ts exercises real openDatabase with vi.mock(better-sqlite3, throw) guard; runs and passes (2/2). Suites: sqlite-worker 13/13, test:db:sqlite 79/79, lifecycle-isolation 2/2, all exit 0. Out-of-owner touches (lifecycle/migrate/expected-sqlite/package.json) were explicitly directed by review-feedback-1; migrate.ts and expected-sqlite.ts only lazify driver import with identical behavior (WP02/WP03 semantics preserved). No unrelated/CI changes."
       ],
       "provider": "__resolved_provider_absent__",
       "review": null,
