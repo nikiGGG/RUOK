@@ -126,7 +126,8 @@
       "last_transition_at": "2026-10-28T19:21:54.645050+00:00",
       "model": "__resolved_model_absent__",
       "notes": [
-        "Ready for review: single lifecycle owner (shared attempt/cooldown/fencing), async live readiness (checkAvailability), probe-route separation, dialect-bound DatabaseServices. npm test exit 0 (146), focused WP04 suites exit 0 (44 pass/1 skip), build emits worker artifacts. Live PG checkAvailability PENDING (no admin URL)."
+        "Ready for review: single lifecycle owner (shared attempt/cooldown/fencing), async live readiness (checkAvailability), probe-route separation, dialect-bound DatabaseServices. npm test exit 0 (146), focused WP04 suites exit 0 (44 pass/1 skip), build emits worker artifacts. Live PG checkAvailability PENDING (no admin URL).",
+        "Review passed: WP04 meets all criteria — dialect-bound DatabaseServices, truthful live checkAvailability (no cached-success), single lifecycle owner (shared attempt/finally cleanup/cooldown<=1s/generation fencing), async live getReadiness, probe-route separation (exact /api/health /api/ready), parseMigrationMode consumed. Focused suites 29 pass/1 skip + npm test 146 pass exit 0. Live-PG checkAvailability recorded PENDING (no RUOK_TEST_PG_ADMIN_URL creds at 127.0.0.1:55432); RISK-1 left open, HTTP timing deferred to WP06 per boundary. 5 out-of-map test files updated to await getReadiness (contract-mandated, mechanical)."
       ],
       "provider": "__resolved_provider_absent__",
       "review_result": {
