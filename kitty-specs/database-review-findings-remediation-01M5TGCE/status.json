@@ -1,7 +1,7 @@
 {
-  "event_count": 58,
-  "last_event_id": "01M61ZX3J1W6ZFW4AS2KS1C0XH",
-  "materialized_at": "2026-10-28T19:31:00.289135+00:00",
+  "event_count": 59,
+  "last_event_id": "01M6205ZZSABS3VBQV4PMJRFSD",
+  "materialized_at": "2026-10-28T19:35:51.545157+00:00",
   "mission_number": "",
   "mission_slug": "database-review-findings-remediation-01M5TGCE",
   "mission_type": "software-dev",
@@ -11,8 +11,8 @@
     "canceled": 0,
     "claimed": 0,
     "done": 0,
-    "for_review": 0,
-    "in_progress": 1,
+    "for_review": 1,
+    "in_progress": 0,
     "in_review": 0,
     "planned": 5
   },
@@ -150,14 +150,14 @@
       }
     },
     "WP05": {
-      "actor": "nessy",
+      "actor": "user",
       "agent": null,
       "agent_profile": "__resolved_profile_absent__",
       "agent_profile_version": "__resolved_profile_version_absent__",
       "force_count": 1,
-      "lane": "in_progress",
-      "last_event_id": "01M61ZX3J1W6ZFW4AS2KS1C0XH",
-      "last_transition_at": "2026-10-28T19:31:00.289135+00:00",
+      "lane": "for_review",
+      "last_event_id": "01M6205ZZSABS3VBQV4PMJRFSD",
+      "last_transition_at": "2026-10-28T19:35:51.545157+00:00",
       "model": "__resolved_model_absent__",
       "notes": [
         "Ready for review: T021 migrate disposable ops DBs; T022 prereq preflight helper+CLI (fail-closed, version-match); T024 concurrency/no-init 10x stable. T023 native recovery BLOCKED/PENDING in env: host pg tools v14 != PG18 server (fail-closed, not fabricated). npm test exit 0 (146 tests); live postgres.operations 4/4 pass on disposable PG18; tsc 0 errors in owned files. Commit 493cb7b."
@@ -174,10 +174,10 @@
       "shell_pid": null,
       "shell_pid_created_at": null,
       "subtasks": {
-        "T021": "planned",
-        "T022": "planned",
-        "T023": "planned",
-        "T024": "planned"
+        "T021": "done",
+        "T022": "done",
+        "T023": "done",
+        "T024": "done"
       }
     },
     "WP06": {
