@@ -23,8 +23,9 @@ Evidence manifest for WP07 (`database-review-findings-remediation-01M5TGCE`).
 | pg | 8.23.1 |
 | drizzle-orm | 0.45.1 |
 | OS | darwin-arm64 |
-| Backend (executed) | real SQLite through the WP10 worker facade + real migrated in-process SQLite |
-| Docker | none pulled (C-007 image rule respected) |
+| Backend (executed) | real SQLite through the WP10 worker facade + real migrated in-process SQLite; real PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2 on aarch64) on `127.0.0.1:55432` |
+| Docker | none pulled (C-007 image rule respected); PG18 container already running, re-used unchanged |
+| PostgreSQL live closure | `RUOK_TEST_PG_ADMIN_URL=postgres://postgres@127.0.0.1:55432/postgres` (passwordless trust auth) — PASS below |
 
 ## Code changes (this WP)
 
@@ -38,8 +39,15 @@ Evidence manifest for WP07 (`database-review-findings-remediation-01M5TGCE`).
 - `okr-app/tests/application/integrations.suite.ts` — the integration suite.
 - `okr-app/tests/application/integrations.sqlite.test.ts` /
   `okr-app/tests/application/integrations.postgres.test.ts` — live entry points
-  (backend selection mandatory). Postgres entry is structurally complete; no
-  local PG admin URL, so it is recorded PENDING below (never SQLite-substituted).
+  (backend selection mandatory). Postgres entry was structurally complete but
+  recorded PENDING (no local PG admin URL at the time), never SQLite-substituted.
+- `okr-app/tests/application/integrations.suite.ts` — cycle-2 fix: the audit-log
+  assertion `expect(logs[0].success).toEqual(1)` was backend-specific. `success`
+  is an `integer(...,{mode:'boolean'})` column: the raw `better-sqlite3` driver
+  reads it back as integer `1` on SQLite, while the `pg` driver returns JS
+  `true` on Postgres. Changed to `expect(logs[0].success).toBeTruthy()` — the
+  row is persisted correctly on both backends and the assertion still verifies a
+  successful query was recorded. This makes both backend entries pass.
 
 ## Runs
 
@@ -70,6 +78,38 @@ Coverage (real HTTP against the BUILT server + real in-process DB):
   `update_objective` denied (400) with other accounts unchanged; unauthenticated
   call denied (401).
 - **T034 bridge sensitivity**: controlled fault below.
+
+### Fixed run — PostgreSQL application integration suite (exit 0)
+
+Command (from `okr-app/`):
+```
+RUOK_TEST_PG_ADMIN_URL='postgres://postgres@127.0.0.1:55432/postgres' \
+DB_BACKEND=postgres npx vitest run tests/application/integrations.postgres.test.ts
+```
+Result: 1 file passed, 8 tests passed, exit 0. Full output:
+`postgres-run-transcript.txt`. Revision exercised: `b646c73`.
+
+PostgreSQL version under test: `PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on
+aarch64-unknown-linux-gnu` (passwordless trust auth, role `postgres` =
+superuser/CREATEDB, container at `127.0.0.1:55432` already running and re-used
+unchanged — no image pulled, substituted, or substituted-back, C-007).
+
+The exact same 8 application scenarios (T030 scheduler persistence + lifecycle,
+T031 QuickJS async bridge, T032 saved queries + friends, T033 AI tools, T034
+fault sensitivity) run green against the built server + real migrated Postgres:
+
+- T031 audit-log row `query_execution_logs.success` reads back as JS `true` on
+  Postgres (`pg` driver) vs integer `1` on SQLite (`better-sqlite3`). The
+  assertion is now backend-agnostic (`expect(logs[0].success).toBeTruthy()`),
+  so it passes on both without weakening the intent — the row still records a
+  successful query.
+- T030 scheduler drove the deterministic plugin through the manager into real
+  migrated Postgres repositories (`testimport.steps=12345`, `last_sync` set);
+  stop clears both interval and one-shot, restart creates no duplicate timers.
+- T032 ownership/privacy (404/403), per-author notes, foreign-ID and
+  unauthenticated denials all hold on Postgres.
+
+This closes the previously-PENDING live-Postgres entry to PASS.
 
 ### Controlled fault — broken async bridge (T034)
 
@@ -109,18 +149,19 @@ unaffected by the scheduler lifecycle change).
 
 ## PENDING items (not fabricated, not claimed PASS)
 
-1. **Live PostgreSQL integration suites** (`integrations.postgres.test.ts`,
-   plus the postgres branch of the in-process scheduler test) — require
-   `RUOK_TEST_PG_ADMIN_URL` (with CREATEDB). No admin URL is configured locally,
-   so they are recorded PENDING and fail as a missing prerequisite when run
-   without it (never falls back to SQLite). Live PostgreSQL closure belongs to
-   CI with real PG.
+1. ~~**Live PostgreSQL integration suites** (`integrations.postgres.test.ts`,
+   plus the postgres branch of the in-process scheduler test)~~ — **RESOLVED
+   PASS** (see the PostgreSQL run above). A live PostgreSQL 18.6 was available
+   at `127.0.0.1:55432` with passwordless trust auth; the postgres entry passes
+   green (8/8, exit 0) after the audit-log assertion was made backend-agnostic.
 2. **RISK-2** remains unresolved/operator-deferred (per WP safeguards).
 
 ## Artifacts (this directory)
 
 - `manifest.md` — this manifest.
 - `run-transcript.txt` — fixed-run transcript (SQLite integration suite, exit 0).
+- `postgres-run-transcript.txt` — fixed-run transcript (PostgreSQL integration
+  suite, exit 0).
 - `fault1-bridge.patch` / `fault1-failing.txt` / `fault1-passing.txt` — T034.
 - `checksums.txt` — SHA-256 checksums of evidence artifacts and changed sources.
 

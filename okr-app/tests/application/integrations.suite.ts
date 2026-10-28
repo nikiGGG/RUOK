@@ -227,7 +227,10 @@ export function integrationsSuite(opts: IntegrationSuiteOptions) {
 				`SELECT code_snippet, success FROM query_execution_logs WHERE user_id = '${aliceId}' ORDER BY created_at DESC`
 			);
 			expect(logs.length).toBeGreaterThan(0);
-			expect(logs[0].success).toEqual(1);
+			// success is stored as a boolean column; the raw driver returns
+			// integer 1 on SQLite and JS true on Postgres, so assert truthiness
+			// backend-agnostically (still verifies the row records a success).
+			expect(logs[0].success).toBeTruthy();
 			expect(String(logs[0].code_snippet)).toContain('q.objectives');
 		}, 30_000);
 
