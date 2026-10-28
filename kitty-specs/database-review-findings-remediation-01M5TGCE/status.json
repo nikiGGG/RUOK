@@ -1,7 +1,7 @@
 {
-  "event_count": 74,
-  "last_event_id": "01M6225QJP42ZVW1YZK21M5A5N",
-  "materialized_at": "2026-10-28T20:10:40.086804+00:00",
+  "event_count": 75,
+  "last_event_id": "01M6226QGVK1GK04B2MQDQ2E61",
+  "materialized_at": "2026-10-28T20:11:12.795072+00:00",
   "mission_number": "",
   "mission_slug": "database-review-findings-remediation-01M5TGCE",
   "mission_type": "software-dev",
@@ -11,9 +11,9 @@
     "canceled": 0,
     "claimed": 0,
     "done": 0,
-    "for_review": 1,
+    "for_review": 0,
     "in_progress": 0,
-    "in_review": 0,
+    "in_review": 1,
     "planned": 3
   },
   "work_packages": {
@@ -215,17 +215,18 @@
       }
     },
     "WP07": {
-      "actor": "user",
-      "agent": null,
+      "actor": "nessy",
+      "agent": "nessy",
       "agent_profile": "__resolved_profile_absent__",
       "agent_profile_version": "__resolved_profile_version_absent__",
       "force_count": 1,
-      "lane": "for_review",
-      "last_event_id": "01M6225QJP42ZVW1YZK21M5A5N",
-      "last_transition_at": "2026-10-28T20:10:40.086804+00:00",
+      "lane": "in_review",
+      "last_event_id": "01M6226QGVK1GK04B2MQDQ2E61",
+      "last_transition_at": "2026-10-28T20:11:12.795072+00:00",
       "model": "__resolved_model_absent__",
       "notes": [
-        "Ready for review: scheduler lifecycle repair + real scheduler/query/saved-query/friend/AI integration suite on both backends; T034 bridge fault demonstrated; sqlite run green"
+        "Ready for review: scheduler lifecycle repair + real scheduler/query/saved-query/friend/AI integration suite on both backends; T034 bridge fault demonstrated; sqlite run green",
+        "Postgres entry now passes"
       ],
       "provider": "__resolved_provider_absent__",
       "review": null,
@@ -235,9 +236,9 @@
         "reviewer": "user",
         "verdict": "changes_requested"
       },
-      "role": "implementer",
-      "shell_pid": null,
-      "shell_pid_created_at": null,
+      "role": "reviewer",
+      "shell_pid": 61358,
+      "shell_pid_created_at": "1793218270.519366",
       "subtasks": {
         "T030": "done",
         "T031": "done",
