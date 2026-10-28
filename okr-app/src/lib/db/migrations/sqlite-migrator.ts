@@ -1,22 +1,26 @@
 /**
- * SQLite migration execution (FR-004 / FR-005 / FR-010 / T009-T012).
+ * SQLite migration execution (FR-002 / FR-004 / T008, T009).
  *
  * Dialect-specific migration/adoption runner. It owns the SQLite-specific
- * queries and synchronous transaction, while the canonical expected layout,
- * classification and journal reconciliation are shared (`expected-sqlite.ts`,
- * `fingerprint.ts`, `migration-files.ts`).
+ * queries and synchronous transaction, while the shared semantic inspector,
+ * canonical expected layout, classification and journal reconciliation live in
+ * `sqlite-inspect.ts`, `expected-sqlite.ts`, `fingerprint.ts`,
+ * `migration-files.ts`.
  *
- * Flow:
- *  1. Apply journal + busy-timeout pragmas (FK enforcement is enabled by the
- *     adapter after this preflight/adoption completes).
- *  2. Inspect the structural fingerprint and classify it against the canonical
- *     expected layout + full history.
+ * Flow (T008 — inspect before mutation, atomic adoption):
+ *  1. Set the connection-local busy timeout ONLY (no persistent journal-mode
+ *     change yet).
+ *  2. Inspect the semantic fingerprint and classify it against the
+ *     migration-derived expected layout + full history.
  *  3. fresh        -> apply the full checked history in one transaction.
  *     ready        -> nothing to do (schema + journal already aligned).
  *     adopt        -> run a data-integrity (FK orphan) preflight, then apply
  *                     ONLY the supported additive deltas and record the
  *                     reconciled journal facts atomically in one transaction.
  *     reject       -> fail with reasons BEFORE any mutation.
+ *  4. Only after a compatible transaction has COMMITTED is the persistent
+ *     journal-mode pragma applied — an incompatible/rejected database is never
+ *     mutated.
  *
  * better-sqlite3 transactions are synchronous: no `await` appears inside a
  * transaction callback in this module.
@@ -25,16 +29,11 @@ import type Database from 'better-sqlite3'
 import { getExpectedSqliteLayout } from './expected-sqlite'
 import { classifyLegacy } from './fingerprint'
 import { readMigrationFolder } from './migration-files'
-import type { DbShape, MigrationResult } from './contracts'
+import { inspectSqlite } from './sqlite-inspect'
+import type { ForeignKeyDescriptor, MigrationResult } from './contracts'
 import type { SqliteConfig } from '../contracts'
 
 const JOURNAL_TABLE = '__drizzle_migrations'
-
-interface FkEdge {
-	child: string
-	parent: string
-	cols: Array<{ from: string; to: string }>
-}
 
 function appliedWhen(sqlite: Database.Database): number[] {
 	return (sqlite
@@ -42,81 +41,25 @@ function appliedWhen(sqlite: Database.Database): number[] {
 		.all() as Array<{ created_at: number }>).map((r) => Number(r.created_at))
 }
 
-function inspectSqlite(sqlite: Database.Database): DbShape {
-	const tables: Record<string, string[]> = {}
-	const tableRows = sqlite.prepare(`SELECT name FROM sqlite_master WHERE type = 'table'`).all() as Array<{
-		name: string
-	}>
-	for (const r of tableRows) {
-		if (r.name.startsWith('sqlite_')) continue
-		const cols = (
-			sqlite.prepare(`PRAGMA table_info(\`${r.name}\`)`).all() as Array<{ name: string }>
-		).map((c) => c.name)
-		tables[r.name] = cols
-	}
-
-	const indexes: Record<string, string> = {}
-	const idxRows = (
-		sqlite.prepare(`SELECT name, sql FROM sqlite_master WHERE type = 'index' AND sql IS NOT NULL`).all() as Array<{
-			name: string
-			sql: string
-		}>
-	)
-	for (const r of idxRows) indexes[r.name] = r.sql
-
-	const journalPresent = Object.prototype.hasOwnProperty.call(tables, JOURNAL_TABLE)
-	return {
-		tables,
-		indexes,
-		journalPresent,
-		journalCreatedAts: journalPresent ? appliedWhen(sqlite) : []
-	}
-}
-
-/** Foreign-key edges from `PRAGMA foreign_key_list`, grouped by FK id. */
-function readFkEdges(sqlite: Database.Database): FkEdge[] {
-	const edges: FkEdge[] = []
-	const tableRows = Object.keys(inspectSqlite(sqlite).tables).filter((t) => t !== JOURNAL_TABLE)
-	for (const table of tableRows) {
-		const rows = sqlite.pragma(`foreign_key_list(\`${table}\`)`) as unknown as Array<{
-			id: number
-			table: string
-			from: string
-			to: string
-		}>
-		const groups = new Map<number, FkEdge>()
-		for (const r of rows) {
-			let edge = groups.get(r.id)
-			if (!edge) {
-				edge = { child: table, parent: r.table, cols: [] }
-				groups.set(r.id, edge)
-			}
-			edge.cols.push({ from: r.from, to: r.to })
-		}
-		for (const edge of groups.values()) edges.push(edge)
-	}
-	return edges
-}
-
 /**
  * Data-integrity preflight: ensure no orphaned foreign-key rows exist before a
  * legacy layout is adopted. Failures are reported and never auto-deleted.
  */
-function assertFkIntegrity(sqlite: Database.Database): void {
+function assertFkIntegrity(sqlite: Database.Database, foreignKeys: ForeignKeyDescriptor[]): void {
 	const orphans: string[] = []
-	for (const edge of readFkEdges(sqlite)) {
-		if (edge.cols.length === 0) continue
-		const joinSql = edge.cols
+	for (const edge of foreignKeys) {
+		if (edge.columns.length === 0) continue
+		const joinSql = edge.columns
 			.map((c) => `child.\`${c.from}\` = parent.\`${c.to}\``)
 			.join(' AND ')
-		const whereSql = edge.cols.map((c) => `child.\`${c.from}\` IS NOT NULL`).join(' AND ')
+		const whereSql = edge.columns.map((c) => `child.\`${c.from}\` IS NOT NULL`).join(' AND ')
 		// A LEFT JOIN with no parent match nulls every parent column, so checking
 		// the first referenced parent column is sufficient for the null test.
-		const parentProbe = `parent.\`${edge.cols[0].to}\``
+		const parentProbe = `parent.\`${edge.columns[0].to}\``
 		const sql = `SELECT COUNT(*) AS c FROM \`${edge.child}\` child LEFT JOIN \`${edge.parent}\` parent ON ${joinSql} WHERE ${whereSql} AND ${parentProbe} IS NULL`
 		const row = sqlite.prepare(sql).get() as { c: number }
 		if (row.c > 0) {
-			orphans.push(`${edge.child}.${edge.cols.map((c) => c.from).join(',')} -> ${edge.parent}`)
+			orphans.push(`${edge.child}.${edge.columns.map((c) => c.from).join(',')} -> ${edge.parent}`)
 		}
 	}
 	if (orphans.length > 0) {
@@ -131,7 +74,7 @@ function assertFkIntegrity(sqlite: Database.Database): void {
  * Run migrations/adoption for a SQLite database against the checked history.
  * The caller owns the open {@link sqlite} connection (lifetime + close).
  *
- * Serialization (T011): the whole inspect -> classify -> apply sequence runs
+ * Serialization (T008): the whole inspect -> classify -> apply sequence runs
  * inside a `BEGIN IMMEDIATE` transaction, which immediately acquires the write
  * (RESERVED) lock. A concurrent migrator blocks on the bounded busy_timeout,
  * then re-reads the now-converged state and no-ops — so two processes never
@@ -142,11 +85,12 @@ export function runSqliteMigrations(
 	config: SqliteConfig,
 	migrationsFolder: string
 ): MigrationResult {
-	sqlite.pragma(`journal_mode = ${config.journalMode}`)
+	// Connection-local busy timeout may be set before inspection; the
+	// persistent journal mode is deferred until a compatible commit (T008).
 	sqlite.pragma(`busy_timeout = ${config.busyTimeoutMs}`)
 
 	const { migrations } = readMigrationFolder(migrationsFolder)
-	const expected = getExpectedSqliteLayout()
+	const expected = getExpectedSqliteLayout(migrations)
 
 	sqlite.exec('BEGIN IMMEDIATE')
 	let result: MigrationResult
@@ -178,7 +122,7 @@ export function runSqliteMigrations(
 			}
 			case 'adopt': {
 				// Data-integrity preflight BEFORE any mutation (inside the lock).
-				assertFkIntegrity(sqlite)
+				assertFkIntegrity(sqlite, current.foreignKeys ?? [])
 				applyAdoption(
 					sqlite,
 					classification.addColumns,
@@ -202,11 +146,15 @@ export function runSqliteMigrations(
 			}
 		}
 		sqlite.exec('COMMIT')
-		return result
 	} catch (err) {
 		sqlite.exec('ROLLBACK')
 		throw err
 	}
+
+	// Persistent journal mode is applied only after a compatible transaction
+	// has committed; a rejected/incompatible database is never mutated.
+	sqlite.pragma(`journal_mode = ${config.journalMode}`)
+	return result
 }
 
 function ensureJournalTable(sqlite: Database.Database): void {
