@@ -1,0 +1,149 @@
+{
+  "mission_slug": "sqlite-postgresql-support-01M5JP6Y",
+  "mission_number": "",
+  "mission_type": "software-dev",
+  "overall_verdict": "pass",
+  "criteria": [
+    {
+      "criterion_id": "FR-001",
+      "description": "Explicit DATABASE_TYPE=sqlite|postgres; omitted means sqlite. Preserve DATABASE_PATH and default data/okr.db; PostgreSQL requires DATABASE_URL. Reject invalid types and missing PostgreSQL URL; document unused settings and never auto-detect/fallback.",
+      "proof_type": "automated_test",
+      "evidence": "okr-app/docs/DATABASE-VERIFICATION.md; worktree npm test 133 passed / test:db:sqlite 77 passed / build ok",
+      "pass_fail": "pass",
+      "verified_by": "nessy-orchestrator",
+      "verified_at": "2026-10-23T00:20:32.742620+00:00",
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
+    },
+    {
+      "criterion_id": "FR-002",
+      "description": "Support all 25 current tables, fields, relationships and defaults with canonical application types, explicit dialect codecs and constraint parity; retain text IDs and JSON strings.",
+      "proof_type": "automated_test",
+      "evidence": "okr-app/docs/DATABASE-VERIFICATION.md; worktree npm test 133 passed / test:db:sqlite 77 passed / build ok",
+      "pass_fail": "pass",
+      "verified_by": "nessy-orchestrator",
+      "verified_at": "2026-10-23T00:20:35.274813+00:00",
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
+    },
+    {
+      "criterion_id": "FR-003",
+      "description": "Provide an awaitable, typed persistence boundary; remove application dependence on SQLite-only terminals, raw handles and dialect query types. Preserve API payloads, errors and missing-row behavior.",
+      "proof_type": "automated_test",
+      "evidence": "okr-app/docs/DATABASE-VERIFICATION.md; worktree npm test 133 passed / test:db:sqlite 77 passed / build ok",
+      "pass_fail": "pass",
+      "verified_by": "nessy-orchestrator",
+      "verified_at": "2026-10-23T00:20:37.818134+00:00",
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
+    },
+    {
+      "criterion_id": "FR-004",
+      "description": "Maintain independent, versioned dialect migration histories. Preserve existing SQLite migration files. Upgrade supported legacy SQLite layouts through explicit fingerprinted adoption; reject unknown drift and never mark unapplied migrations as applied.",
+      "proof_type": "automated_test",
+      "evidence": "okr-app/docs/DATABASE-VERIFICATION.md; worktree npm test 133 passed / test:db:sqlite 77 passed / build ok",
+      "pass_fail": "pass",
+      "verified_by": "nessy-orchestrator",
+      "verified_at": "2026-10-23T00:20:40.418271+00:00",
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
+    },
+    {
+      "criterion_id": "FR-005",
+      "description": "Initialize and migrate once before requests/jobs; separate migration execution from build. Bound connection waits and pool use, serialize concurrent migration attempts, and close connections/jobs on shutdown.",
+      "proof_type": "automated_test",
+      "evidence": "okr-app/docs/DATABASE-VERIFICATION.md; worktree npm test 133 passed / test:db:sqlite 77 passed / build ok",
+      "pass_fail": "pass",
+      "verified_by": "nessy-orchestrator",
+      "verified_at": "2026-10-23T00:20:42.955510+00:00",
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
+    },
+    {
+      "criterion_id": "FR-006",
+      "description": "Preserve authentication, permissions, private notes, friend dashboards, admin restrictions and per-user isolation on both backends.",
+      "proof_type": "automated_test",
+      "evidence": "okr-app/docs/DATABASE-VERIFICATION.md; worktree npm test 133 passed / test:db:sqlite 77 passed / build ok",
+      "pass_fail": "pass",
+      "verified_by": "nessy-orchestrator",
+      "verified_at": "2026-10-23T00:20:45.484169+00:00",
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
+    },
+    {
+      "criterion_id": "FR-007",
+      "description": "Preserve goals/KRs/progress, periods/journals/reflections, tasks/timers/attributes/tags, fixed/flexible metrics, saved queries/widgets, AI tools/configuration, plugin configuration/sync and query logs.",
+      "proof_type": "automated_test",
+      "evidence": "okr-app/docs/DATABASE-VERIFICATION.md; worktree npm test 133 passed / test:db:sqlite 77 passed / build ok",
+      "pass_fail": "pass",
+      "verified_by": "nessy-orchestrator",
+      "verified_at": "2026-10-23T00:20:48.087074+00:00",
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
+    },
+    {
+      "criterion_id": "FR-008",
+      "description": "Read existing version-2 user backups on both backends; retain existing format compatibility and explicit field coverage. Restore is validated before mutation and atomic, including preferences, child deletes and reference remapping. Export uses a consistent snapshot.",
+      "proof_type": "automated_test",
+      "evidence": "okr-app/docs/DATABASE-VERIFICATION.md; worktree npm test 133 passed / test:db:sqlite 77 passed / build ok",
+      "pass_fail": "pass",
+      "verified_by": "nessy-orchestrator",
+      "verified_at": "2026-10-23T00:20:50.664418+00:00",
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
+    },
+    {
+      "criterion_id": "FR-009",
+      "description": "Provide PostgreSQL pool limits/timeouts and verified TLS with custom CA support for CNPG. Redact credentials and connection URLs from errors/logs. No superuser or database creation requirement.",
+      "proof_type": "automated_test",
+      "evidence": "okr-app/docs/DATABASE-VERIFICATION.md; worktree npm test 133 passed / test:db:sqlite 77 passed / build ok",
+      "pass_fail": "pass",
+      "verified_by": "nessy-orchestrator",
+      "verified_at": "2026-10-23T00:20:53.492425+00:00",
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
+    },
+    {
+      "criterion_id": "FR-010",
+      "description": "SQLite retains its simple file-based setup; enable foreign-key enforcement with a legacy integrity preflight, bounded busy timeout and supported journal configuration. WAL requires suitable local/block storage; no claim of NFS correctness.",
+      "proof_type": "automated_test",
+      "evidence": "okr-app/docs/DATABASE-VERIFICATION.md; worktree npm test 133 passed / test:db:sqlite 77 passed / build ok",
+      "pass_fail": "pass",
+      "verified_by": "nessy-orchestrator",
+      "verified_at": "2026-10-23T00:20:56.129330+00:00",
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
+    },
+    {
+      "criterion_id": "FR-011",
+      "description": "Run the same behavioral contract suite against real SQLite and PostgreSQL; test migrations, upgrades, rollback, cross-backend backups, privacy, timestamp/boolean/numeric codecs and production startup.",
+      "proof_type": "automated_test",
+      "evidence": "okr-app/docs/DATABASE-VERIFICATION.md; worktree npm test 133 passed / test:db:sqlite 77 passed / build ok",
+      "pass_fail": "pass",
+      "verified_by": "nessy-orchestrator",
+      "verified_at": "2026-10-23T00:20:58.734235+00:00",
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
+    },
+    {
+      "criterion_id": "FR-012",
+      "description": "Produce a reproducible non-root Node container for both modes; health/readiness accurately reflects database availability without requiring login.",
+      "proof_type": "automated_test",
+      "evidence": "okr-app/docs/DATABASE-VERIFICATION.md; worktree npm test 133 passed / test:db:sqlite 77 passed / build ok",
+      "pass_fail": "pass",
+      "verified_by": "nessy-orchestrator",
+      "verified_at": "2026-10-23T00:21:01.310538+00:00",
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
+    },
+    {
+      "criterion_id": "FR-013",
+      "description": "Add GitHub Actions validation and GHCR publication for trusted branches/releases, immutable tags/digests and pull-request build-only checks. Registry owner and public visibility are execution-time settings; no publication is performed by this planning request.",
+      "proof_type": "automated_test",
+      "evidence": "okr-app/docs/DATABASE-VERIFICATION.md; worktree npm test 133 passed / test:db:sqlite 77 passed / build ok",
+      "pass_fail": "pass",
+      "verified_by": "nessy-orchestrator",
+      "verified_at": "2026-10-23T00:21:03.881954+00:00",
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
+    },
+    {
+      "criterion_id": "FR-014",
+      "description": "Document both setups, upgrades, native backup/recovery, migration execution, TLS and a CNPG deployment handoff referencing external infrastructure PR 11. No live cluster changes in this repository mission.",
+      "proof_type": "manual_test",
+      "evidence": "okr-app/docs/CNPG-HANDOFF.md; okr-app/docs/DATABASES.md; external PR-11 as context; deployment pending",
+      "pass_fail": "pass",
+      "verified_by": "nessy-orchestrator",
+      "verified_at": "2026-10-23T00:21:11.982241+00:00",
+      "notes": "Implementation evidence pending; see requirement coverage in plan.md and tasks.md."
+    }
+  ],
+  "negative_invariants": []
+}

@@ -1,0 +1,331 @@
+{
+  "event_count": 81,
+  "last_event_id": "01M6233627J7E1AMRNKDNY9X8Y",
+  "materialized_at": "2026-10-28T20:26:45.191352+00:00",
+  "mission_number": "",
+  "mission_slug": "database-review-findings-remediation-01M5TGCE",
+  "mission_type": "software-dev",
+  "summary": {
+    "approved": 9,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 0,
+    "for_review": 0,
+    "in_progress": 0,
+    "in_review": 0,
+    "planned": 2
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "user",
+      "agent": "nessy",
+      "agent_profile": "__resolved_profile_absent__",
+      "agent_profile_version": "__resolved_profile_version_absent__",
+      "force_count": 1,
+      "lane": "approved",
+      "last_event_id": "01M60CXHBG046N4KWP5W8CVBBY",
+      "last_transition_at": "2026-10-28T04:39:57.040445+00:00",
+      "model": "__resolved_model_absent__",
+      "notes": [
+        "Ready for review: enforce effective PostgreSQL TLS (parseUrlSslControls + sanitizePostgresConnectionString + explicit canonical ssl in buildPostgresPoolConfig); 55 non-live tests pass, WP01-owned tsc clean; live T003 pending image registry",
+        "Live TLS verification executed",
+        "Review passed: live TLS boundary (FR-001) independently re-verified 14/14 exit 0 against real Postgres 18 over TLS via runtime pool + migration client; fixture pinned to already-local docker-proxy.artifactory.tcsbank.ru/postgres:18 (env-configurable, no pull, C-007 respected); before/after evidence preserved (cycle-1 PENDING in 76204c2, cycle-2 PASS); canonical policy rejects duplicate/unknown/unsupported URL SSL controls; checksums verified; scope confined to WP01 files."
+      ],
+      "provider": "__resolved_provider_absent__",
+      "review": null,
+      "review_result": {
+        "feedback_path": "/Users/n.gryaznev/Develop/OTHER/RUOK/kitty-specs/database-review-findings-remediation-01M5TGCE/tasks/WP01-effective-postgres-tls/review-cycle-2.md",
+        "reference": "review-cycle://database-review-findings-remediation-01M5TGCE/WP01-effective-postgres-tls/review-cycle-2.md",
+        "reviewer": "user",
+        "verdict": "approved"
+      },
+      "role": "reviewer",
+      "shell_pid": 57149,
+      "shell_pid_created_at": "1793162337.27773",
+      "subtasks": {
+        "T001": "done",
+        "T002": "done",
+        "T003": "done",
+        "T004": "done"
+      }
+    },
+    "WP02": {
+      "actor": "user",
+      "agent": "nessy",
+      "agent_profile": "__resolved_profile_absent__",
+      "agent_profile_version": "__resolved_profile_version_absent__",
+      "force_count": 0,
+      "lane": "approved",
+      "last_event_id": "01M60CZNKV30ENQDPFRY621TM3",
+      "last_transition_at": "2026-10-28T04:41:06.939163+00:00",
+      "model": "__resolved_model_absent__",
+      "notes": [
+        "Ready for review",
+        "Review passed: semantic SQLite integrity implemented correctly. Shared inspectSqlite + classifyLegacy reject incompatible index/column/FK/CHECK and corrupt/unknown/duplicate journal records with no-mutation guarantees; journal_mode deferred until post-commit, FK-orphan preflight preserved, shared inspector live-called from migrator+verifier. Tests: sqlite-integrity 15/15, test:db:sqlite 77/77, migration suites 23/23. Both out-of-map edits (migration-files.test.ts compile fix, index.ts additive re-export) are justified. No dead code."
+      ],
+      "provider": "__resolved_provider_absent__",
+      "review_result": {
+        "feedback_path": "/Users/n.gryaznev/Develop/OTHER/RUOK/kitty-specs/database-review-findings-remediation-01M5TGCE/tasks/WP02-sqlite-semantic-integrity/review-cycle-1.md",
+        "reference": "review-cycle://database-review-findings-remediation-01M5TGCE/WP02-sqlite-semantic-integrity/review-cycle-1.md",
+        "reviewer": "user",
+        "verdict": "approved"
+      },
+      "role": "reviewer",
+      "shell_pid": 58629,
+      "shell_pid_created_at": "1793162403.793985",
+      "subtasks": {
+        "T005": "done",
+        "T006": "done",
+        "T007": "done",
+        "T008": "done",
+        "T009": "done"
+      }
+    },
+    "WP03": {
+      "actor": "user",
+      "agent": "nessy",
+      "agent_profile": "__resolved_profile_absent__",
+      "agent_profile_version": "__resolved_profile_version_absent__",
+      "force_count": 1,
+      "lane": "approved",
+      "last_event_id": "01M60DSK28A3J6WX0VK6QNE76X",
+      "last_transition_at": "2026-10-28T04:55:16.296941+00:00",
+      "model": "__resolved_model_absent__",
+      "notes": [
+        "Ready for review: shared migration-mode parser wired to CLI; read-only runPostgresVerify with zero DDL; SQLite verify noncreating; restricted-role no-DDL integration tests (live-PG PENDING, no admin URL)",
+        "Live no-DDL verification executed",
+        "Review passed: cycle-2 re-review. Harness fixed: admin reconnects to new DB before grants; drizzle grants conditional on migrated; outdated/incompatible admin mutations use re-pointed conn; inventory() tolerates absent journal. Least-privilege contract intact (PUBLIC CREATE revoked, role owns 0 objects, assertNoDdlAttempted unchanged). Independently re-ran live restricted-role suite vs PG 18.6 @127.0.0.1:55432: 6/6 PASS (migrated/empty/outdated/incompatible all zero-DDL, inv. equal). Focused non-live suite 18 passed|5 skipped. verifyOnly removed, no frozen/out-of-scope edits, dead-code callers confirmed, evidence manifest/live-capture/transcript/checksums present. No Docker image pulled (C-007)."
+      ],
+      "provider": "__resolved_provider_absent__",
+      "review": null,
+      "review_result": {
+        "feedback_path": "/Users/n.gryaznev/Develop/OTHER/RUOK/kitty-specs/database-review-findings-remediation-01M5TGCE/tasks/WP03-read-only-runtime-mode/review-cycle-2.md",
+        "reference": "review-cycle://database-review-findings-remediation-01M5TGCE/WP03-read-only-runtime-mode/review-cycle-2.md",
+        "reviewer": "user",
+        "verdict": "approved"
+      },
+      "role": "reviewer",
+      "shell_pid": 75277,
+      "shell_pid_created_at": "1793163272.473967",
+      "subtasks": {
+        "T010": "done",
+        "T011": "done",
+        "T012": "done",
+        "T013": "done"
+      }
+    },
+    "WP04": {
+      "actor": "user",
+      "agent": "nessy",
+      "agent_profile": "__resolved_profile_absent__",
+      "agent_profile_version": "__resolved_profile_version_absent__",
+      "force_count": 0,
+      "lane": "approved",
+      "last_event_id": "01M61ZCEPM7XPD1CTB0NFFMQ50",
+      "last_transition_at": "2026-10-28T19:21:54.645050+00:00",
+      "model": "__resolved_model_absent__",
+      "notes": [
+        "Ready for review: single lifecycle owner (shared attempt/cooldown/fencing), async live readiness (checkAvailability), probe-route separation, dialect-bound DatabaseServices. npm test exit 0 (146), focused WP04 suites exit 0 (44 pass/1 skip), build emits worker artifacts. Live PG checkAvailability PENDING (no admin URL).",
+        "Review passed: WP04 meets all criteria — dialect-bound DatabaseServices, truthful live checkAvailability (no cached-success), single lifecycle owner (shared attempt/finally cleanup/cooldown<=1s/generation fencing), async live getReadiness, probe-route separation (exact /api/health /api/ready), parseMigrationMode consumed. Focused suites 29 pass/1 skip + npm test 146 pass exit 0. Live-PG checkAvailability recorded PENDING (no RUOK_TEST_PG_ADMIN_URL creds at 127.0.0.1:55432); RISK-1 left open, HTTP timing deferred to WP06 per boundary. 5 out-of-map test files updated to await getReadiness (contract-mandated, mechanical)."
+      ],
+      "provider": "__resolved_provider_absent__",
+      "review_result": {
+        "feedback_path": "/Users/n.gryaznev/Develop/OTHER/RUOK/kitty-specs/database-review-findings-remediation-01M5TGCE/tasks/WP04-recoverable-runtime-and-probes/review-cycle-1.md",
+        "reference": "review-cycle://database-review-findings-remediation-01M5TGCE/WP04-recoverable-runtime-and-probes/review-cycle-1.md",
+        "reviewer": "user",
+        "verdict": "approved"
+      },
+      "role": "reviewer",
+      "shell_pid": 4655,
+      "shell_pid_created_at": "1793215235.263528",
+      "subtasks": {
+        "T014": "done",
+        "T015": "done",
+        "T016": "done",
+        "T017": "done",
+        "T018": "done",
+        "T019": "done",
+        "T020": "done"
+      }
+    },
+    "WP05": {
+      "actor": "user",
+      "agent": "nessy",
+      "agent_profile": "__resolved_profile_absent__",
+      "agent_profile_version": "__resolved_profile_version_absent__",
+      "force_count": 1,
+      "lane": "approved",
+      "last_event_id": "01M6208ZEJ3Q7HK5Y90635X9FM",
+      "last_transition_at": "2026-10-28T19:37:29.298837+00:00",
+      "model": "__resolved_model_absent__",
+      "notes": [
+        "Ready for review: T021 migrate disposable ops DBs; T022 prereq preflight helper+CLI (fail-closed, version-match); T024 concurrency/no-init 10x stable. T023 native recovery BLOCKED/PENDING in env: host pg tools v14 != PG18 server (fail-closed, not fabricated). npm test exit 0 (146 tests); live postgres.operations 4/4 pass on disposable PG18; tsc 0 errors in owned files. Commit 493cb7b.",
+        "Native recovery rehearsal executed",
+        "Review passed: T023 blocking item resolved - native recovery rehearsal now executes for real against live PG18.6 via matching pg18 toolchain in already-running traggo-test-pg container (docker exec, C-007 safe, no image pull/substitute). Corroborated live: recovery test passes (dump->drop/recreate->restore->typed-read->schema), fail-closed gate preserved (host-only preflight exits 1 on v14-vs-18 mismatch; suite aborts when no matching toolchain). T021 operations 4/4, T024 concurrency/no-init 3/3 (10 runs each), full npm test 19 files/146 tests pass. Checksums verified. WP05 commits touch only 8 owned files; no CI/Dockerfile/package config changes. Anti-pattern checklist: all PASS."
+      ],
+      "provider": "__resolved_provider_absent__",
+      "review": null,
+      "review_result": {
+        "feedback_path": "/Users/n.gryaznev/Develop/OTHER/RUOK/kitty-specs/database-review-findings-remediation-01M5TGCE/tasks/WP05-operational-and-stability-regressions/review-cycle-2.md",
+        "reference": "review-cycle://database-review-findings-remediation-01M5TGCE/WP05-operational-and-stability-regressions/review-cycle-2.md",
+        "reviewer": "user",
+        "verdict": "approved"
+      },
+      "role": "reviewer",
+      "shell_pid": 23485,
+      "shell_pid_created_at": "1793216168.566628",
+      "subtasks": {
+        "T021": "done",
+        "T022": "done",
+        "T023": "done",
+        "T024": "done"
+      }
+    },
+    "WP06": {
+      "actor": "user",
+      "agent": "nessy",
+      "agent_profile": "__resolved_profile_absent__",
+      "agent_profile_version": "__resolved_profile_version_absent__",
+      "force_count": 0,
+      "lane": "approved",
+      "last_event_id": "01M62145TTF8P5MZHBH25HD3KE",
+      "last_transition_at": "2026-10-28T19:52:20.570504+00:00",
+      "model": "__resolved_model_absent__",
+      "notes": [
+        "Ready for review: real HTTP auth/admin/two-account suites + SQLite outage/recovery probe timing (RISK-1 closure evidence). Live PG recorded PENDING (no admin URL); RISK-2 deferred.",
+        "Review passed: WP06 proves real HTTP auth + outage recovery. SQLite app suite 19/19 + npm test 146 pass against real built server (BEGIN EXCLUSIVE locks, unchanged PID, 5s/10s/30s bounds, no mocked readiness). T029 faults fail targeted tests, source restored. Live-PG HTTP suite verified PASSING via trust-auth admin URL on existing traggo-test-pg (postgres 18.6) - manifest PENDING label now stale (positive under-claim). All FR-005/006/008 + NFR-001/002/004 met; FR-003 via WP03."
+      ],
+      "provider": "__resolved_provider_absent__",
+      "review_result": {
+        "feedback_path": "/Users/n.gryaznev/Develop/OTHER/RUOK/kitty-specs/database-review-findings-remediation-01M5TGCE/tasks/WP06-http-auth-and-probe-scenarios/review-cycle-1.md",
+        "reference": "review-cycle://database-review-findings-remediation-01M5TGCE/WP06-http-auth-and-probe-scenarios/review-cycle-1.md",
+        "reviewer": "user",
+        "verdict": "approved"
+      },
+      "role": "reviewer",
+      "shell_pid": 36893,
+      "shell_pid_created_at": "1793216917.975182",
+      "subtasks": {
+        "T025": "done",
+        "T026": "done",
+        "T027": "done",
+        "T028": "done",
+        "T029": "done"
+      }
+    },
+    "WP07": {
+      "actor": "user",
+      "agent": "nessy",
+      "agent_profile": "__resolved_profile_absent__",
+      "agent_profile_version": "__resolved_profile_version_absent__",
+      "force_count": 1,
+      "lane": "approved",
+      "last_event_id": "01M622B3V74FN53HM04CTFWYCP",
+      "last_transition_at": "2026-10-28T20:13:36.488024+00:00",
+      "model": "__resolved_model_absent__",
+      "notes": [
+        "Ready for review: scheduler lifecycle repair + real scheduler/query/saved-query/friend/AI integration suite on both backends; T034 bridge fault demonstrated; sqlite run green",
+        "Postgres entry now passes",
+        "Review passed (cycle 2): previously-blocking backend-specific audit-log assertion resolved. Commit 82995db changed expect(logs[0].success).toEqual(1) to toBeTruthy() on the boolean-mode 'success' column (raw better-sqlite3 returns integer 1; pg returns JS true), preserving intent (still verifies the audit log records a successful query, backed by code_snippet and exact-value checks). Corroborated on both backends: sqlite integrations 8/8 exit 0, postgres integrations 8/8 exit 0 (live PG18.6 at 127.0.0.1:55432), sqlite regression 19/19 exit 0. T030-T034 scenarios all green on both backends; scheduler start/stop has live production callers (no dead code); fix commit touches only WP07-owned files."
+      ],
+      "provider": "__resolved_provider_absent__",
+      "review": null,
+      "review_result": {
+        "feedback_path": "/Users/n.gryaznev/Develop/OTHER/RUOK/kitty-specs/database-review-findings-remediation-01M5TGCE/tasks/WP07-application-integrations/review-cycle-2.md",
+        "reference": "review-cycle://database-review-findings-remediation-01M5TGCE/WP07-application-integrations/review-cycle-2.md",
+        "reviewer": "user",
+        "verdict": "approved"
+      },
+      "role": "reviewer",
+      "shell_pid": 61358,
+      "shell_pid_created_at": "1793218270.519366",
+      "subtasks": {
+        "T030": "done",
+        "T031": "done",
+        "T032": "done",
+        "T033": "done",
+        "T034": "done"
+      }
+    },
+    "WP08": {
+      "actor": "finalize-tasks",
+      "force_count": 0,
+      "lane": "planned",
+      "last_event_id": "01M5ZH65P30BFTCXJWP4VNB0X6",
+      "last_transition_at": "2026-10-27T20:35:19.875886+00:00"
+    },
+    "WP09": {
+      "actor": "finalize-tasks",
+      "force_count": 0,
+      "lane": "planned",
+      "last_event_id": "01M5ZH65S39KWKR3DMFYZR4R7M",
+      "last_transition_at": "2026-10-27T20:35:19.971985+00:00"
+    },
+    "WP10": {
+      "actor": "user",
+      "agent": "nessy",
+      "agent_profile": "__resolved_profile_absent__",
+      "agent_profile_version": "__resolved_profile_version_absent__",
+      "force_count": 1,
+      "lane": "approved",
+      "last_event_id": "01M61YRHR6BZ8VNZR69YES9VY8",
+      "last_transition_at": "2026-10-28T19:11:02.406485+00:00",
+      "model": "__resolved_model_absent__",
+      "notes": [
+        "Ready for review: all SQLite execution isolated to worker threads behind the awaitable DatabaseServices facade (runtime + preparation workers); structured-clone protocol, bounded 128-slot queue, coalesced 3s readiness, generation fencing, graceful close; 13 WP10 tests, 77 sqlite-db tests, 144 npm-test, build emit workers all PASS; lock isolation (busy 0/5000/30000) proven.",
+        "SQLite preparation wired to worker; main-thread driver isolated",
+        "Review passed: cycle-2 remediation resolves both blocking issues. (1) lifecycle.ts routes migrate/verify through runPreparation worker for both backends; independently rebuilt (npm run build exit 0) and grep confirms better-sqlite3/new Database(/runSqliteMigrations/fileMustExist are ABSENT from .svelte-kit/output/server (grep exit 1) and present only in build/workers/preparation.mjs + runtime.mjs; 4 flagged main-thread bundles have 0 matches. (2) tests/db/lifecycle-isolation.test.ts exercises real openDatabase with vi.mock(better-sqlite3, throw) guard; runs and passes (2/2). Suites: sqlite-worker 13/13, test:db:sqlite 79/79, lifecycle-isolation 2/2, all exit 0. Out-of-owner touches (lifecycle/migrate/expected-sqlite/package.json) were explicitly directed by review-feedback-1; migrate.ts and expected-sqlite.ts only lazify driver import with identical behavior (WP02/WP03 semantics preserved). No unrelated/CI changes."
+      ],
+      "provider": "__resolved_provider_absent__",
+      "review": null,
+      "review_result": {
+        "feedback_path": "/Users/n.gryaznev/Develop/OTHER/RUOK/kitty-specs/database-review-findings-remediation-01M5TGCE/tasks/WP10-sqlite-execution-isolation/review-cycle-2.md",
+        "reference": "review-cycle://database-review-findings-remediation-01M5TGCE/WP10-sqlite-execution-isolation/review-cycle-2.md",
+        "reviewer": "user",
+        "verdict": "approved"
+      },
+      "role": "reviewer",
+      "shell_pid": 92950,
+      "shell_pid_created_at": "1793214556.793679",
+      "subtasks": {
+        "T044": "done",
+        "T045": "done",
+        "T046": "done",
+        "T047": "done",
+        "T048": "done"
+      }
+    },
+    "WP11": {
+      "actor": "user",
+      "agent": "nessy",
+      "agent_profile": "__resolved_profile_absent__",
+      "agent_profile_version": "__resolved_profile_version_absent__",
+      "force_count": 0,
+      "lane": "approved",
+      "last_event_id": "01M6233627J7E1AMRNKDNY9X8Y",
+      "last_transition_at": "2026-10-28T20:26:45.191352+00:00",
+      "model": "__resolved_model_absent__",
+      "notes": [
+        "Ready for review: preflight-gated postgres/application commands + command-coverage test; npm test 173 pass; sqlite app 27 pass; postgres suites pass (25 app / 1 recovery); pre-existing test:db:postgres finding documented (non-WP11-owned)",
+        "Review passed: preflight:postgres wired + fail-closed (missing URL/tools exit 1, credential-free); test:application:sqlite (27) and test:application:postgres (25) each run HTTP/auth/probe + integration entries; npm test 21 files/173 pass incl. new sqlite app entries; command-coverage 10/10; WP10 test scripts preserved; postgres full commands gate at fail-closed preflight (host pg14<server18) with underlying suites passing via admin URL (PENDING is intentional, non-blocking); pre-existing postgres integrations timing finding is out-of-scope (git diff empty)"
+      ],
+      "provider": "__resolved_provider_absent__",
+      "review_result": {
+        "feedback_path": "/Users/n.gryaznev/Develop/OTHER/RUOK/kitty-specs/database-review-findings-remediation-01M5TGCE/tasks/WP11-required-command-integration/review-cycle-1.md",
+        "reference": "review-cycle://database-review-findings-remediation-01M5TGCE/WP11-required-command-integration/review-cycle-1.md",
+        "reviewer": "user",
+        "verdict": "approved"
+      },
+      "role": "reviewer",
+      "shell_pid": 73865,
+      "shell_pid_created_at": "1793218974.199535",
+      "subtasks": {
+        "T049": "done",
+        "T050": "done",
+        "T051": "done",
+        "T052": "done"
+      }
+    }
+  }
+}

@@ -3,9 +3,7 @@
  * Automatically syncs data from connected plugins at regular intervals
  */
 
-import { db } from '$lib/db/client';
-import { plugins } from '$lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { getDatabase } from '$lib/server/database';
 import { getPlugin, syncPluginData } from './manager';
 
 // Default sync interval: 1 hour
@@ -62,9 +60,8 @@ async function runScheduledSync(): Promise<void> {
 
 	try {
 		// Get all enabled plugin configurations
-		const enabledPlugins = await db.query.plugins.findMany({
-			where: eq(plugins.enabled, true)
-		});
+		const services = await getDatabase();
+		const enabledPlugins = await services.plugins.listEnabled();
 
 		if (enabledPlugins.length === 0) {
 			console.log('No enabled plugins to sync');

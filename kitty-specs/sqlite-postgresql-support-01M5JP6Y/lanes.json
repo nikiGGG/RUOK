@@ -1,0 +1,186 @@
+{
+  "version": 1,
+  "mission_slug": "sqlite-postgresql-support-01M5JP6Y",
+  "mission_id": "01M5JP6YPNN95F8D973SDWY6JM",
+  "mission_branch": "kitty/mission-sqlite-postgresql-support-01M5JP6Y",
+  "target_branch": "plan/sqlite-postgresql-support",
+  "lanes": [
+    {
+      "lane_id": "lane-a",
+      "wp_ids": [
+        "WP01",
+        "WP02",
+        "WP03",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11"
+      ],
+      "write_scope": [
+        ".github/workflows/ruok-ci.yml",
+        ".github/workflows/ruok-image.yml",
+        "README.md",
+        "okr-app/.dockerignore",
+        "okr-app/.env.example",
+        "okr-app/Dockerfile",
+        "okr-app/compose.postgres.yml",
+        "okr-app/docker-compose.yml",
+        "okr-app/docs/CNPG-HANDOFF.md",
+        "okr-app/docs/DATABASE-VERIFICATION.md",
+        "okr-app/docs/DATABASES.md",
+        "okr-app/docs/MAINTENANCE.md",
+        "okr-app/docs/SETUP.md",
+        "okr-app/drizzle-postgres/",
+        "okr-app/drizzle.config.ts",
+        "okr-app/drizzle.postgres.config.ts",
+        "okr-app/drizzle/",
+        "okr-app/package-lock.json",
+        "okr-app/package.json",
+        "okr-app/scripts/",
+        "okr-app/scripts/db-migrate.ts",
+        "okr-app/src/hooks.server.ts",
+        "okr-app/src/lib/db/",
+        "okr-app/src/lib/db/adapters/",
+        "okr-app/src/lib/db/backup/",
+        "okr-app/src/lib/db/client.ts",
+        "okr-app/src/lib/db/contracts.ts",
+        "okr-app/src/lib/db/models.ts",
+        "okr-app/src/lib/server/ai/",
+        "okr-app/src/lib/server/auth.ts",
+        "okr-app/src/lib/server/config.ts",
+        "okr-app/src/lib/server/events.ts",
+        "okr-app/src/lib/server/metrics/",
+        "okr-app/src/lib/server/plugins/",
+        "okr-app/src/lib/server/query/",
+        "okr-app/src/lib/types.ts",
+        "okr-app/src/routes/+layout.server.ts",
+        "okr-app/src/routes/+page.server.ts",
+        "okr-app/src/routes/admin/",
+        "okr-app/src/routes/api/admin/config/",
+        "okr-app/src/routes/api/admin/logs/",
+        "okr-app/src/routes/api/admin/users/",
+        "okr-app/src/routes/api/ai/",
+        "okr-app/src/routes/api/auth/",
+        "okr-app/src/routes/api/backup/",
+        "okr-app/src/routes/api/dashboard/",
+        "okr-app/src/routes/api/friends/",
+        "okr-app/src/routes/api/health/",
+        "okr-app/src/routes/api/metrics/",
+        "okr-app/src/routes/api/objectives/",
+        "okr-app/src/routes/api/periods/",
+        "okr-app/src/routes/api/plugins/",
+        "okr-app/src/routes/api/queries/",
+        "okr-app/src/routes/api/ready/",
+        "okr-app/src/routes/api/tags/",
+        "okr-app/src/routes/api/tasks/",
+        "okr-app/src/routes/api/user/",
+        "okr-app/src/routes/daily/",
+        "okr-app/src/routes/friends/",
+        "okr-app/src/routes/login/",
+        "okr-app/src/routes/objectives/",
+        "okr-app/src/routes/queries/",
+        "okr-app/src/routes/register/",
+        "okr-app/src/routes/settings/",
+        "okr-app/src/routes/settings/metrics/",
+        "okr-app/src/routes/settings/tags/",
+        "okr-app/src/routes/weekly/",
+        "okr-app/tests/",
+        "okr-app/tests/backup/",
+        "okr-app/tests/container/",
+        "okr-app/tests/db/",
+        "okr-app/tests/domains/auth/",
+        "okr-app/tests/domains/goals/",
+        "okr-app/tests/domains/integrations/",
+        "okr-app/tests/domains/metrics/",
+        "okr-app/tests/domains/planning/",
+        "okr-app/vite.config.ts"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "dashboard",
+        "legacy-cleanup",
+        "tracker-integration"
+      ],
+      "depends_on_lanes": [],
+      "parallel_group": 0
+    }
+  ],
+  "computed_at": "2026-10-22T21:10:15.824073+00:00",
+  "computed_from": "dependency_graph+ownership",
+  "planning_artifact_wps": [],
+  "collapse_report": {
+    "events": [
+      {
+        "wp_a": "WP01",
+        "wp_b": "WP02",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'okr-app/src/lib/db/contracts.ts' vs 'okr-app/src/lib/db/', 'okr-app/src/lib/db/models.ts' vs 'okr-app/src/lib/db/', 'okr-app/tests/db/' vs 'okr-app/tests/db/'; WP02 depends on WP01"
+      },
+      {
+        "wp_a": "WP01",
+        "wp_b": "WP03",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'okr-app/package.json' vs 'okr-app/package.json', 'okr-app/src/lib/db/contracts.ts' vs 'okr-app/src/lib/db/', 'okr-app/src/lib/db/models.ts' vs 'okr-app/src/lib/db/', 'okr-app/tests/db/' vs 'okr-app/tests/db/'"
+      },
+      {
+        "wp_a": "WP01",
+        "wp_b": "WP07",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'okr-app/src/lib/db/contracts.ts' vs 'okr-app/src/lib/db/', 'okr-app/src/lib/db/models.ts' vs 'okr-app/src/lib/db/'"
+      },
+      {
+        "wp_a": "WP01",
+        "wp_b": "WP08",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'okr-app/package.json' vs 'okr-app/package.json', 'okr-app/src/lib/db/contracts.ts' vs 'okr-app/src/lib/db/', 'okr-app/src/lib/db/models.ts' vs 'okr-app/src/lib/db/', 'okr-app/tests/db/' vs 'okr-app/tests/'"
+      },
+      {
+        "wp_a": "WP01",
+        "wp_b": "WP09",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'okr-app/package.json' vs 'okr-app/package.json'"
+      },
+      {
+        "wp_a": "WP01",
+        "wp_b": "WP10",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'okr-app/package.json' vs 'okr-app/package.json'"
+      },
+      {
+        "wp_a": "WP02",
+        "wp_b": "WP04",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'okr-app/src/lib/db/' vs 'okr-app/src/lib/db/adapters/'"
+      },
+      {
+        "wp_a": "WP02",
+        "wp_b": "WP05",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'okr-app/src/lib/db/' vs 'okr-app/src/lib/db/adapters/'"
+      },
+      {
+        "wp_a": "WP02",
+        "wp_b": "WP06",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'okr-app/src/lib/db/' vs 'okr-app/src/lib/db/backup/', 'okr-app/src/lib/db/' vs 'okr-app/src/lib/db/adapters/', 'okr-app/src/lib/db/' vs 'okr-app/src/lib/db/client.ts'"
+      },
+      {
+        "wp_a": "WP09",
+        "wp_b": "WP11",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'okr-app/.env.example' vs 'okr-app/.env.example'"
+      }
+    ],
+    "total_merges": 10,
+    "independent_wps_collapsed": 0,
+    "by_rule": {
+      "write_scope_overlap": 10
+    }
+  }
+}

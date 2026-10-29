@@ -1,0 +1,32 @@
+{
+  "accept_commit": "77a423c02060795c23358b48fdf4f079f4b2da9b",
+  "acceptance_history": [
+    {
+      "accept_commit": "77a423c02060795c23358b48fdf4f079f4b2da9b",
+      "acceptance_mode": "pr",
+      "accepted_at": "2026-10-23T00:21:17.683344+00:00",
+      "accepted_by": "nessy-orchestrator",
+      "accepted_from_commit": "5781ff3faca5029e086b20c660f43f4bd0ffef99"
+    }
+  ],
+  "acceptance_mode": "pr",
+  "accepted_at": "2026-10-23T00:21:17.683344+00:00",
+  "accepted_by": "nessy-orchestrator",
+  "accepted_from_commit": "5781ff3faca5029e086b20c660f43f4bd0ffef99",
+  "baseline_merge_commit": "3293ad10be8c06b2712092970fb8f7a81c2d29f3",
+  "created_at": "2026-10-22T20:53:00.758226+00:00",
+  "flattened": false,
+  "friendly_name": "SQLite and PostgreSQL support",
+  "mission_id": "01M5JP6YPNN95F8D973SDWY6JM",
+  "mission_number": null,
+  "mission_slug": "sqlite-postgresql-support-01M5JP6Y",
+  "mission_type": "software-dev",
+  "purpose_context": "Vikunja task 115/comments 179 and 212; user requires both database modes. Planning-only delivery; implementation, image publication and CNPG deployment remain future work.",
+  "purpose_tldr": "Keep SQLite simple and add PostgreSQL with equivalent RUOK behavior",
+  "slug": "sqlite-postgresql-support-01M5JP6Y",
+  "status_phase": "1",
+  "target_branch": "plan/sqlite-postgresql-support",
+  "topology": "single_branch",
+  "vcs": "git",
+  "vcs_locked_at": "2026-10-22T21:36:59.521132+00:00"
+}

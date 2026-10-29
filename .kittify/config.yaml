@@ -1,0 +1,14 @@
+project:
+  uuid: a2806748-41a9-4cf9-b073-d84413d4e870
+  slug: ruok
+  node_id: 635c41590a75
+  build_id: 51220d82-7fb2-59a3-b2f4-32dcf765f5e6
+vcs:
+  type: git
+mission_type_activations:
+- software-dev
+agents:
+  available:
+  - qwen
+  auto_commit: true
+  lint_on_edit: false
