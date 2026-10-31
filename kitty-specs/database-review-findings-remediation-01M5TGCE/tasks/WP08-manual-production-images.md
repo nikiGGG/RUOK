@@ -13,24 +13,24 @@ requirement_refs:
 - NFR-004
 planning_base_branch: plan/sqlite-postgresql-support
 merge_target_branch: plan/sqlite-postgresql-support
-branch_strategy: Planning artifacts for this mission were generated on plan/sqlite-postgresql-support.
-  During /spec-kitty.implement this WP may branch from a dependency-specific base,
-  but completed changes must merge back into plan/sqlite-postgresql-support unless
-  the human explicitly redirects the landing branch.
+branch_strategy: Planning artifacts for this mission were generated on plan/sqlite-postgresql-support. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into plan/sqlite-postgresql-support unless the human explicitly redirects the landing branch.
+base_branch: kitty/mission-database-review-findings-remediation-01M5TGCE
+base_commit: 0bb5a80b98ebeac166ae7178009008cbeb254856
+created_at: '2026-10-31T07:45:16.081586+00:00'
 subtasks:
 - T035
 - T036
 - T037
 - T038
 phase: Application remediation
+agent: qwen
 history:
 - at: '2026-10-27T20:28:34Z'
   actor: codex
   action: Prompt authored; implementation not started
 - at: '2026-10-27T21:33:04Z'
   actor: codex
-  action: Applied authorized consistency-analysis recommendations; implementation
-    remains unstarted
+  action: Applied authorized consistency-analysis recommendations; implementation remains unstarted
 agent_profile: node-norris
 authoritative_surface: okr-app/tests/container/
 create_intent:
@@ -47,7 +47,6 @@ role: implementer
 tags: []
 task_type: implement
 tracker_refs: []
-agent: qwen
 ---
 
 ## ⚡ Do This First: Load Agent Profile
