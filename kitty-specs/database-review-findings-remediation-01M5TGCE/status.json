@@ -1,7 +1,7 @@
 {
-  "event_count": 81,
-  "last_event_id": "01M6233627J7E1AMRNKDNY9X8Y",
-  "materialized_at": "2026-10-28T20:26:45.191352+00:00",
+  "event_count": 83,
+  "last_event_id": "01M68EQ0V5JQDRAEEPQTJMD9QQ",
+  "materialized_at": "2026-10-31T07:45:16.132607+00:00",
   "mission_number": "",
   "mission_slug": "database-review-findings-remediation-01M5TGCE",
   "mission_type": "software-dev",
@@ -12,9 +12,9 @@
     "claimed": 0,
     "done": 0,
     "for_review": 0,
-    "in_progress": 0,
+    "in_progress": 1,
     "in_review": 0,
-    "planned": 2
+    "planned": 1
   },
   "work_packages": {
     "WP01": {
@@ -249,11 +249,14 @@
       }
     },
     "WP08": {
-      "actor": "finalize-tasks",
+      "actor": "qwen",
+      "agent": "qwen",
       "force_count": 0,
-      "lane": "planned",
-      "last_event_id": "01M5ZH65P30BFTCXJWP4VNB0X6",
-      "last_transition_at": "2026-10-27T20:35:19.875886+00:00"
+      "lane": "in_progress",
+      "last_event_id": "01M68EQ0V5JQDRAEEPQTJMD9QQ",
+      "last_transition_at": "2026-10-31T07:45:16.132607+00:00",
+      "shell_pid": 757843,
+      "shell_pid_created_at": "1793389646.24"
     },
     "WP09": {
       "actor": "finalize-tasks",
