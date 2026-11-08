@@ -17,6 +17,9 @@ export * from './models'
 export * from './config'
 export * from './lifecycle'
 export * from './migrations'
+// Shared migration-mode parser (FR-003 / T010): published here so the
+// application lifecycle (WP04) and the CLI resolve MIGRATION_MODE identically.
+export * from './migration-mode'
 
 export { SqliteDatabaseServices } from './adapters/sqlite'
 export { PostgresDatabaseServices } from './adapters/postgres'

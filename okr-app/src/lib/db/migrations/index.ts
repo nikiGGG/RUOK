@@ -9,6 +9,7 @@ export * from './contracts'
 export * from './migration-files'
 export * from './fingerprint'
 export { getExpectedSqliteLayout } from './expected-sqlite'
+export { inspectSqlite } from './sqlite-inspect'
 export { migrateDatabase, defaultMigrationsFolder } from './migrate'
 export type { MigrateOptions } from './migrate'
 export { runSqliteMigrations } from './sqlite-migrator'
@@ -19,3 +20,9 @@ export {
 	releasePostgresMigrationLock,
 	createPostgresMigrationClient
 } from './postgres-migrator'
+export {
+	runPostgresVerify,
+	parsePostgresTables,
+	type PostgresTableDescriptor,
+	type PostgresTableColumn
+} from './postgres-verify'

@@ -12,8 +12,8 @@ import { readMigrationFolder } from '../../src/lib/db/migrations/migration-files
 import type { DbShape, ExpectedLayout } from '../../src/lib/db/migrations'
 import { SQLITE_FOLDER } from './migration-fixtures'
 
-const expected: ExpectedLayout = getExpectedSqliteLayout()
 const { migrations } = readMigrationFolder(SQLITE_FOLDER)
+const expected: ExpectedLayout = getExpectedSqliteLayout(migrations)
 
 function journalState(present: boolean, recordedWhen: number[] = []): Pick<DbShape, 'journalPresent' | 'journalCreatedAts'> {
 	return { journalPresent: present, journalCreatedAts: recordedWhen }

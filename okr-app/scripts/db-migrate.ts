@@ -14,6 +14,7 @@
  * read through {@link loadConfig}. Output is redacted (no credentials).
  */
 import { loadConfig } from '../src/lib/db/config'
+import { parseMigrationMode } from '../src/lib/db/migration-mode'
 import { migrateDatabase } from '../src/lib/db/migrations'
 
 function fail(message: string): never {
@@ -23,10 +24,8 @@ function fail(message: string): never {
 }
 
 async function main(): Promise<void> {
-	const mode = (process.env.MIGRATION_MODE ?? 'migrate').trim().toLowerCase()
-	if (mode !== 'migrate' && mode !== 'verify') {
-		fail(`Invalid MIGRATION_MODE '${process.env.MIGRATION_MODE}'. Expected 'migrate' or 'verify'.`)
-	}
+	// Shared parser (FR-003 / T010): absent -> migrate, invalid -> redacted error.
+	const mode = parseMigrationMode(process.env.MIGRATION_MODE)
 
 	let config
 	try {

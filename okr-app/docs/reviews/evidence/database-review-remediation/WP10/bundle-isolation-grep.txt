@@ -1,0 +1,30 @@
+# WP10 cycle-2 — SQLite driver isolation in built bundles (grep proof)
+# Date: 2026-10-28; workdir okr-app/; after `npm run build` (exit 0)
+# Commands: grep -rl "better-sqlite3" / "new Database(" over .svelte-kit/output/server/
+
+## 1. better-sqlite3 present anywhere under .svelte-kit/output/server/? (expect: none)
+NOT FOUND (PASS) — grep -rl exit 1
+
+## 2. new Database( present anywhere under .svelte-kit/output/server/? (expect: none)
+NOT FOUND (PASS) — grep -rl exit 1
+
+## 3. runSqliteMigrations / fileMustExist under server output? (expect: none)
+runSqliteMigrations: 0
+fileMustExist: 0
+
+## 4. The four reviewer-flagged main-thread bundles (count of matches for 'better-sqlite3' or 'new Database(')
+chunks/lifecycle.js                           0
+chunks/database.js                            0
+entries/hooks.server.js                       0
+entries/endpoints/api/ready/_server.ts.js     0
+
+## 5. better-sqlite3 references in worker bundles (expect: present as external runtime import)
+build/workers/preparation.mjs                3   (import("better-sqlite3") x2, plus name)
+build/workers/runtime.mjs                    3   (import Database from "better-sqlite3")
+
+### 5a. sample runtime.mjs driver import
+from "better-sqlite3"
+
+### 5b. sample preparation.mjs driver import (lazy, from the sqlite branch of migrate.ts)
+import("better-sqlite3")
+import("better-sqlite3")

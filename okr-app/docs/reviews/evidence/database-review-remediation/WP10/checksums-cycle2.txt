@@ -1,0 +1,14 @@
+# WP10 cycle-2 — source checksums (SHA-256)
+
+Mission: `database-review-findings-remediation-01M5TGCE`
+Captured on the lane-j worktree after cycle-2 edits (before the WP10 commit).
+`shasum -a 256 <file>`
+
+5ab1221b5761dbfafddaf09af294f84dca94abb6fbd5d3bf8b21d67bd5dd3568  src/lib/db/adapters/sqlite-worker-client.ts
+340903d7eb52bdffe35a2974ae7ba65e349b54621be1a0b7d2b20ada936fabdd  src/lib/db/adapters/sqlite-preparation-worker.ts
+09f68c337910501ca92fe02b0deb18f6307cb841b6e3f555545af7636a61cef0  src/lib/db/adapters/sqlite.ts
+4b95122374431a32b85d6e22bed2286875d537bfd281e41b98ba9ea405c256a1  src/lib/db/lifecycle.ts
+500cf9073ca9c0b1b725b95c5cd74029d6a7eb908cd3820e07fc0b3af31ee138  src/lib/db/migrations/migrate.ts
+80550d8a7e25d0e9ea2b7c7807ba5ac5d85d1c6807a23bfbe6e1e3fbea91a0e6  src/lib/db/migrations/expected-sqlite.ts
+fa47769afed3b487a5f968bd8786076de1ed97db18bf35ea22a52859dc61df0c  package.json
+70c4867e724d400b91334e1480b8f1df8d0e4c67578e7cf7dd43d91a172cf16d  tests/db/lifecycle-isolation.test.ts

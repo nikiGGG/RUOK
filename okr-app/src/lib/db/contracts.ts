@@ -489,6 +489,17 @@ export interface DatabaseServices {
 	isOpen(): boolean;
 	/** Release all resources (pool/sqlite file). Idempotent. */
 	close(): Promise<void>;
+	/**
+	 * Bounded live-availability probe (FR-008 / NFR-002 / D-05).
+	 *
+	 * Runs a real query against a required application table within a bounded
+	 * probe budget (at most 3s total including checkout/queue time). Resolves
+	 * `true` only when the backend can answer; `false` on outage, pool
+	 * saturation, idle errors or probe timeout. Never throws and never serves a
+	 * cached successful result. Implementations must release/destroy timed-out
+	 * resources and share in-flight checks without repeating a completed one.
+	 */
+	checkAvailability(): Promise<boolean>;
 
 	/**
 	 * Bounded atomic operation: create a user together with their initial

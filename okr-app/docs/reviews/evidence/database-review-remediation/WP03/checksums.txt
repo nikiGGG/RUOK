@@ -1,0 +1,8 @@
+c6c2e11bf7904da0fef77c660b28ca45ff52b5b0b4d2a4de3082e0196ea785da  src/lib/db/migration-mode.ts
+250ec53e3bcfcef3edfa630663c9062f56a61eadefc0fb668a8e953d3c3f20fe  src/lib/db/migrations/postgres-verify.ts
+cac088b60264a225aa1336659a45e4c27b33a0615d9dd257eee641fc2e7e04be  src/lib/db/migrations/migrate.ts
+3d57a5d5fadca70c2ee661a0b794ddbc7ac60b6034bdc34b22739f7a2e1d0152  src/lib/db/migrations/postgres-migrator.ts
+eb970826517eb590b6230e1b5cfae178ce8afc41fd26827db57dd37c477747ce  scripts/db-migrate.ts
+d5b52ebbffa68db8bab5bd02c2fb5904a8b8f02f65e3b32e244a8621698f466f  tests/db/runtime-mode.test.ts
+24e7fbe63b32437b16f3909c7ab13d2da31bc6ce6f98386e194738aed86c03eb  tests/db/postgres-no-ddl.test.ts
+8c11e30d1a443c5aa68642da844039b6d418b1e9f0b8ff8275cb904b7c8d17f0  tests/db/postgres.migration.test.ts
