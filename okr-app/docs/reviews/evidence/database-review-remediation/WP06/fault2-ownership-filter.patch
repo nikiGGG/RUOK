@@ -1,0 +1,18 @@
+diff --git a/okr-app/src/routes/api/objectives/[id]/+server.ts b/okr-app/src/routes/api/objectives/[id]/+server.ts
+index 94756b9..f2328ae 100644
+--- a/okr-app/src/routes/api/objectives/[id]/+server.ts
++++ b/okr-app/src/routes/api/objectives/[id]/+server.ts
+@@ -13,7 +13,12 @@ export const GET: RequestHandler = async ({ locals, params }) => {
+ 	const db = await getDatabase();
+ 	const objective = await db.objectives.findById(params.id);
+ 
+-	if (!objective || objective.userId !== locals.user.id) {
++	// FAULT-2 (controlled): ownership filter deliberately removed for T029
++	// regression sensitivity proof. MUST be restored before the final commit.
++	// if (!objective || objective.userId !== locals.user.id) {
++	// 	return json({ error: 'Objective not found' }, { status: 404 });
++	// }
++	if (!objective) {
+ 		return json({ error: 'Objective not found' }, { status: 404 });
+ 	}
+ 
