@@ -1,6 +1,8 @@
 {
+  "accept_commit": "cd2e921d721fd89a60268f0f2bffafb27f7efcf8",
   "acceptance_history": [
     {
+      "accept_commit": "cd2e921d721fd89a60268f0f2bffafb27f7efcf8",
       "acceptance_mode": "local",
       "accepted_at": "2026-11-09T20:06:45.342552+00:00",
       "accepted_by": "nikg",
