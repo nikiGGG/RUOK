@@ -7,18 +7,20 @@
  * time, so importing the database module is free of connection side effects.
  *
  * Migration (FR-004/FR-005): `openDatabase` runs the selected backend's checked
- * migration history (or schema verification in `verify` mode) BEFORE opening
- * the runtime connection, serializing concurrent startups/CLI. The process-wide
- * readiness surface reflects whether the backend is open AND migrated.
+ * migration history (or schema verification in `verify` mode) INSIDE a dedicated
+ * preparation worker BEFORE opening the runtime connection, serializing concurrent
+ * startups/CLI. The main/HTTP thread never runs the SQLite driver or the dialect
+ * migration runners synchronously. The process-wide readiness surface reflects
+ * whether the backend is open AND migrated.
  *
  * The singleton is optional: callers may use {@link createDatabaseServices} to
  * manage their own instance (e.g. tests). Importing this module performs no I/O.
  */
 import type { DatabaseConfig, DatabaseServices } from './contracts'
 import type { ReadinessState } from './migrations'
-import { migrateDatabase, type MigrateOptions } from './migrations'
+import type { MigrateOptions } from './migrations'
 import { PostgresDatabaseServices } from './adapters/postgres'
-import { SqliteDatabaseServices } from './adapters/sqlite'
+import { SqliteDatabaseServices, runPreparation } from './adapters/sqlite'
 
 /** Construct the concrete adapter selected by a validated config. */
 export function createDatabaseServices(config: DatabaseConfig): DatabaseServices {
@@ -59,6 +61,12 @@ export function getDatabaseServices(config?: DatabaseConfig): DatabaseServices {
 /**
  * Open the process-wide backend and make it ready. Idempotent. Runs the
  * selected backend's migrations (or verification in `verify` mode) first.
+ *
+ * The migrate/verify step is executed inside a dedicated preparation worker
+ * (via {@link runPreparation}) for BOTH backends, so no synchronous SQLite I/O
+ * (or the SQLite driver / dialect migration runners) ever runs on the HTTP
+ * thread. This is the single lifecycle boundary through which migrations are
+ * reached.
  */
 export async function openDatabase(
 	config?: DatabaseConfig,
@@ -67,7 +75,7 @@ export async function openDatabase(
 	const services = getDatabaseServices(config)
 	const resolved = getOpenConfig() ?? config
 	if (resolved) {
-		const result = await migrateDatabase(resolved, migrateOptions)
+		const result = await runPreparation(resolved, migrateOptions)
 		lastMigrationVersion = result.schemaVersion
 	}
 	await services.open()

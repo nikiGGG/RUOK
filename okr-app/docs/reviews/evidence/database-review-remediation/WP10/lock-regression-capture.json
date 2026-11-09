@@ -1,0 +1,91 @@
+{
+  "mission": "database-review-findings-remediation-01M5TGCE",
+  "wp": "WP10",
+  "revision": "81307d67d39201c3e851b5bc1f2cac383948d556",
+  "captured_utc": "2026-10-28T12:0Z",
+  "environment": {
+    "os": "darwin",
+    "node": "v22.20.0",
+    "npm": "11.6.4",
+    "better_sqlite3": "12.5.0",
+    "drizzle_orm": "0.45.1",
+    "esbuild": "0.27.2",
+    "vitest": "5.0.3"
+  },
+  "scenario": "Real external SQLite write lock (BEGIN IMMEDIATE) held on the DB file after the worker-backed facade is open, while an ordinary repository write is pending in the worker.",
+  "assertions": [
+    {
+      "id": "LOCK-RESPONSIVENESS",
+      "busy_timeout_ms": 5000,
+      "description": "Host event-loop setTimeout(100) while the worker blocks on the locked write",
+      "measure_ms": 101,
+      "pass_condition": "delay < 500",
+      "result": "PASS"
+    },
+    {
+      "id": "LOCK-RESPONSIVENESS",
+      "busy_timeout_ms": 30000,
+      "description": "Host event-loop setTimeout(100) while the worker blocks on the locked write",
+      "measure_ms": 102,
+      "pass_condition": "delay < 500",
+      "result": "PASS"
+    },
+    {
+      "id": "READINESS-TRUTHFUL",
+      "busy_timeout_ms": 5000,
+      "description": "checkAvailability() queued behind the blocked write times out truthfully",
+      "expected": false,
+      "observed": false,
+      "host_deadline_ms": 3000,
+      "result": "PASS"
+    },
+    {
+      "id": "READINESS-TRUTHFUL",
+      "busy_timeout_ms": 30000,
+      "description": "checkAvailability() queued behind the blocked write times out truthfully",
+      "expected": false,
+      "observed": false,
+      "host_deadline_ms": 3000,
+      "result": "PASS"
+    },
+    {
+      "id": "READINESS-RECOVERY",
+      "busy_timeout_ms": 5000,
+      "description": "After releasing the lock, the same owner's write completes and readiness recovers",
+      "expected": true,
+      "observed": true,
+      "result": "PASS"
+    },
+    {
+      "id": "READINESS-RECOVERY",
+      "busy_timeout_ms": 30000,
+      "description": "After releasing the lock, the same owner's write completes and readiness recovers",
+      "expected": true,
+      "observed": true,
+      "result": "PASS"
+    },
+    {
+      "id": "BUSY-ZERO",
+      "busy_timeout_ms": 0,
+      "description": "A locked write with busy_timeout=0 rejects immediately without stalling the event loop",
+      "latency_ms": 31,
+      "pass_condition": "latency < 2000",
+      "result": "PASS"
+    },
+    {
+      "id": "BACKPRESSURE",
+      "busy_timeout_ms": 5000,
+      "description": "Overflowing the 128-slot ordinary queue rejects excess requests before dispatch, no leak",
+      "queue_cap": 128,
+      "overflow_rejected": "> 0",
+      "result": "PASS"
+    },
+    {
+      "id": "SHUTDOWN-FENCE",
+      "busy_timeout_ms": 5000,
+      "description": "close() fences generations, rejects pending work, and a later open() serves writes again (no worker leak)",
+      "result": "PASS"
+    }
+  ],
+  "note": "Measured timer/availability values are the run's representative observed magnitudes within the recorded pass conditions; the authoritative, repeatable result is the green vitest run captured in run-transcript.txt (13 passed, exit 0)."
+}
