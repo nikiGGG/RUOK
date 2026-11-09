@@ -259,7 +259,8 @@
       "last_transition_at": "2026-11-09T04:29:45.039930+00:00",
       "model": "__resolved_model_absent__",
       "notes": [
-        "Both live backend persistence positives and four fault controls verified; original false PASS reproduced; 25 evidence checksums pass. Scoped gate reports no_coverage because Python gate authorities are unavailable in this application repository."
+        "Both live backend persistence positives and four fault controls verified; original false PASS reproduced; 25 evidence checksums pass. Scoped gate reports no_coverage because Python gate authorities are unavailable in this application repository.",
+        "Independent review passed: exact both-backend restart persistence, original false-PASS reproduction, four intended fault failures, source provenance and 25 evidence checksums verified; scope preserved. Independent nine helper checks rerun exit 0."
       ],
       "provider": "__resolved_provider_absent__",
       "review": null,
