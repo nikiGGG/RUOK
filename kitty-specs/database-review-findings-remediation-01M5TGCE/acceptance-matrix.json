@@ -85,5 +85,14 @@
       "notes": "Executed proof independently reviewed; earlier failed attempts remain preserved. git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/database-review-findings-remediation.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/manifest.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/result-matrix.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/SHA256SUMS; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/secret-scan.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/link-check.log"
     }
   ],
-  "negative_invariants": []
+  "negative_invariants": [
+    {
+      "invariant_id": "CI_CD_UNCHANGED",
+      "description": "CI/CD behavior files remain byte-identical to the inspected baseline; RISK-2 remains unresolved/operator-deferred.",
+      "verification_method": "custom_command",
+      "verification_command": "git diff --quiet 0572599edc3e79dded5893aaaaef6867394a5288 5b0db88240c551090cf093c93d484f99b8313687 -- .github/workflows",
+      "result": "confirmed_absent",
+      "evidence": "Command exited 0: "
+    }
+  ]
 }
