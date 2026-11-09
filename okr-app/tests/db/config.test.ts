@@ -17,7 +17,8 @@ import {
 	buildSqlitePragmas,
 	loadConfig,
 	redactConfig,
-	redactConnectionString
+	redactConnectionString,
+	sanitizePostgresConnectionString
 } from '../../src/lib/db';
 import type { PostgresConfig, SqliteConfig } from '../../src/lib/db/contracts';
 
@@ -194,6 +195,65 @@ describe('loadConfig (FR-001)', () => {
 			).toThrow(/silently disable TLS verification/);
 		});
 	});
+
+	describe('URL TLS controls (DRIFT-1)', () => {
+		const base = { DATABASE_TYPE: 'postgres', DATABASE_URL: 'postgres://u:p@h:5432/db' };
+
+		it('rejects a duplicate sslmode control in the connection URL', () => {
+			expect(() =>
+				loadConfig({
+					...base,
+					DATABASE_URL: 'postgres://u:p@h:5432/db?sslmode=require&sslmode=verify-full'
+				})
+			).toThrow(/Duplicate TLS control 'sslmode'/);
+		});
+
+		it('rejects an unknown/unsupported sslmode value (no-verify would weaken TLS)', () => {
+			expect(() =>
+				loadConfig({
+					...base,
+					DATABASE_URL: 'postgres://u:p@h:5432/db?sslmode=no-verify'
+				})
+			).toThrow(/Unsupported TLS sslmode 'no-verify'/);
+			expect(() =>
+				loadConfig({
+					...base,
+					DATABASE_URL: 'postgres://u:p@h:5432/db?sslmode=prefer'
+				})
+			).toThrow(/Unsupported TLS sslmode 'prefer'/);
+		});
+
+		it.each([
+			['ssl', '?ssl=no-verify'],
+			['sslcert', '?sslcert=/x.pem'],
+			['sslkey', '?sslkey=/x.key'],
+			['sslrootcert', '?sslrootcert=/x.pem'],
+			['sslnegotiation', '?sslnegotiation=direct']
+		])('rejects unsupported URL TLS control %s', (key, query) => {
+			expect(() => loadConfig({ ...base, DATABASE_URL: `postgres://u:p@h:5432/db${query}` })).toThrow(
+				/Unsupported TLS control/
+			);
+		});
+
+		it('maps accepted verifying URL modes (require/verify-ca/verify-full) to verify-full', () => {
+			for (const mode of ['require', 'verify-ca', 'verify-full']) {
+				const cfg = postgresCfg({
+					...base,
+					DATABASE_URL: `postgres://u:p@h:5432/db?sslmode=${mode}`
+				});
+				expect(cfg.sslMode).toBe('verify-full');
+			}
+		});
+
+		it('sanitizes TLS controls from the connection string while preserving other params', () => {
+			const cleaned = sanitizePostgresConnectionString(
+				'postgres://u:p@h:5432/db?sslmode=require&application_name=okr&foo=bar'
+			);
+			expect(cleaned).not.toContain('sslmode');
+			expect(cleaned).toContain('application_name=okr');
+			expect(cleaned).toContain('foo=bar');
+		});
+	});
 });
 
 describe('secret redaction (FR-009)', () => {
@@ -264,5 +324,26 @@ describe('adapter-facing config builders', () => {
 		} finally {
 			rmSync(dir, { recursive: true, force: true });
 		}
+	});
+
+	it('strips URL TLS controls from the connection string handed to pg (DRIFT-1)', () => {
+		const cfg = postgresCfg({
+			DATABASE_TYPE: 'postgres',
+			DATABASE_URL: 'postgres://u:p@h:5432/db?sslmode=verify-full&application_name=okr',
+			DATABASE_SSL_MODE: 'verify-full'
+		});
+		const pool = buildPostgresPoolConfig(cfg);
+		expect(pool.connectionString).toBe('postgres://u:p@h:5432/db?application_name=okr');
+		expect(pool.connectionString).not.toContain('sslmode');
+	});
+
+	it('preserves unrelated URL parameters after sanitizing the connection string', () => {
+		const cleaned = sanitizePostgresConnectionString(
+			'postgres://u:p@h:5432/db?sslmode=require&sslcert=/x&target_session_attrs=read-write&options=-cfoo'
+		);
+		expect(cleaned).not.toContain('sslmode');
+		expect(cleaned).not.toContain('sslcert');
+		expect(cleaned).toContain('target_session_attrs=read-write');
+		expect(cleaned).toContain('options=-cfoo');
 	});
 });
