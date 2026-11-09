@@ -52,7 +52,7 @@ describe('WP10 lifecycle isolation through the real openDatabase path', () => {
 			});
 
 			// Driver never imported on the main thread; migration ran in the worker.
-			const readiness = getReadiness();
+			const readiness = await getReadiness();
 			expect(readiness.ready).toBe(true);
 			expect(readiness.dialect).toBe('sqlite');
 			expect(readiness.schemaVersion).toBeGreaterThan(0);
@@ -78,7 +78,7 @@ describe('WP10 lifecycle isolation through the real openDatabase path', () => {
 				busyTimeoutMs: 5000
 			});
 			expect(services.isOpen()).toBe(true);
-			expect(getReadiness().ready).toBe(true);
+			expect((await getReadiness()).ready).toBe(true);
 			await closeDatabase();
 		} finally {
 			rmSync(dir, { recursive: true, force: true });

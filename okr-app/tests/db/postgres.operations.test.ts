@@ -126,15 +126,15 @@ integration('T030 PostgreSQL operational failures', () => {
 		await withDisposableDb(async (config, _dbName, connectionString) => {
 			resetDatabaseForTests()
 			try {
-				expect(getReadiness().ready).toBe(false)
+				expect((await getReadiness()).ready).toBe(false)
 				// openDatabase runs the canonical postgres migration then opens.
 				await openDatabase(config)
-				expect(getReadiness().ready).toBe(true)
-				expect(getReadiness().dialect).toBe('postgres')
+				expect((await getReadiness()).ready).toBe(true)
+				expect((await getReadiness()).dialect).toBe('postgres')
 
 				await closeDatabase()
-				expect(getReadiness().ready).toBe(false)
-				expect(getReadiness().open).toBe(false)
+				expect((await getReadiness()).ready).toBe(false)
+				expect((await getReadiness()).open).toBe(false)
 
 				// A fresh adapter can reopen the same (still-existing) database.
 				const again = createDatabaseServices(config)
