@@ -67,11 +67,11 @@
     {
       "criterion_id": "FR-007",
       "description": "Preserve CI/CD behavior and record RISK-2 unresolved and operator-deferred to separate personal review; do not implement publication gates.",
-      "proof_type": "automated_test",
-      "evidence": null,
-      "pass_fail": "pending",
-      "verified_by": null,
-      "verified_at": null,
+      "proof_type": "code_review",
+      "evidence": "git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/database-review-findings-remediation.md",
+      "pass_fail": "pass",
+      "verified_by": "codex",
+      "verified_at": "2026-11-09T20:06:12.457053+00:00",
       "notes": "Scope-preservation/deferral compliance only. RISK-2 remains unresolved; no CI/CD remediation or publication claim. git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/database-review-findings-remediation.md"
     },
     {
