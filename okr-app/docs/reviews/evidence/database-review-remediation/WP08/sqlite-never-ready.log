@@ -1,0 +1,10 @@
+    local image ID=51c54a4ee944c18485d06576c008b00cbb7e82b85bf3c1ca6465085b3971c7a9 (not a registry digest)
+6fe2e072d84b9ff6f8948cfe16ce338bf2dbd5e6489803eaec37ef47fe7e8adf
+    /api/ready -> 200
+[db-migrate] backend=sqlite mode=migrate
+[db-migrate] OK classification=ready applied=7 recorded=0 schemaVersion=6
+    created objective id=a80bbc81-04b1-4d98-a8c1-09b0845dbc64
+    exact objective verified: id=a80bbc81-04b1-4d98-a8c1-09b0845dbc64 title=WP08 persistence smoke_fb2a60d9ec7df788
+time="2026-11-09T08:17:21+04:00" level=warning msg="StopSignal SIGTERM failed to stop container ruok-smoke-sqlite in 1 seconds, resorting to SIGKILL"
+CONTROL: application stopped after restart; readiness cannot succeed
+FAIL readiness deadline exceeded (5s)

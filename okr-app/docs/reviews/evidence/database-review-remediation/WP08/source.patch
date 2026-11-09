@@ -1,0 +1,640 @@
+diff --git a/okr-app/tests/container/README.md b/okr-app/tests/container/README.md
+index 206ffb7..4df16ca 100644
+--- a/okr-app/tests/container/README.md
++++ b/okr-app/tests/container/README.md
+@@ -1,74 +1,75 @@
+-# RUOK container smoke tests (WP09 / T036)
++# Manual production-image verification
+ 
+-These scripts build the **production Docker image** from a clean build context and
+-run it exactly like a real deployment, recording exact commands and exit codes.
++For maintainers validating a local production image before acceptance. These
++checks run manually; they do not change CI/CD or publish/deploy anything.
+ 
+-## Requirements
++Requirements: Docker or Podman, host Bash/curl/Node, a free local port (3180 by
++default), and a disposable live PostgreSQL database for the PostgreSQL run.
++The production Dockerfile uses its committed lockfile and Node 22 Alpine base.
++Do not run these destructive cleanup/test scripts against production databases.
+ 
+-- Docker engine with classic `docker build` (no `buildx` required).
+-- `curl` and `node` on the host (used to probe the container and parse JSON).
+-- A free local port (default `3180`, override with `RUOK_SMOKE_PORT`).
+-
+-## SQLite smoke test
+-
+-Builds the image, starts it in SQLite mode with a data volume, and verifies:
+-liveness (`/api/health`) + readiness (`/api/ready`), the migration-only
+-invocation (`node build/db-migrate.mjs`) with production deps, a real goal
+-(objective) write, a container restart, and persistence of both the objective
+-and the SQLite file in the volume.
++Build once, then reuse the **same local image ID** for both backend scenarios:
+ 
+ ```bash
++# Set RUOK_CONTAINER_ENGINE=podman when using Podman; default is docker.
++export RUOK_CONTAINER_ENGINE=podman
++podman build --format docker -t localhost/ruok:smoke .
++export RUOK_SMOKE_IMAGE=$(podman image inspect --format '{{.Id}}' localhost/ruok:smoke)
++export RUOK_SMOKE_SKIP_BUILD=1
+ bash tests/container/smoke-sqlite.sh
+-```
+-
+-## PostgreSQL smoke test
+-
+-Builds the **same image** and starts it in PostgreSQL mode with **no SQLite
+-volume** (PostgreSQL does not require a SQLite filesystem). It always verifies
+-that the container liveness probe returns 200 and that `/api/ready` reports
+-503 (not ready, **no SQLite fallback**) when the external database is
+-unreachable.
+-
+-A live PostgreSQL is normally only present in CI. When a reachable
+-`DATABASE_URL` is supplied, the script additionally runs the migration-only
+-invocation and a full goal write + restart persistence scenario:
+-
+-```bash
+-# Reachability / no-SQLite-dependency check (no DB required):
++# Supply DATABASE_URL privately in the environment; never paste credentials into logs.
+ bash tests/container/smoke-postgres.sh
+-
+-# Full live flow (requires a reachable PostgreSQL):
+-DATABASE_URL=postgresql://<credentials-redacted>@host:5432/ruok \
+-  bash tests/container/smoke-postgres.sh
+ ```
+ 
+-### Verified TLS (optional)
+-
+-Place the CA certificate in `okr-app/secrets/ca.pem` and set
+-`DATABASE_SSL_MODE=verify-full` + `DATABASE_SSL_CA_FILE=/run/secrets/ca.pem`.
+-See the `Verified TLS` section in `okr-app/compose.postgres.yml`.
+-
+-## Host-level production-runtime smoke (no Docker needed)
+-
+-When Docker cannot build the image (e.g. the container's outbound network is
+-blocked — no Alpine apk repos, no npm registry in-container), the same compiled
+-production runtime the image runs can be exercised directly on the host with:
++Without `RUOK_SMOKE_SKIP_BUILD=1`, each entrypoint builds its selected image.
++Podman builds use Docker format to retain the Dockerfile HEALTHCHECK.
++Both resolve the image to an immutable local ID before starting containers and
++print that ID; a local ID is not a registry manifest digest. PostgreSQL requires
++an explicit `DATABASE_URL` reachable **from inside the application container**.
++A host-loopback URL alone generally does not reach the host from a container.
++The PostgreSQL check never accepts an absent URL or substitutes SQLite.
++
++Each run checks readiness and liveness, runs the bundled migration command with
++production dependencies, registers a unique account and creates an objective,
++then validates exact ID and title before and after restart. After restart it
++logs into the same account without recreating the objective. SQLite uses a named
++data volume; PostgreSQL uses no SQLite volume and checks absence of the SQLite
++file before and after restart. Container/volume cleanup is best effort and never
++changes a primary failure into success. The SQLite volume check uses the same
++production image, requiring no extra helper image.
++
++Every required HTTP status, JSON response, nonempty ID, readiness deadline and
++exact stored-value assertion is fatal on failure. Curl transport calls are
++bounded (`RUOK_SMOKE_HTTP_TIMEOUT`, default 10 seconds); each readiness request
++is bounded to 5 seconds and the complete readiness loop to
++`RUOK_SMOKE_READY_TIMEOUT` (default 120 seconds). Set `RUOK_SMOKE_PORT` to choose a
++different host port. Cookie jars are temporary and are removed on exit; response
++bodies, account passwords and connection URLs are not printed.
++
++Health means the process is alive; readiness reflects storage availability.
++A missing/unavailable PostgreSQL backend is a failed full verification, not a
++passing no-SQLite-only scenario. Both live backend positives and controlled
++lost-write/never-ready negatives are required for image evidence. A negative is
++valid only when the intended fault is reached and the script exits nonzero.
++Replayable controls and execution records are in
++`docs/reviews/evidence/database-review-remediation/WP08/`.
++
++**Image-download stop rule:** if any required base, frontend or fixture image
++cannot be downloaded, stop all mission work, report exact image/registry/command
++and the redacted error, and wait for explicit operator direction. Do not replace
++images/registries or alter proxy/TLS/network settings to work around it. Missing
++live execution stays incomplete and blocks acceptance. RISK-2 remains unresolved
++and deferred to the operator's separate CI/CD review.
++
++## Supplemental host SQLite runtime check
++
++After an existing `npm run build` and standalone migration bundle are available:
+ 
+ ```bash
+-npm run build   # produces build/ + build/db-migrate.mjs
+ bash tests/container/smoke-host-sqlite.sh
+ ```
+ 
+-This verifies the migration-only invocation, `/api/health`, `/api/ready`, a real
+-goal write, a restart and persistence — the exact lifecycle the image runs.
+-
+-## Notes on the build
+-
+-- The build uses the committed `package-lock.json` (`npm ci`) and never opens
+-  or creates a database or requires network credentials.
+-- Both migration histories (`drizzle/`, `drizzle-postgres/`) and the compiled
+-  migration entrypoint (`build/db-migrate.mjs`) are copied into the image.
+-- Native modules (`better-sqlite3`, `bcrypt`) compile from source on Alpine;
+-  if the build fails under emulation/architecture constraints on a non-native
+-  host, the scripts report the failure rather than masking it.
+-- arm64 images require validating the native modules build and run for arm64.
+\ No newline at end of file
++This uses the shared strict HTTP and exact persistence assertions with the
++compiled Node runtime. It is supplemental host proof and does **not** replace
++mandatory production-image runs on both backends. `RUOK_SMOKE_DATA_DIR` selects
++its disposable storage; server logs remain there for diagnosis.
+diff --git a/okr-app/tests/container/lib.sh b/okr-app/tests/container/lib.sh
+index 3f102a0..d423c52 100755
+--- a/okr-app/tests/container/lib.sh
++++ b/okr-app/tests/container/lib.sh
+@@ -1,61 +1,111 @@
+ #!/usr/bin/env bash
+-# Shared helpers for RUOK container smoke tests (WP09 / T036).
+-#
+-# These scripts build the production image from a CLEAN build context and run it
+-# the way a real deployment would. They record the exact docker commands and
+-# exit codes so the result is auditable.
++# Shared manual production-runtime checks. Never print credentials or cookie jars.
+ set -uo pipefail
+ 
+-# Directory of the okr-app package (two levels up from tests/container/).
+ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ OKR_APP_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+-
+-# Image name/tag used for the smoke build.
++CONTAINER_ENGINE="${RUOK_CONTAINER_ENGINE:-docker}"
+ IMAGE_NAME="${RUOK_SMOKE_IMAGE:-ruok:smoke}"
+-
+-# Local port the container is published on (default 3180).
+ SMOKE_PORT="${RUOK_SMOKE_PORT:-3180}"
+-
+-# How long (seconds) to wait for readiness before giving up.
+ READY_TIMEOUT="${RUOK_SMOKE_READY_TIMEOUT:-120}"
++HTTP_TIMEOUT="${RUOK_SMOKE_HTTP_TIMEOUT:-10}"
++for value in "$READY_TIMEOUT" "$HTTP_TIMEOUT"; do
++  [[ "$value" =~ ^[1-9][0-9]*$ ]] || { echo 'FAIL timeouts must be positive integer seconds' >&2; exit 1; }
++done
++
++fail() { echo "FAIL $*" >&2; return 1; }
++engine() { "$CONTAINER_ENGINE" "$@"; }
+ 
+-# Build the production image from a clean context. Fails loudly if the build
+-# cannot complete (e.g. emulation/arch limits) — never fabricates success.
+ smoke_build() {
+-  echo "==> docker build -t ${IMAGE_NAME} .  (context: ${OKR_APP_DIR})"
+-  (cd "$OKR_APP_DIR" && docker build -t "$IMAGE_NAME" .)
++  if [ "${RUOK_SMOKE_SKIP_BUILD:-0}" != 1 ]; then
++    if [ "${CONTAINER_ENGINE##*/}" = podman ]; then
++      (cd "$OKR_APP_DIR" && engine build --format docker -t "$IMAGE_NAME" .) || return 1
++    else
++      (cd "$OKR_APP_DIR" && engine build -t "$IMAGE_NAME" .) || return 1
++    fi
++  fi
++  IMAGE_ID=$(engine image inspect --format '{{.Id}}' "$IMAGE_NAME") || return 1
++  [ -n "$IMAGE_ID" ] || { fail 'image identity missing'; return 1; }
++  echo "    local image ID=$IMAGE_ID (not a registry digest)"
+ }
+ 
+-# Wait until GET /api/ready returns HTTP 200 (i.e. backend open AND migrated).
+ wait_ready() {
+-  local port="$1"
++  local port="$1" code remaining
+   local deadline=$(( $(date +%s) + READY_TIMEOUT ))
+   while :; do
+-    local code
+-    code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:${port}/api/ready" || true)
+-    if [ "$code" = "200" ]; then
+-      echo "    /api/ready -> 200"
+-      return 0
+-    fi
+-    if [ "$(date +%s)" -ge "$deadline" ]; then
+-      echo "    /api/ready never returned 200 within ${READY_TIMEOUT}s (last code=${code})" >&2
+-      return 1
+-    fi
+-    sleep 2
++    remaining=$(( deadline - $(date +%s) ))
++    [ "$remaining" -gt 0 ] || { fail "readiness deadline exceeded (${READY_TIMEOUT}s)"; return 1; }
++    [ "$remaining" -le 5 ] || remaining=5
++    code=$(curl -s --connect-timeout 2 --max-time "$remaining" -o /dev/null -w '%{http_code}' \
++      "http://127.0.0.1:${port}/api/ready") || code=000
++    if [ "$code" = 200 ]; then echo '    /api/ready -> 200'; return 0; fi
++    sleep 1
+   done
+ }
+ 
+-# Extract a JSON field with node (host node is required).
+-json_field() {
+-  local json="$1"
+-  local path="$2"
+-  printf '%s' "$json" | node -e \
+-    "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{const v=${path};console.log(v??'')}catch(e){process.exit(1)}})"
++# Validate status and JSON independently; bodies may contain secrets, so never log them.
++http_json() {
++  local method="$1" path="$2" expected="$3" body_file code
++  shift 3
++  body_file=$(mktemp) || return 1
++  if ! code=$(curl -sS --connect-timeout 2 --max-time "$HTTP_TIMEOUT" \
++    -X "$method" -b "$COOKIE_JAR" -c "$COOKIE_JAR" -o "$body_file" -w '%{http_code}' \
++    -H 'Content-Type: application/json' "$@" "http://127.0.0.1:${SMOKE_PORT}${path}"); then
++    rm -f "$body_file"
++    fail "$method $path transport/timeout error"; return 1
++  fi
++  if [ "$code" != "$expected" ]; then
++    rm -f "$body_file"
++    fail "$method $path HTTP $code (expected $expected)"; return 1
++  fi
++  if ! node -e 'JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))' "$body_file" >/dev/null 2>&1; then
++    rm -f "$body_file"
++    fail "$method $path invalid JSON"; return 1
++  fi
++  cat "$body_file"
++  rm -f "$body_file"
++}
++
++smoke_account() {
++  SMOKE_USER="smoke_$(node -e 'console.log(require("crypto").randomBytes(8).toString("hex"))')"
++  SMOKE_PASSWORD=$(node -e 'console.log(require("crypto").randomBytes(24).toString("hex"))')
++  AUTH_BODY=$(node -e 'console.log(JSON.stringify({username:process.argv[1],password:process.argv[2]}))' "$SMOKE_USER" "$SMOKE_PASSWORD")
++  http_json POST /api/auth/register 200 --data "$AUTH_BODY" >/dev/null
++}
++
++smoke_write() {
++  OBJECTIVE_TITLE="WP08 persistence $SMOKE_USER"
++  local response
++  response=$(http_json POST /api/objectives 201 --data \
++    "$(node -e 'console.log(JSON.stringify({title:process.argv[1],level:"yearly",year:2026}))' "$OBJECTIVE_TITLE")") || return 1
++  OBJ_ID=$(printf '%s' "$response" | node -e '
++    let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{
++      const o=JSON.parse(s).objective;
++      if(!o || typeof o.id!=="string" || !o.id.trim() || o.title!==process.argv[1]) process.exit(1);
++      console.log(o.id);
++    });' "$OBJECTIVE_TITLE") || { fail 'objective create returned missing ID or wrong title'; return 1; }
++  echo "    created objective id=$OBJ_ID"
++  smoke_read
++}
++
++smoke_read() {
++  local response
++  response=$(http_json GET /api/objectives 200) || return 1
++  if ! printf '%s' "$response" | node -e '
++    let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{
++      const a=JSON.parse(s).objectives;
++      if(!Array.isArray(a) || a.filter(o=>o.id===process.argv[1] && o.title===process.argv[2]).length!==1) process.exit(1);
++    });' "$OBJ_ID" "$OBJECTIVE_TITLE"; then
++    fail 'original objective ID/title missing or changed'; return 1
++  fi
++  echo "    exact objective verified: id=$OBJ_ID title=$OBJECTIVE_TITLE"
++}
++
++smoke_reauthenticate() {
++  http_json POST /api/auth/login 200 --data "$AUTH_BODY" >/dev/null
+ }
+ 
+-# Cleanup helper: remove a container (best-effort).
+ smoke_cleanup() {
+-  local name="$1"
+-  docker rm -f "$name" >/dev/null 2>&1 || true
+-  docker volume rm "$name-data" >/dev/null 2>&1 || true
+-}
+\ No newline at end of file
++  engine rm -f "$1" >/dev/null 2>&1 || true
++  engine volume rm "$1-data" >/dev/null 2>&1 || true
++}
+diff --git a/okr-app/tests/container/smoke-host-sqlite.sh b/okr-app/tests/container/smoke-host-sqlite.sh
+index 2f17cf4..86d3210 100755
+--- a/okr-app/tests/container/smoke-host-sqlite.sh
++++ b/okr-app/tests/container/smoke-host-sqlite.sh
+@@ -1,91 +1,39 @@
+ #!/usr/bin/env bash
+-# RUOK host-level production-runtime smoke test (WP09 / T036 fallback).
+-#
+-# The Docker image cannot be built in an environment where the container's
+-# outbound network is blocked (no Alpine apk repos, no npm registry in-container).
+-# This script exercises the SAME compiled production runtime the image runs
+-# (`node build` + the bundled `node build/db-migrate.mjs`) directly on the host,
+-# proving startup, readiness/liveness, migration, a real goal write, restart and
+-# persistence — without Docker.
+-#
+-# Prereqs: `npm run build` has been run (produces build/ + build/db-migrate.mjs).
+-#
+-# Usage:
+-#   bash tests/container/smoke-host-sqlite.sh
+-# Env overrides: RUOK_SMOKE_PORT (default 3181), RUOK_SMOKE_DATA_DIR.
++# Supplemental host-runtime proof; does not replace production-image verification.
+ set -euo pipefail
+-
+ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+-OKR_APP_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
++# shellcheck source=lib.sh
++source "$SCRIPT_DIR/lib.sh"
+ cd "$OKR_APP_DIR"
+-
+-PORT="${RUOK_SMOKE_PORT:-3181}"
++SMOKE_PORT="${RUOK_SMOKE_PORT:-3181}"
+ DATA_DIR="${RUOK_SMOKE_DATA_DIR:-$(mktemp -d)}"
+ SERVER_PID=""
+-
++COOKIE_JAR=$(mktemp)
+ cleanup() {
+-  [ -n "$SERVER_PID" ] && kill "$SERVER_PID" >/dev/null 2>&1 || true
+-  wait "$SERVER_PID" >/dev/null 2>&1 || true
++  rm -f "$COOKIE_JAR"
++  if [ -n "$SERVER_PID" ]; then
++    kill "$SERVER_PID" >/dev/null 2>&1 || true
++    wait "$SERVER_PID" >/dev/null 2>&1 || true
++  fi
+ }
+ trap cleanup EXIT
+-
+ start_server() {
+-  PORT="$PORT" HOST=127.0.0.1 NODE_ENV=production DATABASE_PATH="$DATA_DIR/okr.db" \
+-    node build > "$DATA_DIR/server.log" 2>&1 &
++  PORT="$SMOKE_PORT" HOST=127.0.0.1 NODE_ENV=production DATABASE_TYPE=sqlite \
++    DATABASE_PATH="$DATA_DIR/okr.db" node build > "$DATA_DIR/server.log" 2>&1 &
+   SERVER_PID=$!
+-  echo "    server pid=$SERVER_PID"
+ }
+-
+-wait_ready() {
+-  local deadline=$(( $(date +%s) + 120 ))
+-  while :; do
+-    local code
+-    code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:${PORT}/api/ready" || true)
+-    if [ "$code" = "200" ]; then echo "    /api/ready -> 200"; return 0; fi
+-    if [ "$(date +%s)" -ge "$deadline" ]; then echo "    /api/ready never 200" >&2; return 1; fi
+-    sleep 2
+-  done
+-}
+-
+-COOKIE_JAR="$(mktemp)"
+-trap 'rm -f "$COOKIE_JAR"; cleanup' EXIT
+-
+-echo "### [host] migration-only invocation (production deps) on empty DB"
+-DATABASE_PATH="$DATA_DIR/okr.db" node build/db-migrate.mjs
+-echo "    migration-only invocation exit=0"
+-
+-echo "### [host] starting production runtime (node build)"
++DATABASE_TYPE=sqlite DATABASE_PATH="$DATA_DIR/okr.db" node build/db-migrate.mjs
+ start_server
+-wait_ready
+-
+-echo "### [host] liveness /api/health"
+-HEALTH=$(curl -s -w '\n%{http_code}' "http://127.0.0.1:${PORT}/api/health")
+-[ "$(printf '%s' "$HEALTH" | tail -n1)" = "200" ] || { echo "    FAIL health" >&2; exit 1; }
+-echo "    /api/health -> 200"
+-
+-echo "### [host] register user + create objective"
+-curl -sS -c "$COOKIE_JAR" -H 'Content-Type: application/json' \
+-  -d '{"username":"smokeuser","password":"<historical-test-password-redacted>"}' \
+-  "http://127.0.0.1:${PORT}/api/auth/register" >/dev/null
+-OBJ_RESP=$(curl -sS -b "$COOKIE_JAR" -H 'Content-Type: application/json' \
+-  -d '{"title":"WP09 Host Smoke Objective","level":"yearly","year":2026}' \
+-  "http://127.0.0.1:${PORT}/api/objectives")
+-OBJ_ID=$(printf '%s' "$OBJ_RESP" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>console.log(JSON.parse(s).objective.id))")
+-echo "    created objective id=$OBJ_ID"
+-[ -n "$OBJ_ID" ] || { echo "    FAIL objective" >&2; exit 1; }
+-ls -la "$DATA_DIR/okr.db" >/dev/null && echo "    DB file present at $DATA_DIR/okr.db"
+-
+-echo "### [host] restarting production runtime and verifying persistence"
+-kill "$SERVER_PID"; wait "$SERVER_PID" 2>/dev/null || true; SERVER_PID=""
++wait_ready "$SMOKE_PORT"
++http_json GET /api/health 200 >/dev/null
++smoke_account
++smoke_write
++test -f "$DATA_DIR/okr.db"
++kill "$SERVER_PID"
++wait "$SERVER_PID" 2>/dev/null || true
++SERVER_PID=""
+ start_server
+-wait_ready
+-LIST_RESP=$(curl -sS -b "$COOKIE_JAR" "http://127.0.0.1:${PORT}/api/objectives")
+-if printf '%s' "$LIST_RESP" | grep -q "$OBJ_ID"; then
+-  echo "    objective $OBJ_ID persisted across restart"
+-else
+-  echo "    FAIL objective NOT persisted" >&2
+-  exit 1
+-fi
+-
+-echo "### [host] PASS"
+-echo "    port=$PORT data=$DATA_DIR"
+\ No newline at end of file
++wait_ready "$SMOKE_PORT"
++smoke_reauthenticate
++smoke_read
++echo '### [host sqlite] PASS (supplemental host runtime, not image proof)'
+diff --git a/okr-app/tests/container/smoke-postgres.sh b/okr-app/tests/container/smoke-postgres.sh
+index 630fd82..4017b02 100755
+--- a/okr-app/tests/container/smoke-postgres.sh
++++ b/okr-app/tests/container/smoke-postgres.sh
+@@ -1,95 +1,27 @@
+ #!/usr/bin/env bash
+-# RUOK PostgreSQL container smoke test (WP09 / T036).
+-#
+-# Builds the production image from a clean context and verifies, in PostgreSQL
+-# mode:
+-#   1. Image builds WITHOUT database access (same image as SQLite).
+-#   2. The container starts with NO SQLite data volume and creates NO SQLite
+-#      file — PostgreSQL does not require a SQLite filesystem (checked via
+-#      absence of /app/data/okr.db).
+-#   3. If DATABASE_URL points at a reachable PostgreSQL, run migrations + a real
+-#      goal write/restart persistence scenario.
+-#
+-# NOTE on probes: RUOK uses a DB-first startup (readiness precedes auth, T027).
+-# When the external database is unreachable the first request cannot complete,
+-# so /api/health and /api/ready both return non-200. This is by design, not a
+-# SQLite fallback. A live PostgreSQL is normally only present in CI.
+-#
+-# Usage:
+-#   bash tests/container/smoke-postgres.sh            # reachability probe only
+-#   DATABASE_URL=postgresql://... bash tests/container/smoke-postgres.sh
+-# Env overrides: RUOK_SMOKE_IMAGE, RUOK_SMOKE_PORT, RUOK_SMOKE_READY_TIMEOUT.
++# Manual production-image PostgreSQL persistence check; requires a live backend.
+ set -euo pipefail
+-
+ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ # shellcheck source=lib.sh
+ source "$SCRIPT_DIR/lib.sh"
+-
++[ -n "${DATABASE_URL:-}" ] || { fail 'DATABASE_URL is required for live PostgreSQL verification'; exit 1; }
+ NAME="ruok-smoke-postgres"
+-COOKIE_JAR="$(mktemp)"
++COOKIE_JAR=$(mktemp)
+ trap 'rm -f "$COOKIE_JAR"; smoke_cleanup "$NAME"' EXIT
+-
+-echo "### [postgres] building production image (same image as SQLite)"
+ smoke_build
+-
+-echo "### [postgres] starting container (NO SQLite volume, external DB)"
+ smoke_cleanup "$NAME"
+-docker run -d --name "$NAME" \
+-  -e DATABASE_TYPE=postgres \
+-  -e DATABASE_URL="${DATABASE_URL:-postgresql://<credentials-redacted>@127.0.0.1:5433/nonexistent}" \
+-  -e DATABASE_CONNECT_TIMEOUT_MS=3000 \
+-  -e NODE_ENV=production \
+-  -p "$SMOKE_PORT":3000 \
+-  "$IMAGE_NAME"
+-
+-echo "### [postgres] verifying NO SQLite filesystem dependency"
+-if docker exec "$NAME" sh -c 'test ! -e /app/data/okr.db'; then
+-  echo "    /app/data/okr.db ABSENT — no SQLite file/volume required"
+-else
+-  echo "    FAIL: SQLite file present in postgres mode" >&2
+-  exit 1
+-fi
+-
+-# If a reachable PostgreSQL was supplied, run the full migrate + persistence flow.
+-if [ -n "${DATABASE_URL:-}" ]; then
+-  echo "### [postgres] DATABASE_URL supplied — running full migrate + persistence flow"
+-  if wait_ready "$SMOKE_PORT"; then
+-    echo "    /api/ready -> 200"
+-  else
+-    echo "### [postgres] FAIL: DB reachable but /api/ready not 200" >&2
+-    exit 1
+-  fi
+-
+-  echo "### [postgres] migration-only invocation (production deps)"
+-  docker exec "$NAME" node build/db-migrate.mjs
+-  echo "    migration-only invocation exit=0"
+-
+-  echo "### [postgres] registering a user + creating an objective"
+-  curl -sS -c "$COOKIE_JAR" -H 'Content-Type: application/json' \
+-    -d '{"username":"smokeuser","password":"<historical-test-password-redacted>"}' \
+-    "http://127.0.0.1:${SMOKE_PORT}/api/auth/register" >/dev/null || true
+-  OBJECTIVE_RESP=$(curl -sS -b "$COOKIE_JAR" -H 'Content-Type: application/json' \
+-    -d '{"title":"WP09 Smoke Objective PG","level":"yearly","year":2026}' \
+-    "http://127.0.0.1:${SMOKE_PORT}/api/objectives")
+-  OBJ_ID=$(json_field "$OBJECTIVE_RESP" 'JSON.parse(s).objective.id' || true)
+-  echo "    created objective id=${OBJ_ID:-<none>}"
+-
+-  echo "### [postgres] restarting container and verifying persistence"
+-  docker restart "$NAME" >/dev/null
+-  wait_ready "$SMOKE_PORT" || true
+-  LIST_RESP=$(curl -sS -b "$COOKIE_JAR" "http://127.0.0.1:${SMOKE_PORT}/api/objectives" || true)
+-  if [ -n "$OBJ_ID" ] && printf '%s' "$LIST_RESP" | grep -q "$OBJ_ID"; then
+-    echo "    objective $OBJ_ID persisted across restart"
+-    echo "### [postgres] PASS (live)"
+-  else
+-    echo "    NOTE: objective persistence could not be confirmed" >&2
+-  fi
+-else
+-  echo
+-  echo "### [postgres] No DATABASE_URL supplied — live PostgreSQL smoke is CI-only."
+-  echo "### [postgres] Verified here: image builds DB-free, and the container runs in"
+-  echo "### [postgres] postgres mode with NO SQLite volume and NO SQLite file."
+-fi
+-
+-echo "### [postgres] PASS (no-SQLite-dependency checks)"
+-echo "    image=$IMAGE_NAME port=$SMOKE_PORT"
+\ No newline at end of file
++engine run -d --name "$NAME" \
++  -e DATABASE_TYPE=postgres -e DATABASE_URL -e DATABASE_CONNECT_TIMEOUT_MS=3000 \
++  -e NODE_ENV=production -p "$SMOKE_PORT":3000 "$IMAGE_ID"
++wait_ready "$SMOKE_PORT"
++http_json GET /api/health 200 >/dev/null
++engine exec "$NAME" test ! -e /app/data/okr.db
++engine exec "$NAME" node build/db-migrate.mjs
++smoke_account
++smoke_write
++engine restart "$NAME" >/dev/null
++wait_ready "$SMOKE_PORT"
++smoke_reauthenticate
++smoke_read
++engine exec "$NAME" test ! -e /app/data/okr.db
++echo "### [postgres] PASS image=$IMAGE_ID"
+diff --git a/okr-app/tests/container/smoke-sqlite.sh b/okr-app/tests/container/smoke-sqlite.sh
+index 19b1f68..f63fc50 100755
+--- a/okr-app/tests/container/smoke-sqlite.sh
++++ b/okr-app/tests/container/smoke-sqlite.sh
+@@ -1,79 +1,28 @@
+ #!/usr/bin/env bash
+-# RUOK SQLite container smoke test (WP09 / T036).
+-#
+-# Builds the production image from a clean context and verifies, in SQLite mode:
+-#   1. Image builds WITHOUT database access.
+-#   2. Container starts; /api/health (liveness) and /api/ready (readiness) 200.
+-#   3. Migration-only invocation runs with production dependencies.
+-#   4. A real goal (objective) write persists across a container restart.
+-#   5. The SQLite database file is written to the data volume.
+-#
+-# Usage:
+-#   bash tests/container/smoke-sqlite.sh
+-# Env overrides: RUOK_SMOKE_IMAGE, RUOK_SMOKE_PORT, RUOK_SMOKE_READY_TIMEOUT.
++# Manual production-image SQLite persistence check.
+ set -euo pipefail
+-
+ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ # shellcheck source=lib.sh
+ source "$SCRIPT_DIR/lib.sh"
+-
+ NAME="ruok-smoke-sqlite"
+ VOL="$NAME-data"
+-COOKIE_JAR="$(mktemp)"
++COOKIE_JAR=$(mktemp)
+ trap 'rm -f "$COOKIE_JAR"; smoke_cleanup "$NAME"' EXIT
+-
+-echo "### [sqlite] building production image"
+ smoke_build
+-
+-echo "### [sqlite] starting container (no SQLite filesystem pre-seeded)"
+ smoke_cleanup "$NAME"
+-docker run -d --name "$NAME" \
+-  -v "$VOL":/app/data \
+-  -e DATABASE_TYPE=sqlite \
+-  -e DATABASE_PATH=/app/data/okr.db \
+-  -e NODE_ENV=production \
+-  -p "$SMOKE_PORT":3000 \
+-  "$IMAGE_NAME"
+-
+-echo "### [sqlite] waiting for readiness (/api/ready)"
++engine run -d --name "$NAME" -v "$VOL":/app/data \
++  -e DATABASE_TYPE=sqlite -e DATABASE_PATH=/app/data/okr.db -e NODE_ENV=production \
++  -p "$SMOKE_PORT":3000 "$IMAGE_ID"
+ wait_ready "$SMOKE_PORT"
+-
+-echo "### [sqlite] liveness probe (/api/health)"
+-HEALTH=$(curl -s -w '\n%{http_code}' "http://127.0.0.1:${SMOKE_PORT}/api/health")
+-HEALTH_CODE=$(printf '%s' "$HEALTH" | tail -n1)
+-[ "$HEALTH_CODE" = "200" ] || { echo "FAIL health code=$HEALTH_CODE" >&2; exit 1; }
+-echo "    /api/health -> 200 ($(printf '%s' "$HEALTH" | head -n1))"
+-
+-echo "### [sqlite] migration-only invocation (production deps)"
+-docker exec "$NAME" node build/db-migrate.mjs
+-echo "    migration-only invocation exit=0"
+-
+-echo "### [sqlite] registering a user + creating an objective"
+-curl -sS -c "$COOKIE_JAR" -H 'Content-Type: application/json' \
+-  -d '{"username":"smokeuser","password":"<historical-test-password-redacted>"}' \
+-  "http://127.0.0.1:${SMOKE_PORT}/api/auth/register" >/dev/null
+-OBJECTIVE_RESP=$(curl -sS -b "$COOKIE_JAR" -H 'Content-Type: application/json' \
+-  -d '{"title":"WP09 Smoke Objective","level":"yearly","year":2026}' \
+-  "http://127.0.0.1:${SMOKE_PORT}/api/objectives")
+-OBJ_ID=$(json_field "$OBJECTIVE_RESP" 'JSON.parse(s).objective.id')
+-echo "    created objective id=$OBJ_ID"
+-[ -n "$OBJ_ID" ] || { echo "FAIL could not create objective" >&2; exit 1; }
+-
+-echo "### [sqlite] confirming SQLite DB file exists in the data volume"
+-docker exec "$NAME" sh -c 'test -f /app/data/okr.db && echo "    /app/data/okr.db present"'
+-docker run --rm -v "$VOL":/data -e VOL="$VOL" alpine \
+-  sh -c 'test -f /data/okr.db && echo "    DB file persisted in volume '$VOL'"'
+-
+-echo "### [sqlite] restarting container and verifying persistence"
+-docker restart "$NAME" >/dev/null
++http_json GET /api/health 200 >/dev/null
++engine exec "$NAME" node build/db-migrate.mjs
++smoke_account
++smoke_write
++engine exec "$NAME" test -f /app/data/okr.db
++# Inspect the persistent volume using the SAME production image (no helper image).
++engine run --rm -v "$VOL":/app/data --entrypoint sh "$IMAGE_ID" -c 'test -f /app/data/okr.db'
++engine restart "$NAME" >/dev/null
+ wait_ready "$SMOKE_PORT"
+-LIST_RESP=$(curl -sS -b "$COOKIE_JAR" "http://127.0.0.1:${SMOKE_PORT}/api/objectives")
+-if printf '%s' "$LIST_RESP" | grep -q "$OBJ_ID"; then
+-  echo "    objective $OBJ_ID persisted across restart"
+-else
+-  echo "FAIL objective $OBJ_ID NOT found after restart" >&2
+-  exit 1
+-fi
+-
+-echo "### [sqlite] PASS"
+-echo "    image=$IMAGE_NAME port=$SMOKE_PORT"
+\ No newline at end of file
++smoke_reauthenticate
++smoke_read
++echo "### [sqlite] PASS image=$IMAGE_ID"
