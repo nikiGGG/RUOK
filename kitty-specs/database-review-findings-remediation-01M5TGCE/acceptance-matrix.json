@@ -6,83 +6,83 @@
   "criteria": [
     {
       "criterion_id": "FR-001",
-      "description": "Verify FR-001 is satisfied",
+      "description": "Enforce effective TLS verification and CA through URL parsing for runtime and migration clients; trusted endpoints pass and foreign CA/hostname mismatch fail.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Executed proof independently reviewed; earlier failed attempts remain preserved. git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/database-review-findings-remediation.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/tls-proof/README.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/tls-proof/live.log"
     },
     {
       "criterion_id": "FR-002",
-      "description": "Verify FR-002 is satisfied",
+      "description": "Reject incompatible SQLite indexes, columns, keys, constraints and migration journal without mutation; preserve supported adoption and fresh migration.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Executed proof independently reviewed; earlier failed attempts remain preserved. git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/database-review-findings-remediation.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/baseline_sqlite_index_tmpfs.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/fixed_sqlite_index_tmpfs.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/remaining_contracts_after_close_tmpfs.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP02/manifest.md"
     },
     {
       "criterion_id": "FR-003",
-      "description": "Verify FR-003 is satisfied",
+      "description": "Honor runtime migration mode, perform zero DDL during verification including failure, and support a separately migrated PostgreSQL data-only runtime role.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Executed proof independently reviewed; earlier failed attempts remain preserved. git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/database-review-findings-remediation.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP03/live-capture.json; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/remaining_contracts_after_close_tmpfs.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/postgres-probe-proof/cycle.log"
     },
     {
       "criterion_id": "FR-004",
-      "description": "Verify FR-004 is satisfied",
+      "description": "Migrate operational fixtures, require real matching-tool PostgreSQL recovery, and prove final-image restart persistence plus nonzero lost-write/readiness controls on both backends.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Executed proof independently reviewed; earlier failed attempts remain preserved. git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/database-review-findings-remediation.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/recovery_postgres_after_close_tmpfs.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/final-image/README.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/final-image/provenance.txt; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP08/baseline-postgres-lost-write.log"
     },
     {
       "criterion_id": "FR-005",
-      "description": "Verify FR-005 is satisfied",
+      "description": "Exercise real session/admin/two-user authorization and scheduler/plugin/QuickJS/saved-query/friend/AI application entrypoints on both real backends.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Executed proof independently reviewed; earlier failed attempts remain preserved. git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/database-review-findings-remediation.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/application_sqlite_tmpfs.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/application_postgres_after_close_tmpfs.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP06/fault1-failing.txt; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP06/fault2-failing.txt; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP07/fault1-failing.txt"
     },
     {
       "criterion_id": "FR-006",
-      "description": "Verify FR-006 is satisfied",
+      "description": "Keep liveness independent, retry failed initialization, handle idle pool errors, and prove same-process HTTP readiness outage detection within 10s and recovery within 30s with body-inclusive probes within 5s.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Executed proof independently reviewed; earlier failed attempts remain preserved. git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/database-review-findings-remediation.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/application_sqlite_tmpfs.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/postgres-probe-proof/README.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/postgres-probe-proof/cycle.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP10/manifest-cycle2.md"
     },
     {
       "criterion_id": "FR-007",
-      "description": "Verify FR-007 is satisfied",
+      "description": "Preserve CI/CD behavior and record RISK-2 unresolved and operator-deferred to separate personal review; do not implement publication gates.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Scope-preservation/deferral compliance only. RISK-2 remains unresolved; no CI/CD remediation or publication claim. git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/database-review-findings-remediation.md"
     },
     {
       "criterion_id": "FR-008",
-      "description": "Verify FR-008 is satisfied",
+      "description": "Provide durable per-finding closure dispositions linked to before/after execution, revision, environment, regression tests and artifacts; align operating documentation with demonstrated behavior.",
       "proof_type": "automated_test",
       "evidence": null,
       "pass_fail": "pending",
       "verified_by": null,
       "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "notes": "Executed proof independently reviewed; earlier failed attempts remain preserved. git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/database-review-findings-remediation.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/manifest.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/result-matrix.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/SHA256SUMS; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/secret-scan.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/link-check.log"
     }
   ],
   "negative_invariants": []
