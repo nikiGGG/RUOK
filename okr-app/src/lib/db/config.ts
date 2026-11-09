@@ -33,6 +33,34 @@ const DEFAULT_BUSY_TIMEOUT_MS = 5_000;
 // for any of these must never be silently downgraded to `disable`.
 const VERIFYING_URL_SSLMODES = new Set(['require', 'verify-ca', 'verify-full']);
 
+/**
+ * Every query key that node-postgres' `pg-connection-string` treats as an SSL
+ * control. If any of these survive in the connection string passed to pg, the
+ * parser reproduces them into its parsed config and — via
+ * `Object.assign(config, parse(connectionString))` — OVERRIDES the explicit
+ * `ssl` object we set, silently dropping the CA and/or disabling verification
+ * (DRIFT-1). We therefore consume/reject them in {@link parseUrlSslControls}
+ * and strip them in {@link sanitizePostgresConnectionString}.
+ */
+const SECURITY_QUERY_KEYS = [
+	'sslmode',
+	'ssl',
+	'sslcert',
+	'sslkey',
+	'sslrootcert',
+	'sslnegotiation'
+] as const;
+
+/**
+ * URL `sslmode` values this application understands. `require`/`verify-ca`/
+ * `verify-full` all map to the canonical `verify-full` (the pg parser treats
+ * them as aliases for verification). Anything else — including `prefer` and
+ * `no-verify` — is unsupported here and rejected so a URL can never silently
+ * weaken TLS. `no-verify` explicitly disables verification; `prefer` is
+ * ambiguous. Both are refused deterministically before a connection.
+ */
+const ACCEPTED_URL_SSLMODES = new Set(['disable', 'require', 'verify-ca', 'verify-full']);
+
 function parsePositiveBounded(value: string | undefined, fallback: number, name: string): number {
 	if (value === undefined) return fallback;
 	const n = Number(value);
@@ -60,15 +88,58 @@ function parseJournalMode(value: string | undefined): SqliteJournalMode {
 	);
 }
 
-function sslModeFromUrl(connectionString: string): PostgresSslMode | undefined {
+/**
+ * Inventory and validate the TLS-related query controls in a PostgreSQL URL.
+ *
+ * Returns the canonical `sslmode` hint (if any). Throws deterministically —
+ * before any connection — when the URL contains duplicate, unknown or
+ * unsupported TLS security controls, so a URL can never silently alter TLS
+ * verification. Non-security query parameters are untouched and preserved by
+ * the caller.
+ */
+function parseUrlSslControls(connectionString: string): { sslmode: string | undefined } {
+	let u: URL;
 	try {
-		const u = new URL(connectionString);
-		const mode = u.searchParams.get('sslmode');
-		if (mode === 'disable') return 'disable';
-		if (mode && VERIFYING_URL_SSLMODES.has(mode)) return 'verify-full';
+		u = new URL(connectionString);
 	} catch {
-		// Invalid URL surfaces elsewhere; treat as no URL hint.
+		// Invalid URL; treat as no TLS hint (surfaces at connect).
+		return { sslmode: undefined };
 	}
+
+	let sslmode: string | undefined;
+	for (const key of SECURITY_QUERY_KEYS) {
+		const values = u.searchParams.getAll(key);
+		if (values.length > 1) {
+			throw new Error(`Duplicate TLS control '${key}' in connection URL`);
+		}
+		if (values.length !== 1) continue;
+
+		if (key === 'sslmode') {
+			const mode = values[0].trim().toLowerCase();
+			if (!ACCEPTED_URL_SSLMODES.has(mode)) {
+				throw new Error(
+					`Unsupported TLS sslmode '${values[0]}' in connection URL. Supported URL modes are ` +
+						'disable/require/verify-ca/verify-full; use DATABASE_SSL_MODE and ' +
+						'DATABASE_SSL_CA_FILE for verified TLS.'
+				);
+			}
+			sslmode = mode;
+		} else {
+			// `ssl`, `sslcert`, `sslkey`, `sslrootcert`, `sslnegotiation` are
+			// unsupported URL controls here; refuse them so pg never reads them.
+			throw new Error(
+				`Unsupported TLS control '${key}' in connection URL. Configure TLS via ` +
+					'DATABASE_SSL_MODE and DATABASE_SSL_CA_FILE.'
+			);
+		}
+	}
+	return { sslmode };
+}
+
+function sslModeFromUrl(connectionString: string): PostgresSslMode | undefined {
+	const { sslmode } = parseUrlSslControls(connectionString);
+	if (sslmode === 'disable') return 'disable';
+	if (sslmode && VERIFYING_URL_SSLMODES.has(sslmode)) return 'verify-full';
 	return undefined;
 }
 
@@ -212,16 +283,38 @@ export function redactConfig(config: DatabaseConfig): Record<string, unknown> {
 // ---------------------------------------------------------------------------
 
 /**
+ * Remove every TLS-related query parameter from a PostgreSQL URL so the pg
+ * parser never sees a security control that could override the explicit
+ * canonical `ssl` we apply (DRIFT-1). Non-security parameters are preserved
+ * and the rest of the URL is unchanged. If the URL cannot be parsed it is
+ * returned untouched (it will fail at connect).
+ */
+export function sanitizePostgresConnectionString(connectionString: string): string {
+	try {
+		const u = new URL(connectionString);
+		for (const key of SECURITY_QUERY_KEYS) {
+			u.searchParams.delete(key);
+		}
+		return u.toString();
+	} catch {
+		return connectionString;
+	}
+}
+
+/**
  * Build the node-postgres pool configuration from a validated config.
  *
  * Verified TLS (FR-009) is expressed as an explicit `ssl` object so the CA file
  * is not erased by URL parsing and there is no merge that could drop
- * verification. When `sslMode` is `disable` the pool is forced to `ssl: false`;
- * contradictory URL `sslmode` values are already rejected by {@link loadConfig}.
+ * verification. The connection string is sanitized first (all TLS query
+ * controls removed) so `pg-connection-string` cannot override our explicit
+ * `ssl` with a value parsed from the URL. When `sslMode` is `disable` the pool
+ * is forced to `ssl: false`; contradictory URL `sslmode` values are already
+ * rejected by {@link loadConfig}.
  */
 export function buildPostgresPoolConfig(config: PostgresConfig): PoolConfig {
 	const poolConfig: PoolConfig = {
-		connectionString: config.connectionString,
+		connectionString: sanitizePostgresConnectionString(config.connectionString),
 		max: config.poolMax,
 		connectionTimeoutMillis: config.connectTimeoutMs,
 		statement_timeout: config.statementTimeoutMs
