@@ -1,0 +1,9 @@
+bad-status: expected=nonzero actual=1 elapsed_ms=30 PASS
+malformed-json: expected=nonzero actual=1 elapsed_ms=72 PASS
+empty-id: expected=nonzero actual=1 elapsed_ms=174 PASS
+missing-objective: expected=nonzero actual=1 elapsed_ms=134 PASS
+substring-id: expected=nonzero actual=1 elapsed_ms=131 PASS
+changed-title: expected=nonzero actual=1 elapsed_ms=121 PASS
+exact-match: expected=success actual=0 elapsed_ms=134 PASS
+timeout: expected=nonzero actual=1 elapsed_ms=1022 PASS
+readiness-deadline: expected=nonzero actual=1 elapsed_ms=2043 PASS

@@ -1,0 +1,27 @@
+v22.23.4
+pg=8.23.1
+0.27.2
+
+  ../private-tls/live.cjs  190.2kb
+
+⚡ Done in 29ms
+BASELINE raw pg parser: sslmode=no-verify overrides explicit verification; reproduced
+BASELINE raw pg parser: sslmode=require discards explicit CA; reproduced
+FIXED effective pg parser: verification and CA retained; TLS URL hint consumed, unrelated parameter retained
+FIXED downgrade URL: rejected before connect
+(node:1) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS runtime-pool trusted matching CA/hostname: SELECT1=1 server_TLS=true server=PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+PASS runtime-pool untrusted CA: certificate rejection code=UNABLE_TO_VERIFY_LEAF_SIGNATURE elapsed_ms=11
+PASS runtime-pool hostname mismatch: certificate rejection code=ERR_TLS_CERT_ALTNAME_INVALID elapsed_ms=16
+PASS migration-client trusted matching CA/hostname: SELECT1=1 server_TLS=true server=PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+PASS migration-client untrusted CA: certificate rejection code=UNABLE_TO_VERIFY_LEAF_SIGNATURE elapsed_ms=10
+PASS migration-client hostname mismatch: certificate rejection code=ERR_TLS_CERT_ALTNAME_INVALID elapsed_ms=8
+SUMMARY: baseline parser reproduced; fixed parser policy passed; all6 live TLS cases passed with no plaintext fallback

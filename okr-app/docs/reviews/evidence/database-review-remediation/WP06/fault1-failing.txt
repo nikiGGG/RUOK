@@ -1,0 +1,20 @@
+
+[32m- 403[39m
+[31m+ 200[39m
+
+[36m [2m❯[22m tests/application/auth.suite.ts:[2m114:23[22m[39m
+    [90m112|[39m    await srv.register('frank_user', PASSWORD, jar);
+    [90m113|[39m    const res = await srv.request('/api/admin/users', {}, jar);
+    [90m114|[39m    expect(res.status).toBe(403);
+    [90m   |[39m                       [31m^[39m
+    [90m115|[39m    const body = await readJson(res);
+    [90m116|[39m    expect(body.users).toBeUndefined();
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m18 skipped[39m[90m (19)[39m
+[2m   Start at [22m 23:45:04
+[2m   Duration [22m 4.51s[2m (tests 99%, transform 1%)[22m
+

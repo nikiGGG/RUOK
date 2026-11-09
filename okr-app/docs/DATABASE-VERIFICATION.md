@@ -1,45 +1,88 @@
-# RUOK Database Verification (WP08)
+# Database verification
 
-Status: complete — this work package produced the feature-to-contract coverage
-ledger, the upgrade/concurrency/operational evidence, the native-recovery
-rehearsal and the release evidence recorded below.
+This guide describes reproducible verification for the database-remediation
+mission. The historical review remains unchanged; current finding dispositions
+and execution status are in [the remediation report](reviews/database-review-findings-remediation.md).
+Raw commands, UTC times, exits, source identities and versions belong to the
+linked evidence, rather than to a permanent historical test-count allowance.
 
-Requirement refs: FR-002, FR-004, FR-006, FR-007, FR-008, FR-011 (WP08 scope),
-backed by FR-001/FR-003/FR-005/FR-009/FR-010 delivered by WP01-WP07.
+## Required command matrix
 
-## Environment and exact versions
+Run from `okr-app/` using the committed lockfile and supported Node build
+runtime. Use disposable databases and isolated ports. Never point destructive
+fixtures at production or paste credentials into logs.
 
-Validated on the lane-a worktree, clean install from the lockfile:
+| Command | What must execute | Prerequisites |
+|---|---|---|
+| `npm test` | Full SQLite database/domain/backup suite plus HTTP/auth/probes and application integrations | Exact-lock dependencies; production build is created when needed |
+| `npm run test:db:sqlite` | SQLite contract, schemas, lifecycle isolation, domains, upgrade and native recovery | Real writable temporary SQLite storage |
+| `npm run test:db:postgres` | PostgreSQL contract, migrations, operations, domains, backup and native recovery | Live disposable PostgreSQL 18+, DBA/CREATEDB admin URL, native client tools |
+| `npm run test:application:sqlite` | Both SQLite HTTP and integrations entrypoints | Built server, native SQLite module |
+| `npm run test:application:postgres` | Both PostgreSQL HTTP and integrations entrypoints | Built server and PostgreSQL preflight |
+| `npm run test:recovery:postgres` | Native full-installation dump/drop/recreate/restore/typed reads | PostgreSQL preflight, `pg_dump`, `pg_restore`, `psql` |
+| `npm run build` | Adapter-node production output plus preparation/runtime workers | Exact-lock dependencies |
+| `npm run check` | Svelte/TypeScript diagnostics | Same dependency lock and diagnostic comparison against the inspected baseline |
 
-| Component | Version |
-|---|---|
-| Node | 22.20.0 |
-| npm | 11.6.4 |
-| vitest | 5.0.3 |
-| drizzle-orm | 0.45.1 |
-| drizzle-kit | 0.31.9 |
-| better-sqlite3 | 12.5.0 |
-| pg (node-postgres) | 8.23.1 |
-| typescript | 5.9.3 |
-| svelte-check | 4.3.5 |
-| vite | 7.3.0 |
-| pg_dump / psql (local, Homebrew) | PostgreSQL 14.15 |
+Supply `RUOK_TEST_PG_ADMIN_URL` privately. `preflight:postgres` precedes every
+required PostgreSQL command and exits nonzero for an absent admin URL,
+unreachable/older server or missing/incompatible native tools. `pg_dump` and
+`pg_restore` must support the server major; `psql` must be present. A tool inside
+some unrelated container does not satisfy the preflight's PATH checks. Required
+runs do not substitute SQLite or silently skip missing prerequisites.
 
-Live PostgreSQL server was NOT available in this environment
-(`RUOK_TEST_PG_ADMIN_URL` unset). All PostgreSQL live-backend paths are wired
-and gated for CI; they are skipped locally and are clearly marked
-**CI-only** below. This document does not claim any live PostgreSQL test
-passed locally.
+For a reproducible Linux environment, the WP09 replay uses the already-built
+production image as a disposable Node 22 runtime with exact-lock development
+dependencies and PostgreSQL 18 client packages installed only inside that
+verification container. This does not change the production image or dependency
+versions. Its volume-mounted generated outputs are disposable. Host Node and
+client versions are not silently claimed as the versions used by the tests.
 
-## Feature-to-contract coverage ledger (T029)
+### Additional focused gates
 
-Every one of the 25 application tables (inventory from `data-model.md`) maps to
-a feature/API family and a concrete shared scenario that runs on BOTH real
-backends. The machine-checked half of this ledger is enforced by
-`tests/db/coverage-ledger.test.ts`; the per-table behavioural coverage is
-enforced by the real-backend suites listed below (no mocks at the persistence
-layer). External AI/plugin providers may be stubbed; database behaviour is
-real.
+```bash
+DB_BACKEND=sqlite node_modules/.bin/vitest run \
+  tests/db/sqlite-integrity.test.ts tests/db/runtime-mode.test.ts \
+  tests/db/postgres-no-ddl.test.ts tests/db/availability.test.ts \
+  tests/db/sqlite-worker.test.ts tests/verification/command-coverage.test.ts --retry=0
+DB_BACKEND=sqlite node_modules/.bin/vitest run \
+  tests/db/concurrency.test.ts tests/db/no-init.test.ts --retry=0
+```
+
+The last two stability tests each perform ten independent attempts internally,
+with fresh storage and isolated bundle paths. A failure stops the series; do
+not retry until green or weaken timing/child-process assertions. Supplying the
+live admin URL also executes the focused no-DDL and availability cases that
+older owner records accurately labelled pending.
+
+`tests/verification/command-coverage.test.ts` guards package entrypoints, missing
+files, zero-test failure and fail-closed preflight. The generic Spec Kitty Python
+coverage helper is unavailable in this TypeScript repository; its
+`<gate-coverage-junit>` missing-artifact record is not an application test result.
+The normal review transition still runs that gate and records the limitation;
+actual application checks above must execute independently.
+
+## Diagnostic comparison
+
+Archive inspected revision `0572599edc3e79dded5893aaaaef6867394a5288` into an
+isolated directory, use the same lockfile/toolchain, then record `npm run check`
+for baseline and current source. Compare diagnostic identities: relative file,
+severity, message and source context; line numbers may shift when legitimate
+imports/comments change. Do not accept a current failure simply because a
+historical document counted 18 or 19 errors. Any new database/worker diagnostic
+is a blocker for its owner. Preserve the nonzero check statuses in the record;
+comparison is an explicit scope assessment, not suppression.
+
+The latest [same-lock comparison](reviews/evidence/database-review-remediation/WP09/diagnostic-comparison-after-pg-close.json)
+records 22 baseline/current identities with zero added or resolved diagnostics
+after correcting the worker-private availability return type. Both actual check
+commands retain exit 1. The earlier failed comparison and original suite failures
+remain in the evidence; the final report separately tracks remaining verification.
+
+## Feature-to-contract coverage ledger
+
+The canonical 25-table inventory is machine-checked by
+`tests/db/coverage-ledger.test.ts`. Shared scenarios use real selected backend
+fixtures; external provider responses may be stubbed, but storage is real.
 
 | # | Table | Feature / API family | Concrete shared scenario (sqlite + postgres) | Suite |
 |---|---|---|---|---|
@@ -69,158 +112,58 @@ real.
 | 24 | `friendships` | social | findBetween/listForUser | `tests/domains/integrations/integrations.suite.ts` |
 | 25 | `friend_notes` | social / privacy | author-only note, unfriend cleanup | `tests/domains/integrations/integrations.suite.ts` |
 
-Every listed suite is parameterised over a real backend fixture and is executed
-for SQLite locally and for PostgreSQL in CI (entry points:
-`tests/db/*.contract.test.ts`, `tests/domains/*/{sqlite,postgres}.test.ts`,
-`tests/backup/{sqlite,postgres}.test.ts`). The contract/domain/backup fixtures
-never substitute one backend for the other — a missing PostgreSQL service fails
-or skips the PostgreSQL run; it never silently falls back to SQLite.
 
-New WP08 shared/verification tests added:
+## Live boundary evidence
 
-| Test | Backend | Purpose |
+| Boundary | Executable proof | Evidence |
 |---|---|---|
-| `tests/db/coverage-ledger.test.ts` | agnostic | guards the canonical 25-table inventory == production/dialect schemas |
-| `tests/upgrade/upgrade-preserves-data.test.ts` | sqlite | legacy db:push layout with real rows survives upgrade + allows new writes |
-| `tests/recovery/native-recovery.test.ts` | sqlite | full installation native backup → restore → verify |
-| `tests/recovery/postgres-recovery.test.ts` | postgres (CI) | `pg_dump`/`pg_restore` of a full installation |
-| `tests/db/postgres.operations.test.ts` | postgres (CI) | lock cleanup, bounded-pool concurrency, readiness, connection loss |
+| Effective TLS | Real pg parser baseline and trusted/untrusted/hostname endpoint cases through runtime and migration builders | [WP01](reviews/evidence/database-review-remediation/WP01/manifest.md), [WP09 six-case live TLS proof](reviews/evidence/database-review-remediation/WP09/tls-proof/README.md) |
+| SQLite semantics | Wrong-column/nonunique expected-name index, altered definitions/journal records, unchanged rejected storage and supported adoption | [WP02](reviews/evidence/database-review-remediation/WP02/manifest.md), WP09 original/fixed index replay |
+| No-DDL runtime | Data-only PostgreSQL role, zero attempted DDL and unchanged catalog on success and rejection | [WP03 live capture](reviews/evidence/database-review-remediation/WP03/live-capture.json), focused current run |
+| Recoverable process | Health 200 while ready 503, first recovery, later outage and recovery on same PID; SQLite lock with overlapping probes | [WP06](reviews/evidence/database-review-remediation/WP06/manifest.md), [WP10 lock capture](reviews/evidence/database-review-remediation/WP10/lock-regression-capture.json), current HTTP suites |
+| Application boundaries | Real session/admin/ownership handlers, scheduler, QuickJS query bridge, saved query/friends/AI tools; intended fault sensitivity | [WP06](reviews/evidence/database-review-remediation/WP06/manifest.md), [WP07](reviews/evidence/database-review-remediation/WP07/manifest.md) |
+| Production packaging | Same immutable local image, exact original objective ID/title before/after restart on both backends, lost-write/never-ready failures | [WP08](reviews/evidence/database-review-remediation/WP08/manifest.md) |
 
-## Validation commands and results (T032)
+Older manifests remain historical records. A pending item in an older record
+is superseded only by a linked later executed proof, never by rewriting the
+record or inferring execution from test source. The final report must say
+incomplete whenever a required live run, provenance field or assertion is missing.
+In particular, the existing PostgreSQL application probe cases cover healthy and
+unreachable-startup baselines; the generic complete HTTP recovery cycle is
+SQLite-only. A separate PostgreSQL same-process full cycle with idle pool error,
+timed health/readiness transitions and retained data is required before closing
+RISK-1. That supplemental [executed PostgreSQL proof](reviews/evidence/database-review-remediation/WP09/postgres-probe-proof/README.md) now passes on the final source, including both recoveries, the actual idle error marker and retained objective in the same process. A green package count alone does not close that gap.
 
-Run from `okr-app/`. All commands and exit codes captured exactly.
+## Manual production images
 
-| Command | Exit | Result |
-|---|---|---|
-| `npm ci` | 0 | clean install, 225 packages, lockfile-reproducible |
-| `npm test` | 0 | 18 files / **133 tests passed** |
-| `npm run test:db:sqlite` | 0 | 11 files / **77 tests passed** |
-| `npm run build` | 0 | adapter-node production build succeeded (5.22s) |
-| `npm run check` | 1 | **18 errors / 4 warnings in 10 files — all preexisting, see below** |
+See [the container guide](../tests/container/README.md) for the current commands.
+With Podman, build using `--format docker` to retain the declared HEALTHCHECK.
+Resolve one `RUOK_SMOKE_IMAGE` to an immutable local image ID and reuse it with
+`RUOK_SMOKE_SKIP_BUILD=1` for both scripts. PostgreSQL requires a live
+`DATABASE_URL` reachable from inside the application container. A local image ID
+is not a registry digest.
 
-Additional WP08 scripts:
+Both scripts require readiness/liveness, bundled migration, actual account and
+objective creation, restart and exact read under the original account. Missing
+or changed data, invalid JSON/status and readiness deadlines fail nonzero.
+Controlled lost-write and never-ready cases must reach their intended assertions;
+fixture setup errors cannot count as valid negatives. Host-only SQLite checks
+are supplemental and do not replace production-image verification.
 
-| Command | Result |
-|---|---|
-| `npm run test:upgrade` | sqlite upgrade-preserves-data — passed |
-| `npm run test:recovery:sqlite` | sqlite native recovery — passed |
-| `npm run test:recovery:postgres` | gated — skipped locally (no live PG / `pg_dump` present but no server) |
-| `npm run test:db:postgres` | gated — runs in CI only |
+If any required image cannot be downloaded, stop **all** mission work, report
+image/registry/attempted command/redacted error and wait for explicit operator
+direction. Do not substitute registries/images or alter proxy/TLS/network settings.
 
-### `npm run check` — preexisting unrelated failures (NOT suppressed)
+## Recovery and closure
 
-`svelte-check` reports 18 errors and 4 warnings in 10 files. All 18 errors are in
-pre-existing frontend/component code that is out of scope for the database
-mission and was failing before WP08:
+Version-2 user backup portability and native installation recovery are separate
+contracts. Native SQLite backup restores only to SQLite; PostgreSQL dumps restore
+only to PostgreSQL. The recovery fixtures seed full installation data, restore
+it into fresh storage and verify schema/history plus typed reads; native dumps
+are not a backend conversion mechanism.
 
-| File | Errors | Nature |
-|---|---|---|
-| `src/lib/components/DashboardCard.svelte` | 5 | `Cannot find namespace 'Plotly'` |
-| `src/routes/queries/+page.svelte` | 4 | `Cannot find namespace 'Plotly'` |
-| `src/lib/server/plugins/oura.ts` | 3 | plugin/API typing |
-| `src/routes/admin/+page.svelte` | 3 | data-access typing |
-| `src/routes/daily/[date]/+page.svelte` | 2 | Plotly namespace |
-| `src/lib/components/MonacoEditor.svelte` | 1 | typing |
-| `src/lib/components/TaskItem.svelte` | 1 | typing |
-| `src/lib/server/ai/providers.ts` | 1 | AI provider typing |
-| `src/routes/settings/ai/+page.svelte` | 1 | indexing into typed map |
-| `src/routes/settings/metrics/+page.svelte` | 1 | typing |
-
-None of these files is part of the database implementation, and only two were
-touched by the mission at all — a one-line `MetricDefinition` import-path update
-(`$lib/db/schema` → `$lib/db/models`, required by the WP02 cutover) that does
-not introduce these errors. They are recorded precisely here and are **not**
-silently `xfail`-ed or hidden with `continue-on-error`. They are pre-existing
-UI type defects in the base app, unrelated to SQLite/PostgreSQL parity, and
-were present before this WP.
-
-## Upgrade, concurrency and operational evidence (T030)
-
-Already covered by WP01-WP07 suites and verified again in WP08:
-
-- Fresh + repeated migrations, incomplete journals, FK-orphan preflight, drift
-  rejection, and competing-startup serialization:
-  `tests/db/migration.test.ts`, `tests/db/legacy-adoption.test.ts`,
-  `tests/db/migration-files.test.ts`, `tests/db/concurrency.test.ts` (SQLite,
-  run against the real bundled `db:migrate` CLI).
-- Failed-migration rollback, PostgreSQL connectivity failure (no fallback),
-  and TLS misconfiguration (missing CA fails before connect):
-  `tests/db/failure.test.ts`.
-- No build/import-time I/O: `tests/db/no-init.test.ts`.
-- Config validation incl. redacted diagnostics, bounded pool/timeouts, journal
-  mode, TLS precedence: `tests/db/config.test.ts`.
-
-New in WP08:
-
-- `tests/upgrade/upgrade-preserves-data.test.ts` — a db:push-era SQLite layout
-  carrying real rows (user, objective, KR, period, task) is adopted by the
-  canonical runner: all rows remain readable through the typed boundary, the
-  journal is reconciled to 7 records, and new writes work immediately. This
-  closes the data-preservation gap left by the schema-only legacy tests.
-- `tests/db/postgres.operations.test.ts` **(CI-only)** — migration advisory-lock
-  cleanup (held then released), bounded-pool concurrency (poolMax=2, 8 parallel
-  ops, no deadlock), process-wide readiness transitions (open→ready→closed),
-  and connection loss surfaced as a controlled error via `DROP DATABASE WITH
-  FORCE` (never a hang, never a SQLite fallback).
-
-## Native recovery rehearsal (T031)
-
-Recovery procedure and observed result for SQLite (run and verified locally):
-
-1. Build a real migrated installation with the production path
-   (`migrateDatabase` → `openDatabase`) — not fixture DDL.
-2. Write a complete installation through the typed boundary: accounts,
-   sessions, system config (incl. a secret), friendships + friend notes,
-   plugin config, AI config, objectives/KRs/reflections, periods/tasks/tags,
-   metrics templates + values, saved queries/widgets, query logs.
-3. Close the database.
-4. Take a NATIVE backup using better-sqlite3's online `.backup()` API.
-5. Open the backup as a fresh install and verify: migration check classifies it
-   `ready` (schema + journal aligned, nothing re-applied), process readiness is
-   `true` at schemaVersion 6, and every seeded row is readable.
-
-Observed: `npm run test:recovery:sqlite` → passed. This rehearses
-full-installation recovery — distinct from user-export portability (FR-008).
-
-### Why native dumps cannot switch backend engines
-
-A SQLite `.backup()`/CLI backup restores only to SQLite; a PostgreSQL
-`pg_dump`/`pg_restore` or CNPG backup restores only to PostgreSQL. Neither
-format carries cross-engine DDL semantics or the dialect migration history
-compatibly, so a native backup cannot be used to migrate an installation from
-one engine to the other. Backend switching of a full installation is a
-separately scoped converter and is an explicit non-goal of this mission.
-
-### PostgreSQL native dump/restore (CI-only)
-
-`tests/recovery/postgres-recovery.test.ts` rehearses the same procedure for
-PostgreSQL: migrate a disposable database, seed the same full installation,
-`pg_dump -Fc`, drop + recreate the database, `pg_restore`, then verify the
-restored installation is classified `ready` and every seeded row is readable.
-It is gated on `RUOK_TEST_PG_ADMIN_URL` AND the presence of `pg_dump`/`psql`.
-It did NOT run locally (no live server); it runs in CI.
-
-## PostgreSQL paths that were NOT live-tested (and why)
-
-The following run against a real PostgreSQL server in CI only; they were
-**skipped** locally because no server or admin URL was available:
-
-- `npm run test:db:postgres` — the shared contract, schema-parity, migration,
-  operations and domain suites on PostgreSQL.
-- `npm run test:recovery:postgres` — the pg_dump/pg_restore rehearsal.
-- The live portions of `tests/db/postgres.migration.test.ts`.
-
-PostgreSQL 16/17 are the declared CI targets (spec, plan). The local `pg_dump`
-is 14.15; no claim is made that the dump rehearsal was executed against 16/17.
-
-## Limitations
-
-- Live PostgreSQL is CI-only in this environment; no local PostgreSQL parity
-  claim is made here.
-- `npm run check` fails on 18 pre-existing UI/component type errors (recorded
-  above); not a database-parity blocker and not suppressed.
-- The concurrent-CLI test (`tests/db/concurrency.test.ts`) passed in the full
-  matrix but exhibited one intermittent failure when the SQLite CLI-bundling
-  step contended with an isolated batch run; it is stable within `npm test`.
-  Recorded here for transparency; not caused by WP08 changes.
-- Native recovery cannot switch backend engines (see above).
+RISK-2 remains **unresolved and deferred to the operator's separate CI/CD review**.
+This mission does not modify workflows, publication gates or repository settings
+and does not deploy or publish. Review/acceptance requires all six in-scope
+finding rows, complete redacted before/after evidence, green required/backend
+suites, the ten-run stability proof and explicit diagnostic comparison.

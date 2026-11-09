@@ -1,0 +1,10 @@
+    local image ID=76851d5c343ef90ab57a6313db88d73a341e0f53c7380d6052f7cfd87d1fb06d (not a registry digest)
+7366358adf40667e10e54a8eb1939eeba6d1b38aab2e50a13da3a9c86957f405
+    /api/ready -> 200
+[db-migrate] backend=postgres mode=migrate
+[db-migrate] OK classification=ready applied=1 recorded=0 schemaVersion=0
+    created objective id=6b3420b4-e31d-4e40-b25a-c8f0f2936cd8
+    exact objective verified: id=6b3420b4-e31d-4e40-b25a-c8f0f2936cd8 title=WP08 persistence smoke_2685973fea09b0b1
+time="2026-11-09T23:35:43+04:00" level=warning msg="StopSignal SIGTERM failed to stop container ruok-smoke-postgres in 1 seconds, resorting to SIGKILL"
+CONTROL: application stopped after restart; readiness cannot succeed
+FAIL readiness deadline exceeded (5s)

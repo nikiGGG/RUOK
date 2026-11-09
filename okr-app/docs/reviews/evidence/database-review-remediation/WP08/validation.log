@@ -1,0 +1,5 @@
+helper-contract start=2026-11-09T04:15:38Z
+helper-contract exit=0 end=2026-11-09T04:15:42Z
+missing-url exit=1 expected=nonzero
+diff-scoped bash -n: exit=0
+git diff --check: exit=0

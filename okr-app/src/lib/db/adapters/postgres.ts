@@ -491,6 +491,8 @@ export class PostgresDatabaseServices implements DatabaseServices {
 	private pool!: Pool;
 	private db!: NodePgDatabase<typeof schema>;
 	private _open = false;
+	private openPromise: Promise<void> | null = null;
+	private closePromise: Promise<void> | null = null;
 
 	constructor(private readonly config: PostgresConfig) {
 		// Lazy: no network I/O until open().
@@ -519,32 +521,122 @@ export class PostgresDatabaseServices implements DatabaseServices {
 		this.friendNotes = this.createFriendNoteRepository();
 	}
 
+	/** Total live-probe budget (checkout + query + response overhead), <=3s (NFR-002). */
+	private readonly availabilityTimeoutMs = 3000;
+
 	async open(): Promise<void> {
+		// A new pool cannot replace one still draining, and concurrent reopen
+		// callers must share the same opening attempt rather than leak a pool.
+		while (this.closePromise) {
+			const closing = this.closePromise;
+			await closing;
+			if (this.openPromise) await this.openPromise;
+			if (this.closePromise === closing) this.closePromise = null;
+		}
 		if (this._open) return;
+		if (this.openPromise) return this.openPromise;
 		const pool = new Pool(buildPostgresPoolConfig(this.config));
+		// Idle-client errors must never crash the process (T015): an idle pool
+		// connection that dies is surfaced by the next checkAvailability()/statement
+		// rather than raising an unhandled 'error' event. Log a redacted message.
+		pool.on('error', (err: Error) => {
+			console.error('[postgres] idle pool error:', err.message);
+		});
 		this.pool = pool;
 		this.db = drizzle(pool, { schema });
 
-		// Bounded readiness probe: acquire a client and release it. This surfaces
-		// connection errors at open() (startup/readiness) rather than at first use.
-		const client = await pool.connect();
-		try {
-			await client.query('SELECT 1');
-		} finally {
-			client.release();
-		}
-		this._open = true;
+		this.openPromise = (async () => {
+			// Bounded readiness probe: acquire a client and release it. This surfaces
+			// connection errors at open() (startup/readiness) rather than at first use.
+			const client = await pool.connect();
+			try {
+				await client.query('SELECT 1');
+			} finally {
+				client.release();
+			}
+			if (this.closePromise) throw new Error('PostgreSQL open attempt superseded by close');
+			this._open = true;
+		})().finally(() => {
+			this.openPromise = null;
+		});
+		return this.openPromise;
 	}
 
 	isOpen(): boolean {
 		return this._open;
 	}
 
-	async close(): Promise<void> {
-		if (this.pool) {
-			await this.pool.end();
-		}
+	/**
+	 * Bounded live-availability probe (T015 / NFR-002).
+	 *
+	 * Runs a real query against a required application table (`users`) within a
+	 * 3-second total budget covering checkout + query. On timeout or error it
+	 * destroys the checked-out client (never returns a possibly-stuck connection
+	 * to the pool) and reports `false`, so saturation, outage and idle errors
+	 * report unavailable without process termination or leaked work. A later
+	 * success can recover. Uses the real application pool — no separate healthy
+	 * pool masks exhaustion.
+	 */
+	async checkAvailability(): Promise<boolean> {
+		if (!this._open || !this.pool) return false;
+		let client: PoolClient | undefined;
+		let destroyed = false;
+		let settled = false;
+		const releaseOrDestroy = () => {
+			if (!client || destroyed) return;
+			destroyed = true;
+			try {
+				client.release(true); // destroy: never pool a possibly-stuck client
+			} catch {
+				/* already released/destroyed */
+			}
+		};
+		return new Promise<boolean>((resolve) => {
+			const timer = setTimeout(() => {
+				if (settled) return;
+				settled = true;
+				releaseOrDestroy();
+				resolve(false);
+			}, this.availabilityTimeoutMs);
+			(async () => {
+				try {
+					client = await this.pool!.connect();
+					if (settled) {
+						releaseOrDestroy(); // late checkout after timeout -> clean up
+						return;
+					}
+					await client.query('SELECT 1 FROM users LIMIT 1');
+					if (settled) {
+						releaseOrDestroy();
+						return;
+					}
+					settled = true;
+					destroyed = true;
+					try {
+						client.release(); // healthy: return to the pool
+					} catch {
+						/* already destroyed */
+					}
+					resolve(true);
+				} catch {
+					if (!settled) {
+						settled = true;
+						releaseOrDestroy();
+						resolve(false);
+					}
+				} finally {
+					clearTimeout(timer);
+				}
+			})();
+		});
+	}
+
+	close(): Promise<void> {
+		// Keep the completed promise until reopen, so every close of this pool
+		// shares its one drain operation, including concurrent callers.
 		this._open = false;
+		if (!this.closePromise) this.closePromise = this.pool ? this.pool.end() : Promise.resolve();
+		return this.closePromise;
 	}
 
 	// ---------------------------------------------------------------------

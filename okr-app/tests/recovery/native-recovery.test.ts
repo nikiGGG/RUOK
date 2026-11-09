@@ -90,9 +90,10 @@ describe('T031 native SQLite recovery rehearsal', () => {
 		//    then publish a ready process-wide state.
 		const dstServices = await openDatabase(loadConfig({ DATABASE_PATH: dst }))
 		try {
-			expect(getReadiness().ready).toBe(true)
-			expect(getReadiness().dialect).toBe('sqlite')
-			expect(getReadiness().schemaVersion).toBe(6)
+			const readiness = await getReadiness()
+			expect(readiness.ready).toBe(true)
+			expect(readiness.dialect).toBe('sqlite')
+			expect(readiness.schemaVersion).toBe(6)
 
 			// Accounts + session
 			expect((await dstServices.users.findByUsername('alice'))?.passwordHash).toBe('hash-a')

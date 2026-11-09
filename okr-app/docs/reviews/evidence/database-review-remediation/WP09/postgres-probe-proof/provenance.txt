@@ -1,0 +1,18 @@
+start=2026-11-09T19:29:42Z
+command=podman exec ruok-wp09-verify sh docs/reviews/evidence/database-review-remediation/WP09/postgres-probe-proof/run.sh
+source_revision=b70d064becea4f23d40d6557041fb7ca9f1867a6
+source_revision_note=initial integrated-run revision; current executed product/build input hashes below capture subsequent owned repairs
+image_provenance=../provenance.txt (retained verifier base image; application executes mounted current workspace build)
+v22.23.4
+pg=8.23.1
+0.27.2
+827fa29eeecd221f6131b06809483e8063780e998292f5fa9a05f7e803cf8965  docs/reviews/evidence/database-review-remediation/WP09/postgres-probe-proof/cycle.ts
+e0370ea85778a19a236a0c93d59a9720e47a9f56c51423710add3feddfb8b0c8  docs/reviews/evidence/database-review-remediation/WP09/postgres-probe-proof/run.sh
+7a63bf90d4f3eec2bb017e8585c2b768e1de52beef97f0c384dcaa3ebf87ef78  tests/application/http-fixture.ts
+864ffbafe0b477f431746ae4d324e7d1b97a6797cd0b7e50fb5d73b7303ac580  build/index.js
+791689702a89fc164deadc0fa421c321ebebb3c73a042b2eec69ead3e39a1f6b  /app/build/db-migrate.mjs
+1e298622900729feea7a71368c0dde63aa3b27f54c347694e21194a3d491b661  src/lib/db/lifecycle.ts
+5fd77a1e4c464294f23604828dc12ff560e87e559d9f09cb23b6ae61df0c4234  src/lib/db/adapters/postgres.ts
+workspace_build_files_manifest_sha256=c8d2998d4583008ed80ad650723ba6cade7ecde0e32c3e39dfedede7d535b381  -
+end=2026-11-09T19:29:51Z
+exit=0

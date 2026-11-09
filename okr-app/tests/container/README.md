@@ -1,74 +1,75 @@
-# RUOK container smoke tests (WP09 / T036)
+# Manual production-image verification
 
-These scripts build the **production Docker image** from a clean build context and
-run it exactly like a real deployment, recording exact commands and exit codes.
+For maintainers validating a local production image before acceptance. These
+checks run manually; they do not change CI/CD or publish/deploy anything.
 
-## Requirements
+Requirements: Docker or Podman, host Bash/curl/Node, a free local port (3180 by
+default), and a disposable live PostgreSQL database for the PostgreSQL run.
+The production Dockerfile uses its committed lockfile and Node 22 Alpine base.
+Do not run these destructive cleanup/test scripts against production databases.
 
-- Docker engine with classic `docker build` (no `buildx` required).
-- `curl` and `node` on the host (used to probe the container and parse JSON).
-- A free local port (default `3180`, override with `RUOK_SMOKE_PORT`).
-
-## SQLite smoke test
-
-Builds the image, starts it in SQLite mode with a data volume, and verifies:
-liveness (`/api/health`) + readiness (`/api/ready`), the migration-only
-invocation (`node build/db-migrate.mjs`) with production deps, a real goal
-(objective) write, a container restart, and persistence of both the objective
-and the SQLite file in the volume.
+Build once, then reuse the **same local image ID** for both backend scenarios:
 
 ```bash
+# Set RUOK_CONTAINER_ENGINE=podman when using Podman; default is docker.
+export RUOK_CONTAINER_ENGINE=podman
+podman build --format docker -t localhost/ruok:smoke .
+export RUOK_SMOKE_IMAGE=$(podman image inspect --format '{{.Id}}' localhost/ruok:smoke)
+export RUOK_SMOKE_SKIP_BUILD=1
 bash tests/container/smoke-sqlite.sh
-```
-
-## PostgreSQL smoke test
-
-Builds the **same image** and starts it in PostgreSQL mode with **no SQLite
-volume** (PostgreSQL does not require a SQLite filesystem). It always verifies
-that the container liveness probe returns 200 and that `/api/ready` reports
-503 (not ready, **no SQLite fallback**) when the external database is
-unreachable.
-
-A live PostgreSQL is normally only present in CI. When a reachable
-`DATABASE_URL` is supplied, the script additionally runs the migration-only
-invocation and a full goal write + restart persistence scenario:
-
-```bash
-# Reachability / no-SQLite-dependency check (no DB required):
+# Supply DATABASE_URL privately in the environment; never paste credentials into logs.
 bash tests/container/smoke-postgres.sh
-
-# Full live flow (requires a reachable PostgreSQL):
-DATABASE_URL=postgresql://user:pass@host:5432/ruok \
-  bash tests/container/smoke-postgres.sh
 ```
 
-### Verified TLS (optional)
+Without `RUOK_SMOKE_SKIP_BUILD=1`, each entrypoint builds its selected image.
+Podman builds use Docker format to retain the Dockerfile HEALTHCHECK.
+Both resolve the image to an immutable local ID before starting containers and
+print that ID; a local ID is not a registry manifest digest. PostgreSQL requires
+an explicit `DATABASE_URL` reachable **from inside the application container**.
+A host-loopback URL alone generally does not reach the host from a container.
+The PostgreSQL check never accepts an absent URL or substitutes SQLite.
 
-Place the CA certificate in `okr-app/secrets/ca.pem` and set
-`DATABASE_SSL_MODE=verify-full` + `DATABASE_SSL_CA_FILE=/run/secrets/ca.pem`.
-See the `Verified TLS` section in `okr-app/compose.postgres.yml`.
+Each run checks readiness and liveness, runs the bundled migration command with
+production dependencies, registers a unique account and creates an objective,
+then validates exact ID and title before and after restart. After restart it
+logs into the same account without recreating the objective. SQLite uses a named
+data volume; PostgreSQL uses no SQLite volume and checks absence of the SQLite
+file before and after restart. Container/volume cleanup is best effort and never
+changes a primary failure into success. The SQLite volume check uses the same
+production image, requiring no extra helper image.
 
-## Host-level production-runtime smoke (no Docker needed)
+Every required HTTP status, JSON response, nonempty ID, readiness deadline and
+exact stored-value assertion is fatal on failure. Curl transport calls are
+bounded (`RUOK_SMOKE_HTTP_TIMEOUT`, default 10 seconds); each readiness request
+is bounded to 5 seconds and the complete readiness loop to
+`RUOK_SMOKE_READY_TIMEOUT` (default 120 seconds). Set `RUOK_SMOKE_PORT` to choose a
+different host port. Cookie jars are temporary and are removed on exit; response
+bodies, account passwords and connection URLs are not printed.
 
-When Docker cannot build the image (e.g. the container's outbound network is
-blocked — no Alpine apk repos, no npm registry in-container), the same compiled
-production runtime the image runs can be exercised directly on the host with:
+Health means the process is alive; readiness reflects storage availability.
+A missing/unavailable PostgreSQL backend is a failed full verification, not a
+passing no-SQLite-only scenario. Both live backend positives and controlled
+lost-write/never-ready negatives are required for image evidence. A negative is
+valid only when the intended fault is reached and the script exits nonzero.
+Replayable controls and execution records are in
+`docs/reviews/evidence/database-review-remediation/WP08/`.
+
+**Image-download stop rule:** if any required base, frontend or fixture image
+cannot be downloaded, stop all mission work, report exact image/registry/command
+and the redacted error, and wait for explicit operator direction. Do not replace
+images/registries or alter proxy/TLS/network settings to work around it. Missing
+live execution stays incomplete and blocks acceptance. RISK-2 remains unresolved
+and deferred to the operator's separate CI/CD review.
+
+## Supplemental host SQLite runtime check
+
+After an existing `npm run build` and standalone migration bundle are available:
 
 ```bash
-npm run build   # produces build/ + build/db-migrate.mjs
 bash tests/container/smoke-host-sqlite.sh
 ```
 
-This verifies the migration-only invocation, `/api/health`, `/api/ready`, a real
-goal write, a restart and persistence — the exact lifecycle the image runs.
-
-## Notes on the build
-
-- The build uses the committed `package-lock.json` (`npm ci`) and never opens
-  or creates a database or requires network credentials.
-- Both migration histories (`drizzle/`, `drizzle-postgres/`) and the compiled
-  migration entrypoint (`build/db-migrate.mjs`) are copied into the image.
-- Native modules (`better-sqlite3`, `bcrypt`) compile from source on Alpine;
-  if the build fails under emulation/architecture constraints on a non-native
-  host, the scripts report the failure rather than masking it.
-- arm64 images require validating the native modules build and run for arm64.
+This uses the shared strict HTTP and exact persistence assertions with the
+compiled Node runtime. It is supplemental host proof and does **not** replace
+mandatory production-image runs on both backends. `RUOK_SMOKE_DATA_DIR` selects
+its disposable storage; server logs remain there for diagnosis.

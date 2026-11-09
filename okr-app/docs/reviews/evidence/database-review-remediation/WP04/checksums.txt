@@ -1,0 +1,9 @@
+9f03b61b705defbe467b3d5b901b8ba9e6ccab8388eaacbdb174cf7e66e0da16  manifest.md
+cd3566e2d206cc57baf160fa5ff397d4885ece7fd900546826fbe77f11f91fad  run-transcript.txt
+e280ee02a7e18cd9d5e1a99caeb2a2f50e527502534483811152c37d8dd93d38  ../../../../../src/lib/db/contracts.ts
+1e298622900729feea7a71368c0dde63aa3b27f54c347694e21194a3d491b661  ../../../../../src/lib/db/lifecycle.ts
+317e330c96a2b62b64357a02277c2432e8ed6722f5426c2aa6be8d64848f5a5a  ../../../../../src/lib/db/adapters/postgres.ts
+56d88adebe7f52e030ca2810f6b92851bcf14ca79389d6fc7a8b67de8587ddf4  ../../../../../src/lib/server/database.ts
+04ec621fb5bf1c5476be975a6a4def5d338dfa9734fdc9d3276cc2f0fb0b0037  ../../../../../src/hooks.server.ts
+4702765e2fd45488a44e6de76b222322e2df3dbe86f5dbeba9fb9981af9b2a1a  ../../../../../src/routes/api/ready/+server.ts
+ca201212513e79e411228e4c1ff38911ea2f46167bd6ac0177987d89290d375e  ../../../../../tests/db/availability.test.ts

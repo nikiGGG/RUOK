@@ -1,0 +1,13 @@
+command: df -k /tmp /dev/shm/ruok-wp09-tests
+cwd: /workspace/okr-app
+start: 2026-11-09T11:13:42.114Z
+--- stdout ---
+Filesystem           1K-blocks      Used Available Use% Mounted on
+fuse-overlayfs        81185792  66007156  12829260  84% /
+shm                      64000         0     64000   0% /dev/shm
+
+--- stderr ---
+
+end: 2026-11-09T11:13:42.128Z
+exit: 0
+signal: null
