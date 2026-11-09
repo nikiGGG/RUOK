@@ -1,0 +1,62 @@
+command: DB_BACKEND=sqlite node_modules/.bin/vitest run tests/db/concurrency.test.ts tests/db/no-init.test.ts --maxWorkers=1 --retry=0
+cwd: /workspace/okr-app
+start: 2026-11-09T11:30:13.715Z
+--- stdout ---
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/workspace/okr-app[39m
+
+[90mstdout[2m | tests/db/no-init.test.ts[2m > [22m[2mno build-time initialization (T012)[2m > [22m[2mimporting the persistence + migration surface opens nothing (10 runs)
+[22m[39mprobe build: {"code":0,"signal":null,"stdout":"","stderr":"\n  node_modules/.cache/no-init-probe-1794223816104-av18bvnzkdg.mjs  16.5kb\n\n⚡ Done in 19ms\n","elapsedMs":31.92099300000001}
+
+[90mstdout[2m | tests/db/no-init.test.ts[2m > [22m[2mno build-time initialization (T012)[2m > [22m[2mimporting the persistence + migration surface opens nothing (10 runs)
+[22m[39mprobe run 0: {"code":0,"signal":null,"stdout":"PROBE:{\"readinessReady\":false,\"open\":false,\"config\":null}\n","stderr":"","elapsedMs":734.9841970000001}
+
+[90mstdout[2m | tests/db/no-init.test.ts[2m > [22m[2mno build-time initialization (T012)[2m > [22m[2mimporting the persistence + migration surface opens nothing (10 runs)
+[22m[39mprobe run 1: {"code":0,"signal":null,"stdout":"PROBE:{\"readinessReady\":false,\"open\":false,\"config\":null}\n","stderr":"","elapsedMs":727.772367}
+
+[90mstdout[2m | tests/db/no-init.test.ts[2m > [22m[2mno build-time initialization (T012)[2m > [22m[2mimporting the persistence + migration surface opens nothing (10 runs)
+[22m[39mprobe run 2: {"code":0,"signal":null,"stdout":"PROBE:{\"readinessReady\":false,\"open\":false,\"config\":null}\n","stderr":"","elapsedMs":711.4723340000003}
+
+[90mstdout[2m | tests/db/no-init.test.ts[2m > [22m[2mno build-time initialization (T012)[2m > [22m[2mimporting the persistence + migration surface opens nothing (10 runs)
+[22m[39mprobe run 3: {"code":0,"signal":null,"stdout":"PROBE:{\"readinessReady\":false,\"open\":false,\"config\":null}\n","stderr":"","elapsedMs":757.072776}
+
+[90mstdout[2m | tests/db/no-init.test.ts[2m > [22m[2mno build-time initialization (T012)[2m > [22m[2mimporting the persistence + migration surface opens nothing (10 runs)
+[22m[39mprobe run 4: {"code":0,"signal":null,"stdout":"PROBE:{\"readinessReady\":false,\"open\":false,\"config\":null}\n","stderr":"","elapsedMs":734.9559759999997}
+
+[90mstdout[2m | tests/db/no-init.test.ts[2m > [22m[2mno build-time initialization (T012)[2m > [22m[2mimporting the persistence + migration surface opens nothing (10 runs)
+[22m[39mprobe run 5: {"code":0,"signal":null,"stdout":"PROBE:{\"readinessReady\":false,\"open\":false,\"config\":null}\n","stderr":"","elapsedMs":711.2312570000004}
+
+[90mstdout[2m | tests/db/no-init.test.ts[2m > [22m[2mno build-time initialization (T012)[2m > [22m[2mimporting the persistence + migration surface opens nothing (10 runs)
+[22m[39mprobe run 6: {"code":0,"signal":null,"stdout":"PROBE:{\"readinessReady\":false,\"open\":false,\"config\":null}\n","stderr":"","elapsedMs":739.1253560000005}
+
+[90mstdout[2m | tests/db/no-init.test.ts[2m > [22m[2mno build-time initialization (T012)[2m > [22m[2mimporting the persistence + migration surface opens nothing (10 runs)
+[22m[39mprobe run 7: {"code":0,"signal":null,"stdout":"PROBE:{\"readinessReady\":false,\"open\":false,\"config\":null}\n","stderr":"","elapsedMs":738.9550250000002}
+
+[90mstdout[2m | tests/db/no-init.test.ts[2m > [22m[2mno build-time initialization (T012)[2m > [22m[2mimporting the persistence + migration surface opens nothing (10 runs)
+[22m[39mprobe run 8: {"code":0,"signal":null,"stdout":"PROBE:{\"readinessReady\":false,\"open\":false,\"config\":null}\n","stderr":"","elapsedMs":722.0230629999996}
+
+[90mstdout[2m | tests/db/no-init.test.ts[2m > [22m[2mno build-time initialization (T012)[2m > [22m[2mimporting the persistence + migration surface opens nothing (10 runs)
+[22m[39mprobe run 9: {"code":0,"signal":null,"stdout":"PROBE:{\"readinessReady\":false,\"open\":false,\"config\":null}\n","stderr":"","elapsedMs":771.5254080000004}
+
+[90mstdout[2m | tests/db/no-init.test.ts[2m > [22m[2mno build-time initialization (T012)[2m > [22m[2mimporting the modules does not create the default sqlite file
+[22m[39mdefault-file probe: {"code":0,"signal":null,"stdout":"PROBE:{\"readinessReady\":false,\"open\":false,\"config\":null}\n","stderr":"","elapsedMs":752.362682}
+
+ [32m✓[39m tests/db/no-init.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 8158[2mms[22m[39m
+   [32m✓[39m no build-time initialization (T012) [2m(2)[22m
+     [33m[2m✓[22m[39m importing the persistence + migration surface opens nothing (10 runs)[33m 7397[2mms[22m[39m
+     [33m[2m✓[22m[39m importing the modules does not create the default sqlite file[33m 754[2mms[22m[39m
+ [32m✓[39m tests/db/concurrency.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 2283[2mms[22m[39m
+   [32m✓[39m concurrent startup/CLI migration (T011/T012) [2m(1)[22m
+     [33m[2m✓[22m[39m serializes two concurrent CLI migrations and converges cleanly (10 runs)[33m 2273[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m   Start at [22m 11:30:15
+[2m   Duration [22m 11.03s[2m (tests 98%, transform 1%, import 1%)[22m
+
+
+--- stderr ---
+
+end: 2026-11-09T11:30:26.867Z
+exit: 0
+signal: null

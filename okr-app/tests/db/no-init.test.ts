@@ -15,6 +15,7 @@ import { execFile } from 'child_process'
 import { existsSync, mkdtempSync, rmSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
+import { performance } from 'node:perf_hooks'
 import { afterAll, describe, expect, it } from 'vitest'
 
 const cwd = process.cwd()
@@ -22,24 +23,41 @@ const esbuild = join(cwd, 'node_modules', '.bin', 'esbuild')
 
 /** Number of consecutive independent probe runs (T024, retries disabled). */
 const PROBE_RUNS = 10
+const CHILD_BOUND_MS = 5_000
+// One build plus ten independent child processes; their individual bounds stay
+// five seconds. Vitest's default five seconds cannot cover the whole sequence.
+const SEQUENCE_BOUND_MS = (PROBE_RUNS + 1) * CHILD_BOUND_MS + 5_000
 
 interface RunResult {
 	code: number
 	signal: string | null
 	stdout: string
+	stderr: string
+	elapsedMs: number
 }
 
 function run(cmd: string, args: string[]): Promise<RunResult> {
 	return new Promise((resolve) => {
-		execFile(cmd, args, { cwd }, (error, stdout) => {
+		const started = performance.now()
+		execFile(cmd, args, { cwd, timeout: CHILD_BOUND_MS, killSignal: 'SIGKILL' }, (error, stdout, stderr) => {
 			const err = error as (NodeJS.ErrnoException & { signal?: string | null }) | null
 			resolve({
 				code: err ? (typeof err.code === 'number' ? err.code : 1) : 0,
 				signal: err ? (err.signal ?? null) : null,
-				stdout: String(stdout)
+				stdout: String(stdout),
+				stderr: String(stderr),
+				elapsedMs: performance.now() - started
 			})
 		})
 	})
+}
+
+function assertCleanExit(label: string, result: RunResult): void {
+	const diagnostic = `${label}: ${JSON.stringify(result)}`
+	console.info(diagnostic)
+	expect(result.code, diagnostic).toBe(0)
+	expect(result.signal, diagnostic).toBeNull()
+	expect(result.elapsedMs, diagnostic).toBeLessThan(CHILD_BOUND_MS)
 }
 
 describe('no build-time initialization (T012)', () => {
@@ -62,12 +80,11 @@ describe('no build-time initialization (T012)', () => {
 			'--format=esm',
 			`--outfile=${bundle}`
 		])
-		expect(build.code, build.stdout).toBe(0)
+		assertCleanExit('probe build', build)
 
 		for (let i = 0; i < PROBE_RUNS; i++) {
 			const res = await run('node', [bundle])
-			expect(res.code, `probe run ${i} exit code`).toBe(0)
-			expect(res.signal, `probe run ${i} was killed by signal ${res.signal}`).toBeNull()
+			assertCleanExit(`probe run ${i}`, res)
 			expect(res.stdout, `probe run ${i} stdout missing PROBE:`).toContain('PROBE:')
 			const payload = res.stdout.split('PROBE:')[1].trim()
 			const parsed = JSON.parse(payload)
@@ -77,7 +94,7 @@ describe('no build-time initialization (T012)', () => {
 				config: null
 			})
 		}
-	})
+	}, SEQUENCE_BOUND_MS)
 
 	it('importing the modules does not create the default sqlite file', async () => {
 		// cwd is okr-app; the default DATABASE_PATH is data/okr.db. Import must
@@ -85,10 +102,10 @@ describe('no build-time initialization (T012)', () => {
 		const defaultPath = join(cwd, 'data', 'okr.db')
 		const existedBefore = existsSync(defaultPath)
 		const res = await run('node', [bundle])
-		expect(res.code).toBe(0)
+		assertCleanExit('default-file probe', res)
 		// The probe created no file; and if it did not exist before it still does not.
 		if (!existedBefore) {
 			expect(existsSync(defaultPath)).toBe(false)
 		}
-	})
+	}, CHILD_BOUND_MS + 1_000)
 })

@@ -1,0 +1,1 @@
+Functional tests: real SQLite files at TMPDIR=/dev/shm/ruok-wp09-tests (tmpfs), min16MiBfreeguard; maxWorkers1/retry0; all assertions, strict deadlines and in-test concurrency unchanged. Not power-loss or production-disk-latency proof; final-image scenarios retain disk-backed volumes and live PostgreSQL.

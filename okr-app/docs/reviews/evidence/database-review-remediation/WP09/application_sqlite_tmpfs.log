@@ -1,0 +1,89 @@
+command: npm run test:application:sqlite -- --maxWorkers=1 --retry=0
+cwd: /workspace/okr-app
+start: 2026-11-09T11:28:08.802Z
+--- stdout ---
+
+> ruok@0.0.1 test:application:sqlite
+> DB_BACKEND=sqlite vitest run tests/application/sqlite.test.ts tests/application/integrations.sqlite.test.ts --maxWorkers=1 --retry=0
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/workspace/okr-app[39m
+
+[90mstdout[2m | tests/application/sqlite.test.ts[2m > [22m[2mHTTP probes (sqlite)[2m > [22m[2mhealth returns 200 {status:ok, uptime} and ready returns 200 ready:true
+[22m[39mHTTP probe phase sqlite healthy startup: 2086.7ms
+
+[90mstdout[2m | tests/application/sqlite.test.ts[2m > [22m[2mHTTP probes (sqlite)[2m > [22m[2mhealth returns 200 {status:ok, uptime} and ready returns 200 ready:true
+[22m[39mHTTP probe phase sqlite healthy /api/health: 5.9ms
+
+[90mstdout[2m | tests/application/sqlite.test.ts[2m > [22m[2mHTTP probes (sqlite)[2m > [22m[2mhealth returns 200 {status:ok, uptime} and ready returns 200 ready:true
+[22m[39mHTTP probe phase sqlite healthy /api/ready: 6.0ms
+
+[90mstdout[2m | tests/application/sqlite.test.ts[2m > [22m[2mHTTP probes (sqlite)[2m > [22m[2mhealth returns 200 {status:ok, uptime} and ready returns 200 ready:true
+[22m[39mHTTP probe phase sqlite healthy shutdown: 3014.0ms
+
+[90mstdout[2m | tests/application/sqlite.test.ts[2m > [22m[2mHTTP probes (sqlite)[2m > [22m[2mhealth stays 200 and ready is 503 while storage is unavailable at startup
+[22m[39mHTTP probe phase sqlite unavailable startup: 1038.2ms
+
+[90mstdout[2m | tests/application/sqlite.test.ts[2m > [22m[2mHTTP probes (sqlite)[2m > [22m[2mhealth stays 200 and ready is 503 while storage is unavailable at startup
+[22m[39mHTTP probe phase sqlite unavailable /api/health: 5.3ms
+
+[90mstdout[2m | tests/application/sqlite.test.ts[2m > [22m[2mHTTP probes (sqlite)[2m > [22m[2mhealth stays 200 and ready is 503 while storage is unavailable at startup
+[22m[39mHTTP probe phase sqlite unavailable /api/ready: 21.5ms
+
+[90mstdout[2m | tests/application/sqlite.test.ts[2m > [22m[2mHTTP probes (sqlite)[2m > [22m[2mhealth stays 200 and ready is 503 while storage is unavailable at startup
+[22m[39mHTTP probe phase sqlite unavailable shutdown: 135.3ms
+
+ [32m✓[39m tests/application/sqlite.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 75453[2mms[22m[39m
+   [32m✓[39m HTTP session + admin enforcement (sqlite) [2m(9)[22m
+     [33m[2m✓[22m[39m registers through the real route and returns an authenticated session cookie[33m 390[2mms[22m[39m
+     [33m[2m✓[22m[39m me returns the authenticated identity carried by the cookie[33m 356[2mms[22m[39m
+     [33m[2m✓[22m[39m login with the wrong password is rejected 401[33m 687[2mms[22m[39m
+     [33m[2m✓[22m[39m logout invalidates the session so me becomes anonymous[33m 364[2mms[22m[39m
+     [33m[2m✓[22m[39m non-admin admin users list is denied 403 and leaks no data[33m 354[2mms[22m[39m
+     [33m[2m✓[22m[39m admin user can list users (admin success)[33m 673[2mms[22m[39m
+   [32m✓[39m HTTP probes (sqlite) [2m(2)[22m
+     [33m[2m✓[22m[39m health returns 200 {status:ok, uptime} and ready returns 200 ready:true[33m 5116[2mms[22m[39m
+     [33m[2m✓[22m[39m health stays 200 and ready is 503 while storage is unavailable at startup[33m 1202[2mms[22m[39m
+   [32m✓[39m HTTP startup→recovery→outage→recovery on one PID (sqlite) [2m(2)[22m
+     [33m[2m✓[22m[39m one process: unavailable startup -> first recovery -> later outage -> second recovery, unchanged PID, within bounds[33m 8533[2mms[22m[39m
+     [33m[2m✓[22m[39m repeated outage/recovery across SQLite busy timeouts 0/5000/30000 stays within bounds[33m 51793[2mms[22m[39m
+[90mstdout[2m | tests/application/integrations.sqlite.test.ts[2m > [22m[2mscheduler persistence + lifecycle (sqlite)
+[22m[39mPlugin registered: Deterministic Test Import (testimport)
+
+[90mstdout[2m | tests/application/integrations.sqlite.test.ts[2m > [22m[2mscheduler persistence + lifecycle (sqlite)[2m > [22m[2mruns the scheduled callback through the manager and persists imported rows + last-sync
+[22m[39mStarting plugin sync scheduler (interval: 60s)
+
+[90mstdout[2m | tests/application/integrations.sqlite.test.ts[2m > [22m[2mscheduler persistence + lifecycle (sqlite)[2m > [22m[2mruns the scheduled callback through the manager and persists imported rows + last-sync
+[22m[39mStarting scheduled plugin sync...
+
+[90mstdout[2m | tests/application/integrations.sqlite.test.ts[2m > [22m[2mscheduler persistence + lifecycle (sqlite)[2m > [22m[2mruns the scheduled callback through the manager and persists imported rows + last-sync
+[22m[39mFound 1 enabled plugin(s)
+Syncing Deterministic Test Import for user wp07scheduser...
+
+[90mstdout[2m | tests/application/integrations.sqlite.test.ts[2m > [22m[2mscheduler persistence + lifecycle (sqlite)[2m > [22m[2mruns the scheduled callback through the manager and persists imported rows + last-sync
+[22m[39m  Synced 1 records
+Scheduled sync complete
+
+[90mstdout[2m | tests/application/integrations.sqlite.test.ts[2m > [22m[2mscheduler persistence + lifecycle (sqlite)[2m > [22m[2mruns the scheduled callback through the manager and persists imported rows + last-sync
+[22m[39mPlugin sync scheduler stopped
+
+[90mstdout[2m | tests/application/integrations.sqlite.test.ts[2m > [22m[2mscheduler persistence + lifecycle (sqlite)[2m > [22m[2mstop clears both timers and restart does not create duplicate timers
+[22m[39mStarting plugin sync scheduler (interval: 60s)
+Scheduler already running
+Plugin sync scheduler stopped
+Starting plugin sync scheduler (interval: 60s)
+Plugin sync scheduler stopped
+
+ [32m✓[39m tests/application/integrations.sqlite.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 9364[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m27 passed[39m[22m[90m (27)[39m
+[2m   Start at [22m 11:28:11
+[2m   Duration [22m 86.81s[2m (tests 98%, import 1%, transform 1%)[22m
+
+
+--- stderr ---
+
+end: 2026-11-09T11:29:38.807Z
+exit: 0
+signal: null

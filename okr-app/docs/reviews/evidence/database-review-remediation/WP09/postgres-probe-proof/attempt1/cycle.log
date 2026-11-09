@@ -1,0 +1,31 @@
+command: node /tmp/ruok-wp09-probes-engNOP/cycle.cjs
+cwd: /workspace/okr-app
+start: 2026-11-09T19:26:49.087Z
+--- stdout ---
+{"utc":"2026-11-09T19:26:49.253Z","elapsed_ms":97.6,"phase":"fixture confirmed database absent","pid":null,"database":"ruok_probe_39ff6c61b6b05c7d"}
+{"utc":"2026-11-09T19:26:50.382Z","elapsed_ms":1226.5,"phase":"built process listening","pid":7428,"mode":"verify","child_exit_code":null}
+{"utc":"2026-11-09T19:26:50.392Z","elapsed_ms":1236.3,"phase":"startup-unavailable","pid":7428,"path":"/api/health","status":200,"request_ms":9.2,"uptime":1.11362004}
+{"utc":"2026-11-09T19:26:50.416Z","elapsed_ms":1260.1,"phase":"startup-unavailable","pid":7428,"path":"/api/ready","status":503,"request_ms":23.5,"ready":false}
+{"utc":"2026-11-09T19:26:50.493Z","elapsed_ms":1337.4,"phase":"startup recovery database created","pid":7428}
+{"utc":"2026-11-09T19:26:50.865Z","elapsed_ms":1709.5,"phase":"startup recovery schema available","pid":7428,"migration_cli_exit":0,"migration_ms":371.7}
+{"utc":"2026-11-09T19:26:50.874Z","elapsed_ms":1717.9,"phase":"first recovery sample1","pid":7428,"path":"/api/ready","status":503,"request_ms":8.1,"ready":false}
+{"utc":"2026-11-09T19:26:51.890Z","elapsed_ms":2734.1,"phase":"first recovery sample2","pid":7428,"path":"/api/ready","status":200,"request_ms":15.5,"ready":true}
+{"utc":"2026-11-09T19:26:51.890Z","elapsed_ms":2734.2,"phase":"first recovery complete","pid":7428,"phase_ms":1024.4,"bound_ms":30000,"samples":2}
+{"utc":"2026-11-09T19:26:51.895Z","elapsed_ms":2739.2,"phase":"first recovery","pid":7428,"path":"/api/health","status":200,"request_ms":4.8,"uptime":2.619380582}
+{"utc":"2026-11-09T19:26:52.295Z","elapsed_ms":3138.6,"phase":"authenticated registration","pid":7428,"path":"/api/auth/register","status":200,"request_ms":399.1}
+{"utc":"2026-11-09T19:26:52.335Z","elapsed_ms":3179,"phase":"objective create","pid":7428,"path":"/api/objectives","status":201,"request_ms":40.2}
+{"utc":"2026-11-09T19:26:52.348Z","elapsed_ms":3191.6,"phase":"exact pre-outage read","pid":7428,"path":"/api/objectives","status":200,"request_ms":12.4}
+{"utc":"2026-11-09T19:26:52.348Z","elapsed_ms":3191.8,"phase":"exact objective verified before outage","pid":7428,"id":"0af0499d-4235-4a5b-a3cc-c8968bca9020","title":"PostgreSQL probe persistence 6e796e217498a4e1"}
+{"utc":"2026-11-09T19:26:52.351Z","elapsed_ms":3195.4,"phase":"fault prerequisite","pid":7428,"app_backends":1,"idle_backends":1}
+{"utc":"2026-11-09T19:26:52.359Z","elapsed_ms":3203.2,"phase":"later outage injected","pid":7428,"terminated_backends":1}
+{"utc":"2026-11-09T19:26:52.366Z","elapsed_ms":3210.2,"phase":"later outage detection sample1","pid":7428,"path":"/api/ready","status":503,"request_ms":6.8,"ready":false}
+{"utc":"2026-11-09T19:26:52.366Z","elapsed_ms":3210.3,"phase":"later outage detection complete","pid":7428,"phase_ms":7,"bound_ms":10000,"samples":1}
+{"utc":"2026-11-09T19:26:52.369Z","elapsed_ms":3213.2,"phase":"later outage","pid":7428,"path":"/api/health","status":200,"request_ms":2.8,"uptime":3.094410941}
+{"utc":"2026-11-09T19:26:52.435Z","elapsed_ms":3278.9,"phase":"cleanup complete","pid":7428,"database":"ruok_probe_39ff6c61b6b05c7d","created":true,"cleanup_failures":[]}
+
+--- stderr ---
+FAIL PostgreSQL HTTP cycle: actual production idle-pool error handler observed
+
+end: 2026-11-09T19:26:55.383Z
+exit: 1
+signal: null

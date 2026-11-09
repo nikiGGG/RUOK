@@ -1,0 +1,168 @@
+command: npm run check
+cwd: /workspace/okr-app
+start: 2026-11-09T11:47:08.690Z
+--- stdout ---
+
+> ruok@0.0.1 check
+> svelte-kit sync && svelte-check --tsconfig ./tsconfig.json
+
+Loading svelte-check in workspace: /workspace/okr-app
+Getting Svelte diagnostics...
+
+/workspace/okr-app/src/lib/server/plugins/oura.ts:331:9
+Error: 'fetchUrl' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer. 
+	do {
+		const fetchUrl = nextToken ? `${url}&next_token=${nextToken}` : url;
+		const response = await fetch(fetchUrl, { headers: authHeaders(accessToken) });
+
+/workspace/okr-app/src/lib/server/plugins/oura.ts:332:9
+Error: 'response' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer. 
+		const fetchUrl = nextToken ? `${url}&next_token=${nextToken}` : url;
+		const response = await fetch(fetchUrl, { headers: authHeaders(accessToken) });
+
+/workspace/okr-app/src/lib/server/plugins/oura.ts:338:9
+Error: 'json' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer. 
+
+		const json = await response.json();
+		allData.push(...(json.data || []));
+
+/workspace/okr-app/src/lib/server/ai/providers.ts:228:4
+Error: Type '{ 'Content-Type': string; 'x-goog-api-key': string | undefined; }' is not assignable to type 'HeadersInit | undefined'.
+  Type '{ 'Content-Type': string; 'x-goog-api-key': string | undefined; }' is not assignable to type 'undefined'. 
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json', 'x-goog-api-key': config.apiKey },
+			body: JSON.stringify(body)
+
+/workspace/okr-app/src/lib/components/MonacoEditor.svelte:47:3
+Error: 'editor' is possibly 'null'. (ts)
+		// Listen for content changes
+		editor.onDidChangeModelContent(() => {
+			if (editor && !isUpdatingFromProp) {
+
+/workspace/okr-app/src/lib/components/DashboardCard.svelte:46:24
+Warn: This reference only captures the initial value of `code`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let selectedQueryId = $state<string | null>(null);
+	let editing = $state(!code.trim());
+	let codeEditorOpen = $state(false);
+
+/workspace/okr-app/src/lib/components/DashboardCard.svelte:100:31
+Error: Could not find a declaration file for module 'plotly.js-basic-dist-min'. '/workspace/okr-app/node_modules/plotly.js-basic-dist-min/plotly-basic.min.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/plotly.js-basic-dist-min` if it exists or add a new declaration (.d.ts) file containing `declare module 'plotly.js-basic-dist-min';` (ts)
+		// Dynamically import Plotly only when needed (client-side only)
+		const Plotly = await import('plotly.js-basic-dist-min');
+
+/workspace/okr-app/src/lib/components/DashboardCard.svelte:107:23
+Error: Cannot find namespace 'Plotly'. (ts)
+					plotContainers[index],
+					plotData.data as Plotly.Data[],
+					{
+
+/workspace/okr-app/src/lib/components/DashboardCard.svelte:111:44
+Error: Property 'text' does not exist on type '{}'. (ts)
+						autosize: true,
+						margin: { t: plotData.layout?.title?.text ? 60 : 20, r: 20, b: 40, l: 50 }
+					} as Plotly.Layout,
+
+/workspace/okr-app/src/lib/components/DashboardCard.svelte:112:11
+Error: Cannot find namespace 'Plotly'. (ts)
+						margin: { t: plotData.layout?.title?.text ? 60 : 20, r: 20, b: 40, l: 50 }
+					} as Plotly.Layout,
+					{ responsive: true, displayModeBar: false }
+
+/workspace/okr-app/src/lib/components/TaskItem.svelte:143:3
+Error: Cannot invoke an object which is possibly 'undefined'. (ts)
+	function handleTimerClick() {
+		onTimerToggle(task.id, isTimerRunning ? 'stop' : 'start');
+	}
+
+/workspace/okr-app/src/routes/admin/+page.svelte:585:2
+Warn: Elements with the 'dialog' interactive role must have a tabindex value
+https://svelte.dev/e/a11y_interactive_supports_focus (svelte)
+	<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+	<div class="guide-overlay" role="dialog" aria-modal="true" onkeydown={(e) => { if (e.key === 'Escape') setupGuidePlugin = null; }}>
+		<button class="guide-backdrop" onclick={() => setupGuidePlugin = null}></button>
+		<div class="guide-modal">
+			<div class="guide-header">
+				<h2>{setupGuidePlugin.name} Setup Guide</h2>
+				<button class="btn-icon" onclick={() => setupGuidePlugin = null}>&#x2715;</button>
+			</div>
+			<div class="guide-content">
+				{@html DOMPurify.sanitize(setupGuidePlugin.guide)}
+			</div>
+		</div>
+	</div>
+{/if}
+
+/workspace/okr-app/src/routes/admin/+page.svelte:586:3
+Warn: Buttons and links should either contain text or have an `aria-label`, `aria-labelledby` or `title` attribute
+https://svelte.dev/e/a11y_consider_explicit_label (svelte)
+	<div class="guide-overlay" role="dialog" aria-modal="true" onkeydown={(e) => { if (e.key === 'Escape') setupGuidePlugin = null; }}>
+		<button class="guide-backdrop" onclick={() => setupGuidePlugin = null}></button>
+		<div class="guide-modal">
+
+/workspace/okr-app/src/routes/admin/+page.svelte:379:117
+Error: Type 'string | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'. (ts)
+							{#if plugin.setupGuide}
+								<button type="button" class="btn btn-sm btn-outline" onclick={() => setupGuidePlugin = { name: plugin.name, guide: plugin.setupGuide }}>
+									Setup Guide
+
+/workspace/okr-app/src/routes/daily/[date]/+page.svelte:88:29
+Error: Parameter 'sum' implicitly has an 'any' type. (ts)
+	const totalExpectedHours = $derived(() => {
+		return data.tasks.reduce((sum, task) => {
+			const hours = parseFloat(task.attributes?.expected_hours || '0');
+
+/workspace/okr-app/src/routes/daily/[date]/+page.svelte:88:34
+Error: Parameter 'task' implicitly has an 'any' type. (ts)
+	const totalExpectedHours = $derived(() => {
+		return data.tasks.reduce((sum, task) => {
+			const hours = parseFloat(task.attributes?.expected_hours || '0');
+
+/workspace/okr-app/src/routes/queries/+page.svelte:132:31
+Error: Could not find a declaration file for module 'plotly.js-basic-dist-min'. '/workspace/okr-app/node_modules/plotly.js-basic-dist-min/plotly-basic.min.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/plotly.js-basic-dist-min` if it exists or add a new declaration (.d.ts) file containing `declare module 'plotly.js-basic-dist-min';` (ts)
+		// Dynamically import Plotly only when needed (client-side only)
+		const Plotly = await import('plotly.js-basic-dist-min');
+
+/workspace/okr-app/src/routes/queries/+page.svelte:139:23
+Error: Cannot find namespace 'Plotly'. (ts)
+					plotContainers[index],
+					plotData.data as Plotly.Data[],
+					{
+
+/workspace/okr-app/src/routes/queries/+page.svelte:143:44
+Error: Property 'text' does not exist on type '{}'. (ts)
+						autosize: true,
+						margin: { t: plotData.layout?.title?.text ? 60 : 20, r: 20, b: 40, l: 50 }
+					} as Plotly.Layout,
+
+/workspace/okr-app/src/routes/queries/+page.svelte:144:11
+Error: Cannot find namespace 'Plotly'. (ts)
+						margin: { t: plotData.layout?.title?.text ? 60 : 20, r: 20, b: 40, l: 50 }
+					} as Plotly.Layout,
+					{ responsive: true, displayModeBar: false }
+
+/workspace/okr-app/src/routes/settings/ai/+page.svelte:604:36
+Error: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ query: string; kr_progress: string; widget: string; metric: string; }'.
+  No index signature with a parameter of type 'string' was found on type '{ query: string; kr_progress: string; widget: string; metric: string; }'. (ts)
+						</div>
+						<pre class="prompt-preview">{data.contextAddenda[ctx.id] || '(no additional instructions)'}</pre>
+					</div>
+
+/workspace/okr-app/src/routes/settings/metrics/+page.svelte:345:9
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+							<div class="form-group">
+								<label class="label">Expression</label>
+								{#if newMetricExpression}
+
+====================================
+svelte-check found 18 errors and 4 warnings in 10 files
+
+--- stderr ---
+
+end: 2026-11-09T11:47:33.013Z
+exit: 1
+signal: null

@@ -1,0 +1,20 @@
+command: DB_BACKEND=sqlite node_modules/.bin/vitest run tests/db/sqlite-integrity.test.ts -t "rejects an expected-name unique index" --maxWorkers=1 --retry=0
+cwd: /workspace/okr-app
+start: 2026-11-09T11:50:16.331Z
+--- stdout ---
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/workspace/okr-app[39m
+
+ [32m✓[39m tests/db/sqlite-integrity.test.ts [2m([22m[2m15 tests[22m[2m | [22m[33m14 skipped[39m[2m)[22m[32m 56[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[2m | [22m[33m14 skipped[39m[90m (15)[39m
+[2m   Start at [22m 11:50:18
+[2m   Duration [22m 1.51s[2m (import 54%, transform 41%, tests 4%, worker 1%)[22m
+
+
+--- stderr ---
+
+end: 2026-11-09T11:50:19.698Z
+exit: 0
+signal: null

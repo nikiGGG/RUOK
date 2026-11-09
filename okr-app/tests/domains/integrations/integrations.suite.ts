@@ -254,6 +254,8 @@ export function integrationsSuite(label: string, createFixture: FixtureFactory) 
 			const { services, teardown } = await createFixture();
 			try {
 				await services.users.create({ id: 'alice', username: 'alice', passwordHash: 'h' });
+				// Whole-second boundaries are represented identically by both adapters.
+				const firstLogTime = Date.UTC(2026, 0, 1);
 
 				await services.queryExecutionLogs.create({
 					id: 'l1',
@@ -261,7 +263,7 @@ export function integrationsSuite(label: string, createFixture: FixtureFactory) 
 					codeSnippet: 'return 1',
 					success: true,
 					executionTimeMs: 10,
-					createdAt: new Date()
+					createdAt: new Date(firstLogTime)
 				});
 				await services.queryExecutionLogs.create({
 					id: 'l2',
@@ -270,7 +272,7 @@ export function integrationsSuite(label: string, createFixture: FixtureFactory) 
 					success: false,
 					errorMessage: 'boom',
 					executionTimeMs: 5,
-					createdAt: new Date()
+					createdAt: new Date(firstLogTime + 1000)
 				});
 
 				const recent = await services.queryExecutionLogs.listByUser('alice');
@@ -284,7 +286,11 @@ export function integrationsSuite(label: string, createFixture: FixtureFactory) 
 				expect(failed[0].errorMessage).toBe('boom');
 
 				expect(await services.queryExecutionLogs.count({})).toBe(2);
-				expect(await services.queryExecutionLogs.listSince(new Date())).toHaveLength(2);
+				const sinceFirst = await services.queryExecutionLogs.listSince(new Date(firstLogTime));
+				expect(sinceFirst.map((row) => row.id).sort()).toEqual(['l1', 'l2']);
+				const sinceSecond = await services.queryExecutionLogs.listSince(new Date(firstLogTime + 1000));
+				expect(sinceSecond.map((row) => row.id)).toEqual(['l2']);
+				expect(await services.queryExecutionLogs.listSince(new Date(firstLogTime + 2000))).toEqual([]);
 			} finally {
 				await teardown();
 			}

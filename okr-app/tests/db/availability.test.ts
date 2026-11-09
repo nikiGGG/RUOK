@@ -16,6 +16,7 @@
 import { mkdtempSync, rmSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
+import { Client, type Pool } from 'pg';
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
 	closeDatabase,
@@ -243,15 +244,50 @@ const adminUrl = process.env.RUOK_TEST_PG_ADMIN_URL;
 const pgLive = adminUrl ? describe : describe.skip;
 
 pgLive('checkAvailability (T015) — PostgreSQL live probe', () => {
-	it('returns true for an open migrated backend and false when closed', async () => {
+	it('returns true when open and safely repeats/concurrently closes then reopens', async () => {
 		const fixture: DbFixture = await createPostgresFixture();
+		const observer = new Client({
+			connectionString: adminUrl,
+			connectionTimeoutMillis: 1000,
+			statement_timeout: 1000
+		});
 		try {
+			await observer.connect();
 			expect(fixture.services.dialect).toBe('postgres');
 			expect(await fixture.services.checkAvailability()).toBe(true);
+			// Read the actual runtime pool's database identity; observe server-side
+			// connections separately so fixture teardown cannot hide a leaked pool.
+			const pool = (fixture.services as unknown as { pool: Pool }).pool;
+			const { rows } = await pool.query<{ name: string }>('SELECT current_database() AS name');
+			const connectionCount = async () => {
+				const result = await observer.query<{ count: number }>(
+					'SELECT count(*)::int AS count FROM pg_stat_activity WHERE datname = $1',
+					[rows[0].name]
+				);
+				return result.rows[0].count;
+			};
+			const closing = fixture.services.close();
+			expect(fixture.services.isOpen()).toBe(false);
+			expect(await fixture.services.checkAvailability()).toBe(false);
+			await Promise.all([closing, fixture.services.close(), fixture.services.close()]);
 			await fixture.services.close();
 			expect(await fixture.services.checkAvailability()).toBe(false);
+			expect(await connectionCount()).toBe(0);
+
+			await Promise.all([fixture.services.open(), fixture.services.open()]);
+			expect(fixture.services.isOpen()).toBe(true);
+			expect(await fixture.services.checkAvailability()).toBe(true);
+			expect(await connectionCount()).toBe(1);
+			await Promise.all([fixture.services.close(), fixture.services.close()]);
+			expect(fixture.services.isOpen()).toBe(false);
+			expect(await fixture.services.checkAvailability()).toBe(false);
+			expect(await connectionCount()).toBe(0);
 		} finally {
-			await fixture.teardown();
+			try {
+				await fixture.teardown();
+			} finally {
+				await observer.end();
+			}
 		}
 	});
 });

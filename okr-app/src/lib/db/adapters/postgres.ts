@@ -491,6 +491,8 @@ export class PostgresDatabaseServices implements DatabaseServices {
 	private pool!: Pool;
 	private db!: NodePgDatabase<typeof schema>;
 	private _open = false;
+	private openPromise: Promise<void> | null = null;
+	private closePromise: Promise<void> | null = null;
 
 	constructor(private readonly config: PostgresConfig) {
 		// Lazy: no network I/O until open().
@@ -523,7 +525,16 @@ export class PostgresDatabaseServices implements DatabaseServices {
 	private readonly availabilityTimeoutMs = 3000;
 
 	async open(): Promise<void> {
+		// A new pool cannot replace one still draining, and concurrent reopen
+		// callers must share the same opening attempt rather than leak a pool.
+		while (this.closePromise) {
+			const closing = this.closePromise;
+			await closing;
+			if (this.openPromise) await this.openPromise;
+			if (this.closePromise === closing) this.closePromise = null;
+		}
 		if (this._open) return;
+		if (this.openPromise) return this.openPromise;
 		const pool = new Pool(buildPostgresPoolConfig(this.config));
 		// Idle-client errors must never crash the process (T015): an idle pool
 		// connection that dies is surfaced by the next checkAvailability()/statement
@@ -534,15 +545,21 @@ export class PostgresDatabaseServices implements DatabaseServices {
 		this.pool = pool;
 		this.db = drizzle(pool, { schema });
 
-		// Bounded readiness probe: acquire a client and release it. This surfaces
-		// connection errors at open() (startup/readiness) rather than at first use.
-		const client = await pool.connect();
-		try {
-			await client.query('SELECT 1');
-		} finally {
-			client.release();
-		}
-		this._open = true;
+		this.openPromise = (async () => {
+			// Bounded readiness probe: acquire a client and release it. This surfaces
+			// connection errors at open() (startup/readiness) rather than at first use.
+			const client = await pool.connect();
+			try {
+				await client.query('SELECT 1');
+			} finally {
+				client.release();
+			}
+			if (this.closePromise) throw new Error('PostgreSQL open attempt superseded by close');
+			this._open = true;
+		})().finally(() => {
+			this.openPromise = null;
+		});
+		return this.openPromise;
 	}
 
 	isOpen(): boolean {
@@ -614,11 +631,12 @@ export class PostgresDatabaseServices implements DatabaseServices {
 		});
 	}
 
-	async close(): Promise<void> {
-		if (this.pool) {
-			await this.pool.end();
-		}
+	close(): Promise<void> {
+		// Keep the completed promise until reopen, so every close of this pool
+		// shares its one drain operation, including concurrent callers.
 		this._open = false;
+		if (!this.closePromise) this.closePromise = this.pool ? this.pool.end() : Promise.resolve();
+		return this.closePromise;
 	}
 
 	// ---------------------------------------------------------------------
