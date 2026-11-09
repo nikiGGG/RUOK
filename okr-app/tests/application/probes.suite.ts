@@ -24,6 +24,7 @@ import Database from 'better-sqlite3';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { performance } from 'node:perf_hooks';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { CookieJar, startServer, type RunningServer } from './http-fixture';
 
@@ -31,6 +32,31 @@ const PASSWORD = 'correct-horse-battery';
 const DETECTION_BOUND_MS = 10_000;
 const RECOVERY_BOUND_MS = 30_000;
 const REQUEST_BOUND_MS = 5_000;
+// Fixture startup already permits 20s and shutdown 3s. Account separately for
+// two individually bounded requests and 2s of orchestration; do not relax the
+// five-second probe-response contract to fit Vitest's aggregate test timer.
+const COMPOSED_PROBE_BOUND_MS = 20_000 + 2 * REQUEST_BOUND_MS + 3_000 + 2_000;
+
+async function measurePhase<T>(label: string, phase: () => Promise<T>): Promise<T> {
+	const started = performance.now();
+	try {
+		return await phase();
+	} finally {
+		console.info(`HTTP probe phase ${label}: ${(performance.now() - started).toFixed(1)}ms`);
+	}
+}
+
+async function boundedProbe(srv: RunningServer, path: string, label: string) {
+	const started = performance.now();
+	try {
+		const response = await srv.request(path, { signal: AbortSignal.timeout(REQUEST_BOUND_MS) });
+		const body = await response.json();
+		expect(performance.now() - started, `${label} ${path} response including body`).toBeLessThan(REQUEST_BOUND_MS);
+		return { response, body };
+	} finally {
+		console.info(`HTTP probe phase ${label} ${path}: ${(performance.now() - started).toFixed(1)}ms`);
+	}
+}
 
 /** Poll `/api/ready` every ~1s until 200 or the deadline; returns true on recovery. */
 async function pollUntilReady(srv: RunningServer, deadlineMs: number): Promise<boolean> {
@@ -58,41 +84,36 @@ export interface ProbesHost {
 export function probesSuite(label: string, host: ProbesHost) {
 	describe(`HTTP probes (${label})`, () => {
 		it('health returns 200 {status:ok, uptime} and ready returns 200 ready:true', async () => {
-			const srv = await host.startHealthy();
+			const srv = await measurePhase(`${label} healthy startup`, () => host.startHealthy());
 			try {
-				const health = await srv.request('/api/health');
+				const { response: health, body: hb } = await boundedProbe(srv, '/api/health', `${label} healthy`);
 				expect(health.status).toBe(200);
-				const hb = await health.json();
 				expect(hb.status).toBe('ok');
 				expect(typeof hb.uptime).toBe('number');
 
-				const ready = await srv.request('/api/ready');
+				const { response: ready, body: rb } = await boundedProbe(srv, '/api/ready', `${label} healthy`);
 				expect(ready.status).toBe(200);
-				const rb = await ready.json();
 				expect(rb.ready).toBe(true);
 				expect(rb.open).toBe(true);
 				expect(rb.dialect).toBe(host.backend);
 				expect(typeof rb.schemaVersion).toBe('number');
 			} finally {
-				await srv.stop();
+				await measurePhase(`${label} healthy shutdown`, () => srv.stop());
 			}
-		});
+		}, COMPOSED_PROBE_BOUND_MS);
 
 		it('health stays 200 and ready is 503 while storage is unavailable at startup', async () => {
-			const srv = await host.startUnavailable();
+			const srv = await measurePhase(`${label} unavailable startup`, () => host.startUnavailable());
 			try {
-				const health = await srv.request('/api/health');
+				const { response: health } = await boundedProbe(srv, '/api/health', `${label} unavailable`);
 				expect(health.status).toBe(200);
-				const started = Date.now();
-				const ready = await srv.request('/api/ready');
-				expect(Date.now() - started).toBeLessThan(REQUEST_BOUND_MS);
+				const { response: ready, body: rb } = await boundedProbe(srv, '/api/ready', `${label} unavailable`);
 				expect(ready.status).toBe(503);
-				const rb = await ready.json();
 				expect(rb.ready).toBe(false);
 			} finally {
-				await srv.stop();
+				await measurePhase(`${label} unavailable shutdown`, () => srv.stop());
 			}
-		});
+		}, COMPOSED_PROBE_BOUND_MS);
 	});
 
 	if (host.backend === 'sqlite') {

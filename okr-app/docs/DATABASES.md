@@ -8,7 +8,7 @@ RUOK supports exactly two mutually exclusive backends:
 | Backend | `DATABASE_TYPE` | Data location | Best for |
 |---|---|---|---|
 | SQLite | `sqlite` (default) | a single local file (`DATABASE_PATH`) | a single small/self-hosted installation |
-| PostgreSQL | `postgres` | an externally managed server (`DATABASE_URL`) | a shared server, one RUOK replica backed by CNPG or any PostgreSQL 16/17 |
+| PostgreSQL | `postgres` | an externally managed server (`DATABASE_URL`) | one RUOK replica backed by an externally managed PostgreSQL server |
 
 Each deployment uses **exactly one** configured backend. Switching the
 `DATABASE_TYPE` environment variable does **not** transfer data and is not a
@@ -48,6 +48,7 @@ a silent fallback to the other backend.
 | `DATABASE_POOL_MAX` | PostgreSQL | `5` | Bounded positive integer pool size. |
 | `DATABASE_CONNECT_TIMEOUT_MS` | PostgreSQL | `10000` | Bounded startup connect wait. |
 | `DATABASE_STATEMENT_TIMEOUT_MS` | PostgreSQL | `30000` | Bounded per-statement timeout (see [migration timeout](#migration-timeout)). |
+| `MIGRATION_MODE` | both | `migrate` | `migrate` applies checked history; `verify` only inspects existing storage and performs no DDL. Invalid values fail before database work. |
 
 `PORT`, `HOST`, `ADMIN_USERNAME` and `DATA_DIR` are not database settings; they
 are described in [SETUP.md](SETUP.md).
@@ -87,6 +88,13 @@ The rules that prevent silent TLS downgrade are enforced with errors:
 A missing `DATABASE_URL` in PostgreSQL mode is rejected before any connection
 attempt.
 
+URL TLS controls are parsed once. Duplicate controls, unsupported modes
+(`no-verify`, `prefer`) and URL fields `ssl`, `sslcert`, `sslkey`, `sslrootcert`
+or `sslnegotiation` are rejected. Accepted `sslmode` hints are removed before
+the connection string reaches `pg`; the explicit canonical TLS object supplies
+verification and the CA to both the runtime pool and migration client. This
+prevents the driver's URL parser from overwriting the verified policy.
+
 ---
 
 ## SQLite mode
@@ -122,6 +130,19 @@ incompatible layout **fails with an actionable message before serving
 requests** — there is no warn-and-continue repair and no partially-applied
 history.
 
+Compatibility compares definitions, including index uniqueness/ordered columns,
+column types/nullability/defaults/primary keys, foreign-key mappings/actions,
+constraints and recorded migration hashes/timestamps. An expected index name
+alone is insufficient. Rejections preserve the incompatible catalog and journal;
+the runner does not repair unknown schemas. Supported journal-managed,
+`db:push`, missing-additive-column and incomplete-journal layouts are tested
+alongside harmless SQL formatting differences.
+
+SQLite preparation and runtime operations execute in dedicated workers. A
+configured busy timeout (including 0, 5000 or 30000 ms) is not clamped to the
+probe deadline. Concurrent readiness probes coalesce behind a bounded check;
+timing out a probe does not cancel, replay or commit a business transaction.
+
 > **Production `db:push` is replaced.** `db:push` (Drizzle Kit) creates/alters
 > schema directly and is unsuitable for a running installation. Use the
 > versioned migration runner (`npm run db:migrate` / `npm run db:verify`) shown
@@ -148,11 +169,14 @@ npm run dev
 
 ### Supported versions and privileges
 
-PostgreSQL 16 and 17 are the initial supported/CI-tested major versions.
-Verify the actual server major version before deployment and do not claim
-support beyond tested versions. RUOK needs an application-owned schema/database
-and **does not require superuser** or the ability to create databases. It uses a
-bounded connection pool and per-statement timeouts.
+The original mission declared PostgreSQL 16/17. The remediation evidence records
+live PostgreSQL 18.6; this guide does not turn that observation into a new CI or
+deployment support claim. Required disposable-database and native-recovery
+verification commands currently require PostgreSQL 18 or newer plus compatible
+`pg_dump`, `pg_restore` and `psql` on the test process's PATH. See
+[verification prerequisites](DATABASE-VERIFICATION.md#required-command-matrix).
+The production runtime does not need CREATEDB or superuser: a separately migrated
+installation can use the data-only role described below.
 
 ### TLS (verified, custom CA)
 
@@ -198,7 +222,7 @@ Two distinct entry points, both shipped in the production image:
   fails if it is not at the expected schema version. Useful for a
   migration-role workflow where runtime DDL is not permitted.
 
-The startup protocol is:
+In `migrate` mode the startup protocol is:
 
 1. A database-free build imports only definitions/lazy factories; filesystem
    and network I/O begin at runtime.
@@ -213,10 +237,31 @@ The startup protocol is:
    mutation.
 5. Enable/check foreign keys and verify the schema version. A migration error
    aborts readiness — no warn-and-continue repair.
-6. Publish ready repositories. Hooks await readiness before auth and scheduler
-   start. `/api/health` reports process liveness; `/api/ready` reports backend
-   open **and** migrated (login-independent, no secrets). On shutdown, jobs stop
-   and DB resources are released.
+6. Publish ready repositories. Business requests await successful opening;
+   liveness/readiness routes remain reachable during initialization failure.
+   On shutdown, jobs stop and DB resources are released.
+
+In `verify` mode the runner branches before object creation. PostgreSQL uses a
+read-only transaction to inspect the existing journal and physical catalog;
+SQLite opens an existing file read-only without creating its parent directory.
+Missing, outdated, corrupt or incompatible storage fails with a migration-role
+diagnostic. Verification does not create a journal, apply history or acquire
+the DDL migration lock.
+
+### Separate migration and runtime roles
+
+Run migrations once with a role that can create/alter the application's objects,
+then start the server with the runtime connection and `MIGRATION_MODE=verify`.
+The PostgreSQL runtime role should own no schema/table objects and lack CREATE
+on the database and application schemas (also revoke PUBLIC CREATE). Grant
+CONNECT, schema USAGE, required table DML, sequence privileges and SELECT on
+`drizzle.__drizzle_migrations`. Test grants against your deployment's schema;
+the application's regression fixture captures zero attempted DDL plus unchanged
+inventories for migrated, empty, outdated and incompatible storage.
+
+In a production image the standalone CLI is `node build/db-migrate.mjs`; development
+checkouts use `npm run db:migrate` or `npm run db:verify`. Set the role URL
+privately rather than placing credentials in recorded commands or logs.
 
 ### Readiness and liveness probes
 
@@ -225,7 +270,17 @@ The startup protocol is:
 - `GET /api/ready` — backend readiness. Returns `200` only when the selected
   backend is **open and migrated/verified at the expected schema version**;
   otherwise `503`. Body is redacted (dialect, open flag, schema version only).
-  PostgreSQL outages turn readiness off and return controlled errors.
+  The response checks current availability rather than a cached startup success.
+  Availability checks have a three-second deadline; the HTTP contract requires
+  probes within five seconds, outage detection within ten seconds and recovery
+  within thirty seconds once storage is available.
+
+Failed initialization releases its shared opening attempt and resources. Later
+requests can retry after a one-second cooldown without restarting the server;
+idle PostgreSQL pool errors are handled. A later outage makes readiness 503
+while health stays 200, and storage recovery restores readiness on the same PID.
+These are verified contracts, not a promise that a failed migration is silently
+repaired: operators must first restore compatible storage/schema/privileges.
 
 Use `/api/ready` for orchestrator readiness/health checks. In
 [`compose.postgres.yml`](../compose.postgres.yml) and the SQLite compose file,
@@ -397,10 +452,10 @@ scoped converter for cross-engine (not provided here).
 
 ## Command reference
 
-From `okr-app/`. Validated exit codes are shown; run from a clean install
-(`npm ci`) per the lockfile.
+From `okr-app/`. Success conditions are shown; actual command exits belong to
+the execution evidence. Use an exact-lock development install (`npm ci`).
 
-| Task | Command | Exit (validated, SQLite) |
+| Task | Command | Expected success / prerequisite |
 |---|---|---|
 | Create/upgrade schema (selected backend) | `npm run db:migrate` | 0 |
 | Verify schema, no DDL | `npm run db:verify` | 0 |
@@ -410,7 +465,7 @@ From `okr-app/`. Validated exit codes are shown; run from a clean install
 | v2 user restore | `POST /api/backup/restore` | — |
 | SQLite native-recovery test | `npm run test:recovery:sqlite` | 0 |
 | SQLite backup/restore contract tests | `npm run test:db:sqlite` | 0 |
-| PostgreSQL contract/recovery tests | `npm run test:db:postgres` / `npm run test:recovery:postgres` | CI-only (needs live PG) |
+| PostgreSQL contract/recovery tests | `npm run test:db:postgres` / `npm run test:recovery:postgres` | Live disposable PG18+, admin URL and matching native clients; fail-closed preflight |
 
-The full database validation matrix, version ledger and the PostgreSQL
-paths that are CI-only are recorded in [DATABASE-VERIFICATION.md](DATABASE-VERIFICATION.md).
+The full validation matrix, version ledger, live execution prerequisites and
+recorded results are in [DATABASE-VERIFICATION.md](DATABASE-VERIFICATION.md).

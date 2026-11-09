@@ -1,0 +1,25 @@
+command: DB_BACKEND=sqlite node_modules/.bin/vitest run tests/backup/sqlite.test.ts tests/upgrade/upgrade-preserves-data.test.ts -t "round-trips complete supported content|adopts a db:push-era layout" --maxWorkers=1 --retry=0
+cwd: /workspace/okr-app
+start: 2026-11-09T11:13:34.677Z
+--- stdout ---
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/workspace/okr-app[39m
+
+ [32m✓[39m tests/backup/sqlite.test.ts [2m([22m[2m7 tests[22m[2m | [22m[33m6 skipped[39m[2m)[22m[33m 1476[2mms[22m[39m
+   [32m✓[39m backup/restore contract (sqlite->sqlite) [2m(7)[22m
+     [33m[2m✓[22m[39m round-trips complete supported content with preserved links[33m 1473[2mms[22m[39m
+ [32m✓[39m tests/upgrade/upgrade-preserves-data.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 880[2mms[22m[39m
+   [32m✓[39m T030 upgrade preserves application data [2m(1)[22m
+     [33m[2m✓[22m[39m adopts a db:push-era layout with real data and keeps every row readable[33m 877[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[2m | [22m[33m6 skipped[39m[90m (8)[39m
+[2m   Start at [22m 11:13:36
+[2m   Duration [22m 5.27s[2m (tests 48%, import 38%, transform 13%)[22m
+
+
+--- stderr ---
+
+end: 2026-11-09T11:13:42.010Z
+exit: 0
+signal: null

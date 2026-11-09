@@ -1,0 +1,22 @@
+command: DB_BACKEND=postgres node_modules/.bin/vitest run tests/db/availability.test.ts -t "safely repeats/concurrently closes then reopens" --maxWorkers=1 --retry=0
+cwd: /workspace/okr-app
+start: 2026-11-09T11:47:33.517Z
+--- stdout ---
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/workspace/okr-app[39m
+
+ [32m✓[39m tests/db/availability.test.ts [2m([22m[2m11 tests[22m[2m | [22m[33m10 skipped[39m[2m)[22m[33m 1792[2mms[22m[39m
+   [32m✓[39m checkAvailability (T015) — PostgreSQL live probe [2m(1)[22m
+     [33m[2m✓[22m[39m returns true when open and safely repeats/concurrently closes then reopens[33m 1788[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[2m | [22m[33m10 skipped[39m[90m (11)[39m
+[2m   Start at [22m 11:47:35
+[2m   Duration [22m 3.31s[2m (tests 58%, import 24%, transform 18%)[22m
+
+
+--- stderr ---
+
+end: 2026-11-09T11:47:39.325Z
+exit: 0
+signal: null

@@ -1,0 +1,1053 @@
+{
+  "capturedAt": "2026-11-09T19:39:11.264Z",
+  "source": "b70d064becea4f23d40d6557041fb7ca9f1867a6",
+  "owners": [
+    {
+      "wp": "WP01",
+      "files": [
+        {
+          "name": "effective-ssl-matrix.md",
+          "sha256": "61314fefb4b2553d6cdecb98920c5e61f9cc93cde1e8bb2cfa0def4e4cb54aa5"
+        },
+        {
+          "name": "manifest.md",
+          "sha256": "c93a87b51865e3b0fac1e1c62fe14433e323b287f2a714cca3146bb945c56613"
+        },
+        {
+          "name": "run-notes.md",
+          "sha256": "eebef5dc41f540ac3ddcb9f8642bfdf921ee809ff0ba9ef410ee8434a80a1c7b"
+        }
+      ],
+      "checksumVerification": []
+    },
+    {
+      "wp": "WP02",
+      "files": [
+        {
+          "name": "manifest.md",
+          "sha256": "82745add0044d2aee28ba445d56719ab1bc725b308be2f02f5fa18d2a7bcaa72"
+        }
+      ],
+      "checksumVerification": []
+    },
+    {
+      "wp": "WP03",
+      "files": [
+        {
+          "name": "checksums.txt",
+          "sha256": "8dd44849f7f55f7eac40702bd770e8b546936ee644b840b1d35dc0c65d2b14e0"
+        },
+        {
+          "name": "live-capture.json",
+          "sha256": "3feb865fec88b223c89c598b03c91c9605bafbe528aa06f352c0e3eb9f39a534"
+        },
+        {
+          "name": "live-run-transcript.txt",
+          "sha256": "33e4deece565f241797c606a0ad842aa35c03cf34dadddb9514db8b6c4de1e58"
+        },
+        {
+          "name": "manifest.md",
+          "sha256": "f23453d5851942ff6029e03f56558d3673cfec9ec1705dc63803286280889738"
+        }
+      ],
+      "checksumVerification": [
+        {
+          "list": "checksums.txt",
+          "path": "src/lib/db/migration-mode.ts",
+          "expected": "c6c2e11bf7904da0fef77c660b28ca45ff52b5b0b4d2a4de3082e0196ea785da",
+          "actual": "c6c2e11bf7904da0fef77c660b28ca45ff52b5b0b4d2a4de3082e0196ea785da",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "src/lib/db/migrations/postgres-verify.ts",
+          "expected": "250ec53e3bcfcef3edfa630663c9062f56a61eadefc0fb668a8e953d3c3f20fe",
+          "actual": "250ec53e3bcfcef3edfa630663c9062f56a61eadefc0fb668a8e953d3c3f20fe",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "src/lib/db/migrations/migrate.ts",
+          "expected": "cac088b60264a225aa1336659a45e4c27b33a0615d9dd257eee641fc2e7e04be",
+          "actual": "500cf9073ca9c0b1b725b95c5cd74029d6a7eb908cd3820e07fc0b3af31ee138",
+          "match": false
+        },
+        {
+          "list": "checksums.txt",
+          "path": "src/lib/db/migrations/postgres-migrator.ts",
+          "expected": "3d57a5d5fadca70c2ee661a0b794ddbc7ac60b6034bdc34b22739f7a2e1d0152",
+          "actual": "3d57a5d5fadca70c2ee661a0b794ddbc7ac60b6034bdc34b22739f7a2e1d0152",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "scripts/db-migrate.ts",
+          "expected": "eb970826517eb590b6230e1b5cfae178ce8afc41fd26827db57dd37c477747ce",
+          "actual": "eb970826517eb590b6230e1b5cfae178ce8afc41fd26827db57dd37c477747ce",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "tests/db/runtime-mode.test.ts",
+          "expected": "d5b52ebbffa68db8bab5bd02c2fb5904a8b8f02f65e3b32e244a8621698f466f",
+          "actual": "d5b52ebbffa68db8bab5bd02c2fb5904a8b8f02f65e3b32e244a8621698f466f",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "tests/db/postgres-no-ddl.test.ts",
+          "expected": "24e7fbe63b32437b16f3909c7ab13d2da31bc6ce6f98386e194738aed86c03eb",
+          "actual": "24e7fbe63b32437b16f3909c7ab13d2da31bc6ce6f98386e194738aed86c03eb",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "tests/db/postgres.migration.test.ts",
+          "expected": "8c11e30d1a443c5aa68642da844039b6d418b1e9f0b8ff8275cb904b7c8d17f0",
+          "actual": "8c11e30d1a443c5aa68642da844039b6d418b1e9f0b8ff8275cb904b7c8d17f0",
+          "match": true
+        }
+      ]
+    },
+    {
+      "wp": "WP04",
+      "files": [
+        {
+          "name": "checksums.txt",
+          "sha256": "849df34ea73b6a42870233e5e6139eed4c58fc656d43c0cfa09f161c0c1c3f8f"
+        },
+        {
+          "name": "manifest.md",
+          "sha256": "9f03b61b705defbe467b3d5b901b8ba9e6ccab8388eaacbdb174cf7e66e0da16"
+        },
+        {
+          "name": "run-transcript.txt",
+          "sha256": "cd3566e2d206cc57baf160fa5ff397d4885ece7fd900546826fbe77f11f91fad"
+        }
+      ],
+      "checksumVerification": [
+        {
+          "list": "checksums.txt",
+          "path": "manifest.md",
+          "expected": "9f03b61b705defbe467b3d5b901b8ba9e6ccab8388eaacbdb174cf7e66e0da16",
+          "actual": "9f03b61b705defbe467b3d5b901b8ba9e6ccab8388eaacbdb174cf7e66e0da16",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "run-transcript.txt",
+          "expected": "cd3566e2d206cc57baf160fa5ff397d4885ece7fd900546826fbe77f11f91fad",
+          "actual": "cd3566e2d206cc57baf160fa5ff397d4885ece7fd900546826fbe77f11f91fad",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "../../../../../src/lib/db/contracts.ts",
+          "expected": "e280ee02a7e18cd9d5e1a99caeb2a2f50e527502534483811152c37d8dd93d38",
+          "actual": "e280ee02a7e18cd9d5e1a99caeb2a2f50e527502534483811152c37d8dd93d38",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "../../../../../src/lib/db/lifecycle.ts",
+          "expected": "1e298622900729feea7a71368c0dde63aa3b27f54c347694e21194a3d491b661",
+          "actual": "1e298622900729feea7a71368c0dde63aa3b27f54c347694e21194a3d491b661",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "../../../../../src/lib/db/adapters/postgres.ts",
+          "expected": "317e330c96a2b62b64357a02277c2432e8ed6722f5426c2aa6be8d64848f5a5a",
+          "actual": "5fd77a1e4c464294f23604828dc12ff560e87e559d9f09cb23b6ae61df0c4234",
+          "match": false
+        },
+        {
+          "list": "checksums.txt",
+          "path": "../../../../../src/lib/server/database.ts",
+          "expected": "56d88adebe7f52e030ca2810f6b92851bcf14ca79389d6fc7a8b67de8587ddf4",
+          "actual": "56d88adebe7f52e030ca2810f6b92851bcf14ca79389d6fc7a8b67de8587ddf4",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "../../../../../src/hooks.server.ts",
+          "expected": "04ec621fb5bf1c5476be975a6a4def5d338dfa9734fdc9d3276cc2f0fb0b0037",
+          "actual": "04ec621fb5bf1c5476be975a6a4def5d338dfa9734fdc9d3276cc2f0fb0b0037",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "../../../../../src/routes/api/ready/+server.ts",
+          "expected": "4702765e2fd45488a44e6de76b222322e2df3dbe86f5dbeba9fb9981af9b2a1a",
+          "actual": "4702765e2fd45488a44e6de76b222322e2df3dbe86f5dbeba9fb9981af9b2a1a",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "../../../../../tests/db/availability.test.ts",
+          "expected": "ca201212513e79e411228e4c1ff38911ea2f46167bd6ac0177987d89290d375e",
+          "actual": "b6b57556e7286cc249e462131e5f9226f52af6209e3140a8db67584786b5dd2a",
+          "match": false
+        }
+      ]
+    },
+    {
+      "wp": "WP05",
+      "files": [
+        {
+          "name": "checksums.txt",
+          "sha256": "f058ef657e12cfabe8a473b97776349047e59a90bcf92212d5a0320627045685"
+        },
+        {
+          "name": "manifest.md",
+          "sha256": "d1f18cdb115033d1139a933e4705110f61f53e170c9862b8d2718f82e9e68652"
+        },
+        {
+          "name": "run-transcript.txt",
+          "sha256": "28089a8b45ca6ce1a95a60ec863b18af1583db74ec1b9075bbd268756c572723"
+        }
+      ],
+      "checksumVerification": [
+        {
+          "list": "checksums.txt",
+          "path": "scripts/require-postgres-test.ts",
+          "expected": "80331c0312b8f1b4e5f59ed74f9870143b37d3334d634507c0115938f60351cb",
+          "actual": "80331c0312b8f1b4e5f59ed74f9870143b37d3334d634507c0115938f60351cb",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "tests/db/postgres.operations.test.ts",
+          "expected": "3fda0f5dfe3a8dc37002c7bcbcb03557ca7f1dc4ec988001ae7b9543548e6911",
+          "actual": "3fda0f5dfe3a8dc37002c7bcbcb03557ca7f1dc4ec988001ae7b9543548e6911",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "tests/db/concurrency.test.ts",
+          "expected": "eae50b099df94ffd8fc27da3f6ec940439fae51a3542d67347688f45adc78734",
+          "actual": "eae50b099df94ffd8fc27da3f6ec940439fae51a3542d67347688f45adc78734",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "tests/db/no-init.test.ts",
+          "expected": "87feb8fb3c6690155e543fa48d9a3e2b4ef3788e06c95dade6d9040ed65bfea8",
+          "actual": "50a889eb155650f2a794e4cdd26f17a4c11fcbcb9cf90d7d54d337458b6179c9",
+          "match": false
+        },
+        {
+          "list": "checksums.txt",
+          "path": "tests/recovery/postgres-recovery.test.ts",
+          "expected": "630a0aa379641cc1affbf5994036260ad4ddf6ae3d12b8d5c5c233621e2004f0",
+          "actual": "630a0aa379641cc1affbf5994036260ad4ddf6ae3d12b8d5c5c233621e2004f0",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "docs/reviews/evidence/database-review-remediation/WP05/manifest.md",
+          "expected": "d1f18cdb115033d1139a933e4705110f61f53e170c9862b8d2718f82e9e68652",
+          "actual": "d1f18cdb115033d1139a933e4705110f61f53e170c9862b8d2718f82e9e68652",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "docs/reviews/evidence/database-review-remediation/WP05/run-transcript.txt",
+          "expected": "28089a8b45ca6ce1a95a60ec863b18af1583db74ec1b9075bbd268756c572723",
+          "actual": "28089a8b45ca6ce1a95a60ec863b18af1583db74ec1b9075bbd268756c572723",
+          "match": true
+        }
+      ]
+    },
+    {
+      "wp": "WP06",
+      "files": [
+        {
+          "name": "checksums.txt",
+          "sha256": "5d286bf2709a26686d27ea1aaa7f55629294414a64c6a23e38dc49f84b155f77"
+        },
+        {
+          "name": "fault1-admin-guard.patch",
+          "sha256": "5d48b1bdca95abe1c3231902ac584e256fbceb861964988422e6fefa51f36b66"
+        },
+        {
+          "name": "fault1-failing.txt",
+          "sha256": "a84ecdc9a9a672a86a7a71075dc6311d9c09b3be624db3dab75bd1d439939a8a"
+        },
+        {
+          "name": "fault1-passing.txt",
+          "sha256": "7fb2b489aeb9503139cb09f85a04f34c0a45d63ebcb8aa0766f0a7ebde189e80"
+        },
+        {
+          "name": "fault2-failing.txt",
+          "sha256": "173c017666238863e5062ab35f56a0ac4828aa04edd70f33335ee1509c3a7932"
+        },
+        {
+          "name": "fault2-ownership-filter.patch",
+          "sha256": "fd2f1d0348968f15c52041ae026d69c4774f64528d0975822e7b47aead7d3eec"
+        },
+        {
+          "name": "fault2-passing.txt",
+          "sha256": "ea693cc8b50519dc45debf88dd8c5de16e6c676d2d6a15ac856380692e8b2481"
+        },
+        {
+          "name": "manifest.md",
+          "sha256": "ae635bf206bd58804e26ede7c480cc4f330dd4d2666ea64126e7bec645c46fb5"
+        },
+        {
+          "name": "run-transcript.txt",
+          "sha256": "93b1341289fd186033f3cbdaa1991e98d6fcd4be63e25dae0af5ec3cbd6eba9d"
+        }
+      ],
+      "checksumVerification": [
+        {
+          "list": "checksums.txt",
+          "path": "manifest.md",
+          "expected": "ae635bf206bd58804e26ede7c480cc4f330dd4d2666ea64126e7bec645c46fb5",
+          "actual": "ae635bf206bd58804e26ede7c480cc4f330dd4d2666ea64126e7bec645c46fb5",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "run-transcript.txt",
+          "expected": "93b1341289fd186033f3cbdaa1991e98d6fcd4be63e25dae0af5ec3cbd6eba9d",
+          "actual": "93b1341289fd186033f3cbdaa1991e98d6fcd4be63e25dae0af5ec3cbd6eba9d",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "fault1-admin-guard.patch",
+          "expected": "5d48b1bdca95abe1c3231902ac584e256fbceb861964988422e6fefa51f36b66",
+          "actual": "5d48b1bdca95abe1c3231902ac584e256fbceb861964988422e6fefa51f36b66",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "fault1-failing.txt",
+          "expected": "a84ecdc9a9a672a86a7a71075dc6311d9c09b3be624db3dab75bd1d439939a8a",
+          "actual": "a84ecdc9a9a672a86a7a71075dc6311d9c09b3be624db3dab75bd1d439939a8a",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "fault1-passing.txt",
+          "expected": "7fb2b489aeb9503139cb09f85a04f34c0a45d63ebcb8aa0766f0a7ebde189e80",
+          "actual": "7fb2b489aeb9503139cb09f85a04f34c0a45d63ebcb8aa0766f0a7ebde189e80",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "fault2-ownership-filter.patch",
+          "expected": "fd2f1d0348968f15c52041ae026d69c4774f64528d0975822e7b47aead7d3eec",
+          "actual": "fd2f1d0348968f15c52041ae026d69c4774f64528d0975822e7b47aead7d3eec",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "fault2-failing.txt",
+          "expected": "173c017666238863e5062ab35f56a0ac4828aa04edd70f33335ee1509c3a7932",
+          "actual": "173c017666238863e5062ab35f56a0ac4828aa04edd70f33335ee1509c3a7932",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "fault2-passing.txt",
+          "expected": "ea693cc8b50519dc45debf88dd8c5de16e6c676d2d6a15ac856380692e8b2481",
+          "actual": "ea693cc8b50519dc45debf88dd8c5de16e6c676d2d6a15ac856380692e8b2481",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "tests/application/http-fixture.ts",
+          "expected": "7a63bf90d4f3eec2bb017e8585c2b768e1de52beef97f0c384dcaa3ebf87ef78",
+          "actual": "7a63bf90d4f3eec2bb017e8585c2b768e1de52beef97f0c384dcaa3ebf87ef78",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "tests/application/auth.suite.ts",
+          "expected": "0437088b7126a662cde29c1e2264cf8d58937a3ca558dccccb0ae286e83d2dab",
+          "actual": "0437088b7126a662cde29c1e2264cf8d58937a3ca558dccccb0ae286e83d2dab",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "tests/application/probes.suite.ts",
+          "expected": "065f22b7a11ef24f7dc2a604928a9fc28eaf7c545ffb46c3410d7b6c46bb54d1",
+          "actual": "6e6c3d163f6db16cf9514cd28b0b901e89d71d549f2d6af57d9fbe05b74f059d",
+          "match": false
+        },
+        {
+          "list": "checksums.txt",
+          "path": "tests/application/sqlite.test.ts",
+          "expected": "dea0baf4980959b43c32e8ee1ff8374c0f84133e4e36dc2c9241fd949d195ce6",
+          "actual": "dea0baf4980959b43c32e8ee1ff8374c0f84133e4e36dc2c9241fd949d195ce6",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "tests/application/postgres.test.ts",
+          "expected": "e4da2f80fbefb46bf7e45564d2fa499424b3e1dd5a1e68fc85e984fbaabd1018",
+          "actual": "e4da2f80fbefb46bf7e45564d2fa499424b3e1dd5a1e68fc85e984fbaabd1018",
+          "match": true
+        }
+      ]
+    },
+    {
+      "wp": "WP07",
+      "files": [
+        {
+          "name": "checksums.txt",
+          "sha256": "730b486286a469160b0f70336cc326b1a949c5cabb7de46b46d4f8b477807220"
+        },
+        {
+          "name": "fault1-bridge.patch",
+          "sha256": "c686f15a01269aa332b702732dc9c5e7f7e658f565e8f607dfe8e012efabb927"
+        },
+        {
+          "name": "fault1-failing.txt",
+          "sha256": "78650396176b51c170cde604ddc6ca0678c3691d719195d7c00b28d789f0fafa"
+        },
+        {
+          "name": "fault1-passing.txt",
+          "sha256": "252f7fa79a11e71af8d70e3125a10185b85f897cd0b37e3472bf844eafd68e88"
+        },
+        {
+          "name": "manifest.md",
+          "sha256": "d840bf06be73aeefbe03699af4985e9d5b55f8d7441c05e11beb18471299beaf"
+        },
+        {
+          "name": "postgres-run-transcript.txt",
+          "sha256": "5f065144847840965bd2b3bf2ba5a41b613d11dd71870f8ca910f3429157128f"
+        },
+        {
+          "name": "run-transcript.txt",
+          "sha256": "b6f28fcc1c513acd770074e9ca4dd0124999a9d45d057d07c9cc55b85721c4c2"
+        }
+      ],
+      "checksumVerification": [
+        {
+          "list": "checksums.txt",
+          "path": "manifest.md",
+          "expected": "d840bf06be73aeefbe03699af4985e9d5b55f8d7441c05e11beb18471299beaf",
+          "actual": "d840bf06be73aeefbe03699af4985e9d5b55f8d7441c05e11beb18471299beaf",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "run-transcript.txt",
+          "expected": "b6f28fcc1c513acd770074e9ca4dd0124999a9d45d057d07c9cc55b85721c4c2",
+          "actual": "b6f28fcc1c513acd770074e9ca4dd0124999a9d45d057d07c9cc55b85721c4c2",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "postgres-run-transcript.txt",
+          "expected": "5f065144847840965bd2b3bf2ba5a41b613d11dd71870f8ca910f3429157128f",
+          "actual": "5f065144847840965bd2b3bf2ba5a41b613d11dd71870f8ca910f3429157128f",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "fault1-bridge.patch",
+          "expected": "c686f15a01269aa332b702732dc9c5e7f7e658f565e8f607dfe8e012efabb927",
+          "actual": "c686f15a01269aa332b702732dc9c5e7f7e658f565e8f607dfe8e012efabb927",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "fault1-failing.txt",
+          "expected": "78650396176b51c170cde604ddc6ca0678c3691d719195d7c00b28d789f0fafa",
+          "actual": "78650396176b51c170cde604ddc6ca0678c3691d719195d7c00b28d789f0fafa",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "fault1-passing.txt",
+          "expected": "252f7fa79a11e71af8d70e3125a10185b85f897cd0b37e3472bf844eafd68e88",
+          "actual": "252f7fa79a11e71af8d70e3125a10185b85f897cd0b37e3472bf844eafd68e88",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "/Users/n.gryaznev/Develop/OTHER/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-g/okr-app/src/lib/server/plugins/scheduler.ts",
+          "expected": "f195e0b30ac3c83d00d3158709f9a56913b64feb0a01a68dac602765abd98fdb",
+          "actual": "f195e0b30ac3c83d00d3158709f9a56913b64feb0a01a68dac602765abd98fdb",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "/Users/n.gryaznev/Develop/OTHER/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-g/okr-app/tests/application/integrations.suite.ts",
+          "expected": "8d5cc515855bd5d8cbdb38151374bbaafb2acab37bf3a38cc855a8d84856de66",
+          "actual": "8d5cc515855bd5d8cbdb38151374bbaafb2acab37bf3a38cc855a8d84856de66",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "/Users/n.gryaznev/Develop/OTHER/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-g/okr-app/tests/application/plugin-fixture.ts",
+          "expected": "8da222a2b62df112cb22dc20cc43bd91227ba9c1e60ee19a0544b90bfb163bdb",
+          "actual": "8da222a2b62df112cb22dc20cc43bd91227ba9c1e60ee19a0544b90bfb163bdb",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "/Users/n.gryaznev/Develop/OTHER/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-g/okr-app/tests/application/integrations.sqlite.test.ts",
+          "expected": "ef9b783ef5ca3fa6f7dd7f3896ef3013f74f9ed7c0aa518eb0fca801bdf89906",
+          "actual": "ef9b783ef5ca3fa6f7dd7f3896ef3013f74f9ed7c0aa518eb0fca801bdf89906",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "/Users/n.gryaznev/Develop/OTHER/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-g/okr-app/tests/application/integrations.postgres.test.ts",
+          "expected": "8b668264b1495d082f586744ec4c2fce55c83e164862176309032306c759f472",
+          "actual": "8b668264b1495d082f586744ec4c2fce55c83e164862176309032306c759f472",
+          "match": true
+        }
+      ]
+    },
+    {
+      "wp": "WP08",
+      "files": [
+        {
+          "name": "README.md",
+          "sha256": "aeedfc16478f56ed8ce9d5d0d604186b5d3ec87b642ff819c95e38837d4bc238"
+        },
+        {
+          "name": "SHA256SUMS",
+          "sha256": "be2d71383945220f865d47d2d95cbfe4699737e1a7f44ec3aca4ebb134501fee"
+        },
+        {
+          "name": "baseline-postgres-lost-write.log",
+          "sha256": "c7aa00265fe3f4e1d8a22e2bd015fc1dc51a35ad3c17677581842d1abee3627e"
+        },
+        {
+          "name": "build-result.txt",
+          "sha256": "a1ccbf924d77016a355ca01193f57ed87ecb348411b948d8892e612142a7afcf"
+        },
+        {
+          "name": "build-start.txt",
+          "sha256": "b77cd3bd47e9b48678e0f7c446492eb55efa4b12528bb5de12276ae9e5381f24"
+        },
+        {
+          "name": "build.log",
+          "sha256": "cd4c04bcac9999cd1151e2242efe252a5281ae198e3b3ef2d64659d33f4b23fc"
+        },
+        {
+          "name": "engine-fault.sh",
+          "sha256": "c289ad7ea9008ea18ad1c4581644af9731c101ca6670202a43a8715a630cfa8b"
+        },
+        {
+          "name": "helper-contract.cjs",
+          "sha256": "cad633942f181a42f4bd286f502cd85f73aa0012f41da1613a956f049efa5dd7"
+        },
+        {
+          "name": "helper-contract.log",
+          "sha256": "489bed183f8d152dd56ab5fea71747df4cc8d8394146a627d288eb1cbc65e590"
+        },
+        {
+          "name": "image-healthcheck.json",
+          "sha256": "8e82be36a930ec2c0958ea113fbd49ac63afbffdff6832b2132ee4d62be67a8b"
+        },
+        {
+          "name": "live-results.txt",
+          "sha256": "263177cf18f4c7b1ba7c6e3bc9bb96e08dd8cb89fe834aca736c1bc3b54cc599"
+        },
+        {
+          "name": "manifest.md",
+          "sha256": "1dcd39e5ad92e0bdd615dbcffd85f57d25233da68682c4b7605b881c59a10fe4"
+        },
+        {
+          "name": "missing-url.log",
+          "sha256": "4dafda5a192f870886f816782c9716017b20d944b67087ff706e5bbe8a8976de"
+        },
+        {
+          "name": "postgres-lost-write.log",
+          "sha256": "cdcdb18d3023aa02a1014530f15331ed1d144137814e844a91e8024bc4b8f899"
+        },
+        {
+          "name": "postgres-never-ready.log",
+          "sha256": "f6e31b38b12d322802720d2409fba87b04429e2643199bca1a20050ff9282695"
+        },
+        {
+          "name": "postgres-positive.log",
+          "sha256": "021b702d7f52061be6e4168760b317eed685cf360c542a8fe5c87b3038b1e2c8"
+        },
+        {
+          "name": "pre-reboot-overlay-failure.log",
+          "sha256": "b10160c405540c2f4f7c80674dc80c6dae9195be1be1dab97b10e1e0ba1bd0a5"
+        },
+        {
+          "name": "replay-guard-check.log",
+          "sha256": "f7b985efc88a7a9c08725893fef7c1677fb5ea03a8b914389905bdab9311bd1f"
+        },
+        {
+          "name": "run-live.sh",
+          "sha256": "7a165d7e8715ff83c30427212b6150a11abc5ed11417cf14eb11d819c117c15f"
+        },
+        {
+          "name": "runtime-versions.json",
+          "sha256": "929d5adeb0f84d838d8f0c2c84c7f9defba1bed64a8eb28c8380c304c76d27c0"
+        },
+        {
+          "name": "secret-scan.log",
+          "sha256": "de3b316868fad182ea68f6d6999dcf57931e0af759339061ccf40b975f30cb0f"
+        },
+        {
+          "name": "source.patch",
+          "sha256": "fd29141e760f9d8226c3a1481231ed8ffc73a78c19a82102dbff390d664d777a"
+        },
+        {
+          "name": "sqlite-lost-write.log",
+          "sha256": "d4ad415e3cd75bc89ce387afb566d3be5040787d068af05332ba4a736abc7dd8"
+        },
+        {
+          "name": "sqlite-never-ready.log",
+          "sha256": "4f6ac1fab51a79be0f94fe17fc3724dd13370eba9217f236925088faf20cf2c6"
+        },
+        {
+          "name": "sqlite-positive.log",
+          "sha256": "d7d24fd3a43c12d3b67d324e372a72d0ede73236dd7b1ff575d18ced47964422"
+        },
+        {
+          "name": "validation.log",
+          "sha256": "246fd363888293cc009f8792fa1101088365bed4a9e5ea4ca9c9853e376851a5"
+        }
+      ],
+      "checksumVerification": [
+        {
+          "list": "SHA256SUMS",
+          "path": "README.md",
+          "expected": "aeedfc16478f56ed8ce9d5d0d604186b5d3ec87b642ff819c95e38837d4bc238",
+          "actual": "aeedfc16478f56ed8ce9d5d0d604186b5d3ec87b642ff819c95e38837d4bc238",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "baseline-postgres-lost-write.log",
+          "expected": "c7aa00265fe3f4e1d8a22e2bd015fc1dc51a35ad3c17677581842d1abee3627e",
+          "actual": "c7aa00265fe3f4e1d8a22e2bd015fc1dc51a35ad3c17677581842d1abee3627e",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "build-result.txt",
+          "expected": "a1ccbf924d77016a355ca01193f57ed87ecb348411b948d8892e612142a7afcf",
+          "actual": "a1ccbf924d77016a355ca01193f57ed87ecb348411b948d8892e612142a7afcf",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "build-start.txt",
+          "expected": "b77cd3bd47e9b48678e0f7c446492eb55efa4b12528bb5de12276ae9e5381f24",
+          "actual": "b77cd3bd47e9b48678e0f7c446492eb55efa4b12528bb5de12276ae9e5381f24",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "build.log",
+          "expected": "cd4c04bcac9999cd1151e2242efe252a5281ae198e3b3ef2d64659d33f4b23fc",
+          "actual": "cd4c04bcac9999cd1151e2242efe252a5281ae198e3b3ef2d64659d33f4b23fc",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "engine-fault.sh",
+          "expected": "c289ad7ea9008ea18ad1c4581644af9731c101ca6670202a43a8715a630cfa8b",
+          "actual": "c289ad7ea9008ea18ad1c4581644af9731c101ca6670202a43a8715a630cfa8b",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "helper-contract.cjs",
+          "expected": "cad633942f181a42f4bd286f502cd85f73aa0012f41da1613a956f049efa5dd7",
+          "actual": "cad633942f181a42f4bd286f502cd85f73aa0012f41da1613a956f049efa5dd7",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "helper-contract.log",
+          "expected": "489bed183f8d152dd56ab5fea71747df4cc8d8394146a627d288eb1cbc65e590",
+          "actual": "489bed183f8d152dd56ab5fea71747df4cc8d8394146a627d288eb1cbc65e590",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "image-healthcheck.json",
+          "expected": "8e82be36a930ec2c0958ea113fbd49ac63afbffdff6832b2132ee4d62be67a8b",
+          "actual": "8e82be36a930ec2c0958ea113fbd49ac63afbffdff6832b2132ee4d62be67a8b",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "live-results.txt",
+          "expected": "263177cf18f4c7b1ba7c6e3bc9bb96e08dd8cb89fe834aca736c1bc3b54cc599",
+          "actual": "263177cf18f4c7b1ba7c6e3bc9bb96e08dd8cb89fe834aca736c1bc3b54cc599",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "manifest.md",
+          "expected": "1dcd39e5ad92e0bdd615dbcffd85f57d25233da68682c4b7605b881c59a10fe4",
+          "actual": "1dcd39e5ad92e0bdd615dbcffd85f57d25233da68682c4b7605b881c59a10fe4",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "missing-url.log",
+          "expected": "4dafda5a192f870886f816782c9716017b20d944b67087ff706e5bbe8a8976de",
+          "actual": "4dafda5a192f870886f816782c9716017b20d944b67087ff706e5bbe8a8976de",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "postgres-lost-write.log",
+          "expected": "cdcdb18d3023aa02a1014530f15331ed1d144137814e844a91e8024bc4b8f899",
+          "actual": "cdcdb18d3023aa02a1014530f15331ed1d144137814e844a91e8024bc4b8f899",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "postgres-never-ready.log",
+          "expected": "f6e31b38b12d322802720d2409fba87b04429e2643199bca1a20050ff9282695",
+          "actual": "f6e31b38b12d322802720d2409fba87b04429e2643199bca1a20050ff9282695",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "postgres-positive.log",
+          "expected": "021b702d7f52061be6e4168760b317eed685cf360c542a8fe5c87b3038b1e2c8",
+          "actual": "021b702d7f52061be6e4168760b317eed685cf360c542a8fe5c87b3038b1e2c8",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "pre-reboot-overlay-failure.log",
+          "expected": "b10160c405540c2f4f7c80674dc80c6dae9195be1be1dab97b10e1e0ba1bd0a5",
+          "actual": "b10160c405540c2f4f7c80674dc80c6dae9195be1be1dab97b10e1e0ba1bd0a5",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "replay-guard-check.log",
+          "expected": "f7b985efc88a7a9c08725893fef7c1677fb5ea03a8b914389905bdab9311bd1f",
+          "actual": "f7b985efc88a7a9c08725893fef7c1677fb5ea03a8b914389905bdab9311bd1f",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "run-live.sh",
+          "expected": "7a165d7e8715ff83c30427212b6150a11abc5ed11417cf14eb11d819c117c15f",
+          "actual": "7a165d7e8715ff83c30427212b6150a11abc5ed11417cf14eb11d819c117c15f",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "runtime-versions.json",
+          "expected": "929d5adeb0f84d838d8f0c2c84c7f9defba1bed64a8eb28c8380c304c76d27c0",
+          "actual": "929d5adeb0f84d838d8f0c2c84c7f9defba1bed64a8eb28c8380c304c76d27c0",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "secret-scan.log",
+          "expected": "de3b316868fad182ea68f6d6999dcf57931e0af759339061ccf40b975f30cb0f",
+          "actual": "de3b316868fad182ea68f6d6999dcf57931e0af759339061ccf40b975f30cb0f",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "source.patch",
+          "expected": "fd29141e760f9d8226c3a1481231ed8ffc73a78c19a82102dbff390d664d777a",
+          "actual": "fd29141e760f9d8226c3a1481231ed8ffc73a78c19a82102dbff390d664d777a",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "sqlite-lost-write.log",
+          "expected": "d4ad415e3cd75bc89ce387afb566d3be5040787d068af05332ba4a736abc7dd8",
+          "actual": "d4ad415e3cd75bc89ce387afb566d3be5040787d068af05332ba4a736abc7dd8",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "sqlite-never-ready.log",
+          "expected": "4f6ac1fab51a79be0f94fe17fc3724dd13370eba9217f236925088faf20cf2c6",
+          "actual": "4f6ac1fab51a79be0f94fe17fc3724dd13370eba9217f236925088faf20cf2c6",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "sqlite-positive.log",
+          "expected": "d7d24fd3a43c12d3b67d324e372a72d0ede73236dd7b1ff575d18ced47964422",
+          "actual": "d7d24fd3a43c12d3b67d324e372a72d0ede73236dd7b1ff575d18ced47964422",
+          "match": true
+        },
+        {
+          "list": "SHA256SUMS",
+          "path": "validation.log",
+          "expected": "246fd363888293cc009f8792fa1101088365bed4a9e5ea4ca9c9853e376851a5",
+          "actual": "246fd363888293cc009f8792fa1101088365bed4a9e5ea4ca9c9853e376851a5",
+          "match": true
+        }
+      ]
+    },
+    {
+      "wp": "WP10",
+      "files": [
+        {
+          "name": "bundle-isolation-grep.txt",
+          "sha256": "e94545ce10228caff8e0aeddbcd56123b2a80eb8ed88e73514bf9c8d2295cac5"
+        },
+        {
+          "name": "checksums-cycle2.txt",
+          "sha256": "7bd343d47286268210db4f22adf4f7a9174b2c7caa76e00b4edbb1971a8475fe"
+        },
+        {
+          "name": "checksums.txt",
+          "sha256": "2bf9c93b75ae07a19997999ede057e72bebf461af4072cba7db32db2120e5746"
+        },
+        {
+          "name": "lock-regression-capture.json",
+          "sha256": "f96c22ddb4546ee626936ae507de587b2c9e2dc80c2ad6bba7b815af25f82702"
+        },
+        {
+          "name": "manifest-cycle2.md",
+          "sha256": "ecefb3747d5bf0de14fee66e2410e98f74a447c4cb63401962a0689aa73a175c"
+        },
+        {
+          "name": "manifest.md",
+          "sha256": "b831b9921bbd32eeaee10ab6b9a197904d653ec30ebe18422320b2a47e2bfc3f"
+        },
+        {
+          "name": "run-transcript.txt",
+          "sha256": "d3d22aabaaaad33e3210b6861b544173f642f5462e905b0ca6045e697e321740"
+        },
+        {
+          "name": "validation-transcript-cycle2.txt",
+          "sha256": "cbf359ce73c1657c907e9bcbf96253640c98f3e8553c88f83c9fb148e2f21256"
+        }
+      ],
+      "checksumVerification": [
+        {
+          "list": "checksums-cycle2.txt",
+          "path": "src/lib/db/adapters/sqlite-worker-client.ts",
+          "expected": "5ab1221b5761dbfafddaf09af294f84dca94abb6fbd5d3bf8b21d67bd5dd3568",
+          "actual": "5ab1221b5761dbfafddaf09af294f84dca94abb6fbd5d3bf8b21d67bd5dd3568",
+          "match": true
+        },
+        {
+          "list": "checksums-cycle2.txt",
+          "path": "src/lib/db/adapters/sqlite-preparation-worker.ts",
+          "expected": "340903d7eb52bdffe35a2974ae7ba65e349b54621be1a0b7d2b20ada936fabdd",
+          "actual": "340903d7eb52bdffe35a2974ae7ba65e349b54621be1a0b7d2b20ada936fabdd",
+          "match": true
+        },
+        {
+          "list": "checksums-cycle2.txt",
+          "path": "src/lib/db/adapters/sqlite.ts",
+          "expected": "09f68c337910501ca92fe02b0deb18f6307cb841b6e3f555545af7636a61cef0",
+          "actual": "09f68c337910501ca92fe02b0deb18f6307cb841b6e3f555545af7636a61cef0",
+          "match": true
+        },
+        {
+          "list": "checksums-cycle2.txt",
+          "path": "src/lib/db/lifecycle.ts",
+          "expected": "4b95122374431a32b85d6e22bed2286875d537bfd281e41b98ba9ea405c256a1",
+          "actual": "1e298622900729feea7a71368c0dde63aa3b27f54c347694e21194a3d491b661",
+          "match": false
+        },
+        {
+          "list": "checksums-cycle2.txt",
+          "path": "src/lib/db/migrations/migrate.ts",
+          "expected": "500cf9073ca9c0b1b725b95c5cd74029d6a7eb908cd3820e07fc0b3af31ee138",
+          "actual": "500cf9073ca9c0b1b725b95c5cd74029d6a7eb908cd3820e07fc0b3af31ee138",
+          "match": true
+        },
+        {
+          "list": "checksums-cycle2.txt",
+          "path": "src/lib/db/migrations/expected-sqlite.ts",
+          "expected": "80550d8a7e25d0e9ea2b7c7807ba5ac5d85d1c6807a23bfbe6e1e3fbea91a0e6",
+          "actual": "80550d8a7e25d0e9ea2b7c7807ba5ac5d85d1c6807a23bfbe6e1e3fbea91a0e6",
+          "match": true
+        },
+        {
+          "list": "checksums-cycle2.txt",
+          "path": "package.json",
+          "expected": "fa47769afed3b487a5f968bd8786076de1ed97db18bf35ea22a52859dc61df0c",
+          "actual": "43d387177644de64eb846769c9c6d28ec87fb681d3168550272313c51599b448",
+          "match": false
+        },
+        {
+          "list": "checksums-cycle2.txt",
+          "path": "tests/db/lifecycle-isolation.test.ts",
+          "expected": "70c4867e724d400b91334e1480b8f1df8d0e4c67578e7cf7dd43d91a172cf16d",
+          "actual": "ffe22c60dc4711bd257544b4e849ca217b88bb03c3221683d993c9b135678386",
+          "match": false
+        },
+        {
+          "list": "checksums.txt",
+          "path": "src/lib/db/adapters/sqlite.ts",
+          "expected": "62c4b9f844edc87be92e2e7dd34cb150a43b022d4409ef767832ab80e12f160f",
+          "actual": "09f68c337910501ca92fe02b0deb18f6307cb841b6e3f555545af7636a61cef0",
+          "match": false
+        },
+        {
+          "list": "checksums.txt",
+          "path": "src/lib/db/adapters/sqlite-local.ts",
+          "expected": "6ae1284bc03e9c8580ac7492321d1a56535107fbd500da075fd1e00e97dd7acb",
+          "actual": "8062253472c9f147bcc2fae69444dd3b6cb5663b04c66b77723863b53add1d81",
+          "match": false
+        },
+        {
+          "list": "checksums.txt",
+          "path": "src/lib/db/adapters/sqlite-worker.ts",
+          "expected": "85842b4913bdf8598efd3a4d76552345ffc017a3449f474a66b2dc83d492a438",
+          "actual": "85842b4913bdf8598efd3a4d76552345ffc017a3449f474a66b2dc83d492a438",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "src/lib/db/adapters/sqlite-worker-client.ts",
+          "expected": "2dd88feeff3752e4e74872e4c4e43c28afc7766ff73b6093a7fc3524a73d60ce",
+          "actual": "5ab1221b5761dbfafddaf09af294f84dca94abb6fbd5d3bf8b21d67bd5dd3568",
+          "match": false
+        },
+        {
+          "list": "checksums.txt",
+          "path": "src/lib/db/adapters/sqlite-worker-protocol.ts",
+          "expected": "396a0232f9482b952f95ccb029211d04783a8f4920763d4194b5eba3522684f7",
+          "actual": "396a0232f9482b952f95ccb029211d04783a8f4920763d4194b5eba3522684f7",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "src/lib/db/adapters/sqlite-preparation-worker.ts",
+          "expected": "d92330e9136a4150dc7e1f69a1996c68917ecb909fab6e4d9bb911777b1891ce",
+          "actual": "340903d7eb52bdffe35a2974ae7ba65e349b54621be1a0b7d2b20ada936fabdd",
+          "match": false
+        },
+        {
+          "list": "checksums.txt",
+          "path": "scripts/build-database-workers.ts",
+          "expected": "c7f6380c12183ebc64f09cf8505be5c95da417c15cf2c2859105b59e97486870",
+          "actual": "c7f6380c12183ebc64f09cf8505be5c95da417c15cf2c2859105b59e97486870",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "vite.config.ts",
+          "expected": "73f07396275747f53fcaa177479869e10ee14ce945506c458dde1c91c0ea7d31",
+          "actual": "73f07396275747f53fcaa177479869e10ee14ce945506c458dde1c91c0ea7d31",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "Dockerfile",
+          "expected": "f9941bb0eb1d9f1842fbc602a1ecce6133532fd1001d7b3b67a54b4f0a6a1cae",
+          "actual": "f9941bb0eb1d9f1842fbc602a1ecce6133532fd1001d7b3b67a54b4f0a6a1cae",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "tests/db/sqlite-worker.test.ts",
+          "expected": "3e6722ebfc2673aab631da1e633e29f0b25bc58f011b718f3049155e5755527f",
+          "actual": "3e6722ebfc2673aab631da1e633e29f0b25bc58f011b718f3049155e5755527f",
+          "match": true
+        }
+      ]
+    },
+    {
+      "wp": "WP11",
+      "files": [
+        {
+          "name": "checksums.txt",
+          "sha256": "c7e666392c3538ac0bdcd1a1e480e6cacb67cb98706e3e52a99caf32822dec3b"
+        },
+        {
+          "name": "command-matrix.md",
+          "sha256": "40214096e445ed65144396796194450160358fb76e53453cd2d6af1204a689da"
+        },
+        {
+          "name": "manifest.md",
+          "sha256": "2ec67d6c0ac87267cf188125185957644dd9bd118be5a200d0db3b417ad597a3"
+        },
+        {
+          "name": "run-transcript.txt",
+          "sha256": "69c3d65e6f6ce6068d5890c190eeaedf261e756cb2fe42cf5c20f22d4a58e645"
+        }
+      ],
+      "checksumVerification": [
+        {
+          "list": "checksums.txt",
+          "path": "package.json",
+          "expected": "43d387177644de64eb846769c9c6d28ec87fb681d3168550272313c51599b448",
+          "actual": "43d387177644de64eb846769c9c6d28ec87fb681d3168550272313c51599b448",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "tests/verification/command-coverage.test.ts",
+          "expected": "2aa8ecebefc2c72a0e0d6fcefd00d945986d475d6ab9d63063bddd98e0dc4427",
+          "actual": "2aa8ecebefc2c72a0e0d6fcefd00d945986d475d6ab9d63063bddd98e0dc4427",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "docs/reviews/evidence/database-review-remediation/WP11/manifest.md",
+          "expected": "2ec67d6c0ac87267cf188125185957644dd9bd118be5a200d0db3b417ad597a3",
+          "actual": "2ec67d6c0ac87267cf188125185957644dd9bd118be5a200d0db3b417ad597a3",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "docs/reviews/evidence/database-review-remediation/WP11/command-matrix.md",
+          "expected": "40214096e445ed65144396796194450160358fb76e53453cd2d6af1204a689da",
+          "actual": "40214096e445ed65144396796194450160358fb76e53453cd2d6af1204a689da",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "docs/reviews/evidence/database-review-remediation/WP11/run-transcript.txt",
+          "expected": "69c3d65e6f6ce6068d5890c190eeaedf261e756cb2fe42cf5c20f22d4a58e645",
+          "actual": "69c3d65e6f6ce6068d5890c190eeaedf261e756cb2fe42cf5c20f22d4a58e645",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "scripts/require-postgres-test.ts",
+          "expected": "80331c0312b8f1b4e5f59ed74f9870143b37d3334d634507c0115938f60351cb",
+          "actual": "80331c0312b8f1b4e5f59ed74f9870143b37d3334d634507c0115938f60351cb",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "tests/application/sqlite.test.ts",
+          "expected": "dea0baf4980959b43c32e8ee1ff8374c0f84133e4e36dc2c9241fd949d195ce6",
+          "actual": "dea0baf4980959b43c32e8ee1ff8374c0f84133e4e36dc2c9241fd949d195ce6",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "tests/application/postgres.test.ts",
+          "expected": "e4da2f80fbefb46bf7e45564d2fa499424b3e1dd5a1e68fc85e984fbaabd1018",
+          "actual": "e4da2f80fbefb46bf7e45564d2fa499424b3e1dd5a1e68fc85e984fbaabd1018",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "tests/application/integrations.sqlite.test.ts",
+          "expected": "ef9b783ef5ca3fa6f7dd7f3896ef3013f74f9ed7c0aa518eb0fca801bdf89906",
+          "actual": "ef9b783ef5ca3fa6f7dd7f3896ef3013f74f9ed7c0aa518eb0fca801bdf89906",
+          "match": true
+        },
+        {
+          "list": "checksums.txt",
+          "path": "tests/application/integrations.postgres.test.ts",
+          "expected": "8b668264b1495d082f586744ec4c2fce55c83e164862176309032306c759f472",
+          "actual": "8b668264b1495d082f586744ec4c2fce55c83e164862176309032306c759f472",
+          "match": true
+        }
+      ]
+    }
+  ]
+}

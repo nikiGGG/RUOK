@@ -1,0 +1,1 @@
+Deterministic file scheduler: --maxWorkers=1; --retry=0; no global or per-test deadline increases; all package entrypoints and in-test concurrency retained.

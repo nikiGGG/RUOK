@@ -1,0 +1,118 @@
+UTC 2026-11-09T19:41:57.951443+00:00
+COMMAND git diff --check
+EXIT 0
+
+
+COMMAND node /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/check-links.cjs
+EXIT 0
+local links checked=54 missing=0
+
+
+COMMAND node /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/summarize-results.cjs
+EXIT 0
+required stages=8 incomplete checks=0
+
+
+COMMAND bash -n /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/continue-integrated.sh
+EXIT 0
+
+
+COMMAND bash -n /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/diagnose-scheduler.sh
+EXIT 0
+
+
+COMMAND bash -n /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/diagnose-tmpfs.sh
+EXIT 0
+
+
+COMMAND bash -n /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/final-image/engine-fault.sh
+EXIT 0
+
+
+COMMAND bash -n /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/final-image/run.sh
+EXIT 0
+
+
+COMMAND bash -n /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/inside-remaining.sh
+EXIT 0
+
+
+COMMAND bash -n /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/inside.sh
+EXIT 0
+
+
+COMMAND bash -n /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/matrix-after-close.sh
+EXIT 0
+
+
+COMMAND bash -n /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/matrix-after-cutoff.sh
+EXIT 0
+
+
+COMMAND bash -n /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/matrix-tmpfs.sh
+EXIT 0
+
+
+COMMAND bash -n /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/pending-matrix-deterministic.sh
+EXIT 0
+
+
+COMMAND bash -n /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/pending-tail.sh
+EXIT 0
+
+
+COMMAND bash -n /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/postgres-probe-proof/attempt1/run.sh
+EXIT 0
+
+
+COMMAND bash -n /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/postgres-probe-proof/run.sh
+EXIT 0
+
+
+COMMAND bash -n /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/postmerge/inside.sh
+EXIT 0
+
+
+COMMAND bash -n /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/postmerge/run.sh
+EXIT 0
+
+
+COMMAND bash -n /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/run-integrated.sh
+EXIT 0
+
+
+COMMAND bash -n /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/tls-proof/run.sh
+EXIT 0
+
+
+COMMAND bash -n /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/tmpfs-common.sh
+EXIT 0
+
+
+COMMAND node --check /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/check-links.cjs
+EXIT 0
+
+
+COMMAND node --check /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/compare-diagnostics.cjs
+EXIT 0
+
+
+COMMAND node --check /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/inventory.cjs
+EXIT 0
+
+
+COMMAND node --check /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/run-command.cjs
+EXIT 0
+
+
+COMMAND node --check /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/secret-scan.cjs
+EXIT 0
+
+
+COMMAND node --check /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/summarize-results.cjs
+EXIT 0
+
+
+COMMAND node --check /home/nikg/Develop/RUOK/.worktrees/database-review-findings-remediation-01M5TGCE-lane-i/okr-app/docs/reviews/evidence/database-review-remediation/WP09/tmpfs-snapshot.cjs
+EXIT 0
+

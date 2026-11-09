@@ -1988,12 +1988,13 @@ export class SqliteLocalServices implements DatabaseServices {
 
 	/**
 	 * Bounded live-availability query on a required application table (RISK-1 /
-	 * NFR-002 / WP10 T046). Resolves when the runtime handle can serve a read;
+	 * NFR-002 / WP10 T046). Resolves true when the runtime handle can serve a read;
 	 * rejects when storage is blocked/unavailable. Never used as a cached
 	 * success shortcut.
 	 */
-	async checkAvailability(): Promise<void> {
+	async checkAvailability(): Promise<boolean> {
 		if (!this._open) throw new Error('SQLite is not open');
 		this.db.select({ c: count() }).from(schema.users).get();
+		return true;
 	}
 }
