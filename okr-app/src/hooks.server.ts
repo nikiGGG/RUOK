@@ -3,7 +3,7 @@ import { getSessionIdFromCookies, getUserFromSession } from '$lib/server/auth';
 import { initializePlugins } from '$lib/server/plugins';
 import { startScheduler, stopScheduler, isSchedulerRunning } from '$lib/server/plugins/scheduler';
 import { getDatabase } from '$lib/server/database';
-import { closeDatabase } from '$lib/db';
+import { closeDatabase, ensureOpenAttempted } from '$lib/db';
 
 // Initialize plugins and scheduler on server start.
 //
@@ -19,17 +19,22 @@ async function initializeOnce(): Promise<void> {
 	if (initialized) return;
 	if (initializing) return initializing;
 	initializing = (async () => {
-		// Await database readiness (migrate + open) first.
-		await getDatabase();
+		try {
+			// Await database readiness (migrate + open) first.
+			await getDatabase();
 
-		// Register all plugins and start the sync scheduler only after readiness.
-		initializePlugins();
-		if (!isSchedulerRunning()) {
-			startScheduler(60 * 60 * 1000); // 1 hour
+			// Register all plugins and start the sync scheduler only after readiness.
+			initializePlugins();
+			if (!isSchedulerRunning()) {
+				startScheduler(60 * 60 * 1000); // 1 hour
+			}
+
+			initialized = true;
+		} finally {
+			// Clear the in-flight promise in `finally` so a failure permits a later
+			// retry (no sticky rejected initialization).
+			initializing = null;
 		}
-
-		initialized = true;
-		initializing = null;
 	})();
 	return initializing;
 }
@@ -50,9 +55,30 @@ function registerShutdown(): void {
 	});
 }
 
+/**
+ * Exact probe routes only (T017). Auth/session/plugin/database initialization
+ * is bypassed so liveness resolves with process-only work and readiness can
+ * report current state (triggering an async opening attempt) without awaiting a
+ * long migration. Query strings do NOT broaden the bypass — the path is matched
+ * exactly.
+ */
+function isExactProbePath(pathname: string): boolean {
+	return pathname === '/api/health' || pathname === '/api/ready';
+}
+
 export const handle: Handle = async ({ event, resolve }) => {
-	// Initialize plugins, scheduler and database readiness on first request.
 	registerShutdown();
+
+	// Probe routes: no session lookup, no plugin/scheduler init, no awaiting
+	// database readiness. `/api/ready` triggers one async opening attempt itself.
+	if (isExactProbePath(event.url.pathname)) {
+		if (event.url.pathname === '/api/ready') {
+			ensureOpenAttempted();
+		}
+		return resolve(event);
+	}
+
+	// Initialize plugins, scheduler and database readiness on first request.
 	await initializeOnce();
 
 	// Get session ID from cookies

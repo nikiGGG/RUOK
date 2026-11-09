@@ -80,19 +80,19 @@ describe('lifecycle readiness (T011/T012)', () => {
 		const path = tempPath('lifecycle')
 		const config = loadConfig({ DATABASE_PATH: path })
 
-		expect(getReadiness().ready).toBe(false)
+		expect((await getReadiness()).ready).toBe(false)
 
 		const services = await openDatabase(config)
 		expect(services.isOpen()).toBe(true)
-		const ready = getReadiness()
+		const ready = await getReadiness()
 		expect(ready.ready).toBe(true)
 		expect(ready.open).toBe(true)
 		expect(ready.dialect).toBe('sqlite')
 		expect(ready.schemaVersion).toBe(6)
 
 		await closeDatabase()
-		expect(getReadiness().ready).toBe(false)
-		expect(getReadiness().open).toBe(false)
+		expect((await getReadiness()).ready).toBe(false)
+		expect((await getReadiness()).open).toBe(false)
 	})
 
 	it('a raw adapter open (no migration step) leaves readiness unmigrated', async () => {
