@@ -1,4 +1,16 @@
 {
+  "acceptance_history": [
+    {
+      "acceptance_mode": "local",
+      "accepted_at": "2026-11-09T20:06:45.342552+00:00",
+      "accepted_by": "nikg",
+      "accepted_from_commit": "4bcfa76bc6e5987bf819cc0275bd7f2eafcbdad7"
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2026-11-09T20:06:45.342552+00:00",
+  "accepted_by": "nikg",
+  "accepted_from_commit": "4bcfa76bc6e5987bf819cc0275bd7f2eafcbdad7",
   "created_at": "2026-10-25T21:45:04.367310+00:00",
   "flattened": false,
   "friendly_name": "database review findings remediation",
