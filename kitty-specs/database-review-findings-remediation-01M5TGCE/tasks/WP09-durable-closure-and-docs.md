@@ -54,6 +54,8 @@ owned_files:
 - okr-app/tests/db/no-init.test.ts
 - okr-app/tests/application/probes.suite.ts
 - okr-app/tests/domains/integrations/integrations.suite.ts
+- okr-app/src/lib/db/adapters/postgres.ts
+- okr-app/tests/db/availability.test.ts
 role: curator
 tags: []
 task_type: implement
@@ -147,6 +149,20 @@ Record the original PostgreSQL failure and execute both complete backend package
 commands again because the shared test source changed; no blind retry or weaker
 oracle is permitted.
 
+The focused live availability matrix then exposed a real PostgreSQL close
+contract violation: closing the service followed by fixture teardown invoked
+`pool.end()` twice, contrary to the existing idempotent close contract. The
+orchestrator explicitly coordinates two WP04-owned paths into WP09:
+`okr-app/src/lib/db/adapters/postgres.ts` (minimal shared open/close promise and
+resource ownership lifecycle) and `okr-app/tests/db/availability.test.ts` (live
+repeated/concurrent close plus reopen regression). Preserve pool limits, real
+queries, error propagation, idle-client handling, TLS construction, probe bounds
+and all prior assertions. Record the failing live case, rebuild, compare exact
+UI diagnostics, and rerun affected PostgreSQL backend/application and focused
+availability suites. Previously green unchanged SQLite/application/stability
+results remain recorded; final full suite and final-source image proof still
+must execute. Earlier owner evidence remains unchanged.
+
 These paths are explicit WP09 integration exceptions, not silent changes to
 prior owner evidence or broad product scope. Do not change global deadlines,
 remove/narrow tests, add retries or weaken the 5/10/30-second runtime contracts.
@@ -171,6 +187,8 @@ specific rationale and coordinate ownership before implementation.
 - `okr-app/tests/db/no-init.test.ts` (coordinated WP05 exception)
 - `okr-app/tests/application/probes.suite.ts` (coordinated WP06 exception)
 - `okr-app/tests/domains/integrations/integrations.suite.ts` (coordinated query-log oracle exception)
+- `okr-app/src/lib/db/adapters/postgres.ts` (coordinated WP04 close-lifecycle exception)
+- `okr-app/tests/db/availability.test.ts` (coordinated WP04 live-close regression exception)
 
 Do not edit `.github/workflows/`, CI/CD logic, triggers, gates, permissions,
 publication settings or repository branch settings. Do not deploy or publish.
