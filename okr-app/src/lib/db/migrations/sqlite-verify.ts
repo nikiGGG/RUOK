@@ -1,16 +1,22 @@
 /**
- * SQLite schema-verification mode (FR-005 / T011).
+ * SQLite schema-verification mode (FR-002 / FR-005 / T008, T009).
  *
  * For deployments where the runtime role may not execute DDL (separate
  * migration role), verification asserts the target schema + history are
- * already in place WITHOUT mutating anything. An un-migrated database, an
- * unrecognized layout, or a layout still needing adoption deltas is reported
- * as not ready rather than repaired.
+ * already in place WITHOUT mutating anything. It shares the exact semantic
+ * inspector and classifier used by the migrator, so a definition hidden behind
+ * an expected name, a journal that is corrupt/unknown/future, or a layout still
+ * needing adoption deltas is reported as not ready rather than repaired.
+ *
+ * An un-migrated database, an unrecognized layout, or a layout still needing
+ * adoption deltas is reported as not ready. Verify is strictly read-only: it
+ * issues no DDL and no journal writes and performs no persistent pragma change.
  */
 import type Database from 'better-sqlite3'
 import { getExpectedSqliteLayout } from './expected-sqlite'
 import { classifyLegacy } from './fingerprint'
 import { readMigrationFolder } from './migration-files'
+import { inspectSqlite } from './sqlite-inspect'
 import type { MigrationResult } from './contracts'
 
 export function runSqliteVerify(
@@ -18,35 +24,11 @@ export function runSqliteVerify(
 	migrationsFolder: string
 ): MigrationResult {
 	const { migrations } = readMigrationFolder(migrationsFolder)
-	const expected = getExpectedSqliteLayout()
+	const expected = getExpectedSqliteLayout(migrations)
 
-	// Structural fingerprint (tables/columns/indexes/journal).
-	const tables: Record<string, string[]> = {}
-	const tableRows = sqlite.prepare(`SELECT name FROM sqlite_master WHERE type = 'table'`).all() as Array<{
-		name: string
-	}>
-	for (const r of tableRows) {
-		if (r.name.startsWith('sqlite_')) continue
-		tables[r.name] = (
-			sqlite.prepare(`PRAGMA table_info(\`${r.name}\`)`).all() as Array<{ name: string }>
-		).map((c) => c.name)
-	}
-	const indexes: Record<string, string> = {}
-	const idxRows = (
-		sqlite.prepare(`SELECT name, sql FROM sqlite_master WHERE type = 'index' AND sql IS NOT NULL`).all() as Array<{
-			name: string
-			sql: string
-		}>
-	)
-	for (const r of idxRows) indexes[r.name] = r.sql
-	const journalPresent = Object.prototype.hasOwnProperty.call(tables, '__drizzle_migrations')
-	const journalCreatedAts = journalPresent
-		? (sqlite
-				.prepare(`SELECT created_at FROM __drizzle_migrations`)
-				.all() as Array<{ created_at: number }>).map((r) => Number(r.created_at))
-		: []
-
-	const classification = classifyLegacy({ tables, indexes, journalPresent, journalCreatedAts }, expected, migrations)
+	// Shared semantic inspection; read-only, no pragma mutation.
+	const current = inspectSqlite(sqlite)
+	const classification = classifyLegacy(current, expected, migrations)
 
 	switch (classification.kind) {
 		case 'fresh':
