@@ -32,6 +32,9 @@ RUN npm ci
 COPY . .
 
 # Production SvelteKit build (adapter-node -> build/). No DB access.
+# WP10: the Vite build hook also emits SQLite worker assets into build/workers/
+# (runtime.mjs + preparation.mjs); they are carried into the runtime stage below
+# automatically with the rest of build/.
 RUN npm run build
 
 # Bundle the standalone migration CLI (FR-004/FR-005) into the build output.

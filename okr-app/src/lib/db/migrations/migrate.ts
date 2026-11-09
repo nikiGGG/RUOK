@@ -16,7 +16,6 @@
  *     `createJournal`, no advisory lock) so a data-only runtime role can check
  *     migrated storage.
  */
-import Database from 'better-sqlite3'
 import { dirname, join } from 'path'
 import { mkdirSync } from 'fs'
 import { runSqliteMigrations } from './sqlite-migrator'
@@ -59,6 +58,9 @@ export async function migrateDatabase(
 		if (mode === 'verify') {
 			// T012: read-only, fileMustExist, no mkdir. A missing path/dir is
 			// rejected without being created; no persistent pragmas are set.
+			// The driver is imported lazily so this module never pulls
+			// better-sqlite3 into a bundle that only runs the postgres branch.
+			const { default: Database } = await import('better-sqlite3')
 			const sqlite = new Database(config.path, { readonly: true, fileMustExist: true })
 			try {
 				const { runSqliteVerify } = await import('./sqlite-verify')
@@ -68,6 +70,7 @@ export async function migrateDatabase(
 			}
 		}
 		// Migrate retains the original create behavior (mkdir + create file).
+		const { default: Database } = await import('better-sqlite3')
 		mkdirSync(dirname(config.path), { recursive: true })
 		const sqlite = new Database(config.path)
 		try {

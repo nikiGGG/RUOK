@@ -17,7 +17,8 @@
  * Historical migrations (`okr-app/drizzle/0000..0006*.sql`) are a frozen
  * surface; this module only describes what adoption may safely add.
  */
-import Database from 'better-sqlite3'
+import type Database from 'better-sqlite3'
+import { createRequire } from 'node:module'
 import type { ColumnDescriptor, DbShape, ExpectedLayout, MigrationMeta } from './contracts'
 import { inspectSqlite } from './sqlite-inspect'
 
@@ -62,7 +63,11 @@ const ADDITIVE_INDEXES: Record<string, string> = {
 
 /** Apply the full checked history to an isolated in-memory reference database. */
 function buildReferenceDb(migrations: MigrationMeta[]): Database.Database {
-	const db = new Database(':memory:')
+	// Lazily resolve the driver so this module never statically bundles
+	// better-sqlite3; it is only ever loaded by the worker migration path.
+	const require = createRequire(import.meta.url)
+	const Driver: typeof import('better-sqlite3') = require('better-sqlite3')
+	const db = new Driver(':memory:')
 	db.exec(
 		`CREATE TABLE ${JOURNAL_TABLE} (id INTEGER PRIMARY KEY, hash text NOT NULL, created_at numeric)`
 	)

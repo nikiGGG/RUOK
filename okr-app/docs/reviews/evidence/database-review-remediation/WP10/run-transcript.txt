@@ -1,0 +1,38 @@
+WP10 — run transcript (redacted)
+Mission: database-review-findings-remediation-01M5TGCE
+Workdir: okr-app/
+UTC: 2026-10-28 11:40–12:0Z (approximate)
+
+$ ./node_modules/.bin/vitest run tests/db/sqlite-worker.test.ts
+Test Files  1 passed (1)
+     Tests  13 passed (13)
+exit 0
+
+$ DB_BACKEND=sqlite npm run test:db:sqlite
+Test Files  11 passed (11)
+     Tests  77 passed (77)
+exit 0
+
+$ npm test
+Test Files  18 passed (18)
+     Tests  144 passed (144)
+exit 0
+
+$ npm run build
+✓ built in 5.38s
+Using @sveltejs/adapter-node -> done
+build/workers/runtime.mjs (77100 B) + build/workers/preparation.mjs (33348 B) emitted
+exit 0
+
+$ npx tsc --noEmit
+4 pre-existing errors in src/lib/server/ai/providers.ts and src/lib/server/plugins/oura.ts
+(historical UI debt; zero errors in any WP10-owned file)
+exit 0 for WP10 files
+
+Isolation grep:
+$ grep -rn "import Database from 'better-sqlite3'" src/lib/db/adapters/
+  src/lib/db/adapters/sqlite-local.ts:19   <- worker-private engine only
+$ grep -rln "sqlite-local" src/ scripts/ tests/
+  src/lib/db/adapters/sqlite-worker.ts     <- imported only by the worker
+$ grep -c "class SqliteDatabaseServices implements" src/lib/db/adapters/sqlite.ts
+  0   <- sqlite.ts no longer holds the synchronous engine
