@@ -14,6 +14,9 @@ requirement_refs:
 planning_base_branch: plan/sqlite-postgresql-support
 merge_target_branch: plan/sqlite-postgresql-support
 branch_strategy: Planning artifacts for this mission were generated on plan/sqlite-postgresql-support. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into plan/sqlite-postgresql-support unless the human explicitly redirects the landing branch.
+base_branch: kitty/mission-database-review-findings-remediation-01M5TGCE
+base_commit: 4a745701b0e0303d852179f75a5d44af1e5aefec
+created_at: '2026-10-28T20:13:58.142407+00:00'
 subtasks:
 - T049
 - T050
