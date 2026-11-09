@@ -50,6 +50,10 @@ owned_files:
 - okr-app/docs/DATABASE-VERIFICATION.md
 - okr-app/docs/reviews/database-review-findings-remediation.md
 - okr-app/docs/reviews/evidence/database-review-remediation/WP09/
+- okr-app/src/lib/db/adapters/sqlite-local.ts
+- okr-app/tests/db/no-init.test.ts
+- okr-app/tests/application/probes.suite.ts
+- okr-app/tests/domains/integrations/integrations.suite.ts
 role: curator
 tags: []
 task_type: implement
@@ -112,6 +116,45 @@ Pass mission `database-review-findings-remediation-01M5TGCE` on mission-aware
 commands and follow the resolver/runtime response rather than guessing paths.
 Do not execute this implementation command while merely authoring tasks.
 
+## Integration scope amendment — 2026-11-09
+
+The operator authorized Codex and Podman on 2026-11-08 and resumed implementation
+and review after the host reboot. During WP09 final integration, the orchestrator
+explicitly coordinated three bounded ownership handoffs from approved dependencies:
+
+- WP10 `okr-app/src/lib/db/adapters/sqlite-local.ts`: return `true` only after the
+  existing availability query succeeds, matching `Promise<boolean>` without
+  changing the query or failure propagation.
+- WP05 `okr-app/tests/db/no-init.test.ts`: bound and record each child operation
+  while preserving ten independent probes, exact unopened-state assertions,
+  exit/signal/stderr checks and zero retries. The composed test budget accounts
+  for the ten serial children; the per-child bound remains five seconds.
+- WP06 `okr-app/tests/application/probes.suite.ts`: preserve each HTTP probe's
+  five-second bound including response body consumption and capture fixture,
+  request and teardown phase timings. Only the two composed fixture/probe tests
+  receive budgets derived from existing startup/request/teardown bounds.
+
+The subsequent live PostgreSQL package run exposed a fourth integration-test
+oracle defect: taking a new current-time `listSince` cutoff after inserting rows
+expected those earlier rows to be returned. SQLite second precision hid the
+mistake; both adapters already apply the correct inclusive `>=` filter. The
+orchestrator explicitly coordinates
+`okr-app/tests/domains/integrations/integrations.suite.ts` into WP09 for this one
+query-log case: use deterministic whole-second T and T+1000 timestamps, assert
+exact inclusive-cutoff IDs and an empty future-cutoff result. Preserve all other
+case assertions and do not change either adapter or timestamp normalization.
+Record the original PostgreSQL failure and execute both complete backend package
+commands again because the shared test source changed; no blind retry or weaker
+oracle is permitted.
+
+These paths are explicit WP09 integration exceptions, not silent changes to
+prior owner evidence or broad product scope. Do not change global deadlines,
+remove/narrow tests, add retries or weaken the 5/10/30-second runtime contracts.
+Record the initial failures, same-lock diagnostic comparison, focused/full runs
+and final-source production-image proof. Independent WP09 review must inspect
+all three repairs. CI/CD, historical migrations, dependency versions and RISK-2
+remain frozen under the original constraints.
+
 ## Owned surfaces and safeguards
 
 This WP alone owns the paths in `owned_files`; paths are repository-relative.
@@ -124,6 +167,10 @@ specific rationale and coordinate ownership before implementation.
 - `okr-app/docs/DATABASE-VERIFICATION.md`
 - `okr-app/docs/reviews/database-review-findings-remediation.md`
 - `okr-app/docs/reviews/evidence/database-review-remediation/WP09/`
+- `okr-app/src/lib/db/adapters/sqlite-local.ts` (coordinated WP10 exception)
+- `okr-app/tests/db/no-init.test.ts` (coordinated WP05 exception)
+- `okr-app/tests/application/probes.suite.ts` (coordinated WP06 exception)
+- `okr-app/tests/domains/integrations/integrations.suite.ts` (coordinated query-log oracle exception)
 
 Do not edit `.github/workflows/`, CI/CD logic, triggers, gates, permissions,
 publication settings or repository branch settings. Do not deploy or publish.
