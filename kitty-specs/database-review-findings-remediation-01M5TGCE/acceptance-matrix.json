@@ -38,10 +38,10 @@
       "criterion_id": "FR-004",
       "description": "Migrate operational fixtures, require real matching-tool PostgreSQL recovery, and prove final-image restart persistence plus nonzero lost-write/readiness controls on both backends.",
       "proof_type": "automated_test",
-      "evidence": null,
-      "pass_fail": "pending",
-      "verified_by": null,
-      "verified_at": null,
+      "evidence": "git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/database-review-findings-remediation.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/recovery_postgres_after_close_tmpfs.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/final-image/README.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/final-image/provenance.txt; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP08/baseline-postgres-lost-write.log",
+      "pass_fail": "pass",
+      "verified_by": "codex",
+      "verified_at": "2026-11-09T20:05:59.664048+00:00",
       "notes": "Executed proof independently reviewed; earlier failed attempts remain preserved. git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/database-review-findings-remediation.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/recovery_postgres_after_close_tmpfs.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/final-image/README.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/final-image/provenance.txt; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP08/baseline-postgres-lost-write.log"
     },
     {
