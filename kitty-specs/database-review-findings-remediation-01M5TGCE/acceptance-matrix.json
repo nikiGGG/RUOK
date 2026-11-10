@@ -96,9 +96,9 @@
     },
     {
       "invariant_id": "HISTORICAL_MIGRATIONS_UNCHANGED",
-      "description": "Historical SQLite and PostgreSQL migration histories remain byte-identical to the inspected baseline.",
+      "description": "Historical SQLite and PostgreSQL migrations remain unchanged.",
       "verification_method": "custom_command",
-      "verification_command": "git diff --quiet 0572599edc3e79dded5893aaaaef6867394a5288 5b0db88240c551090cf093c93d484f99b8313687 -- okr-app/drizzle okr-app/drizzle-postgres",
+      "verification_command": "git diff --quiet 0572599edc3e79dded5893aaaaef6867394a5288 6f32a72a707f942507ec5e08540718aab066d1da -- okr-app/drizzle okr-app/drizzle-postgres",
       "result": "confirmed_absent",
       "evidence": "Command exited 0: "
     }
