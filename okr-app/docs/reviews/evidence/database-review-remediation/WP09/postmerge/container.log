@@ -1,4 +1,0 @@
-environment: exit=0 expected=0 start=2026-11-09T20:34:33.463Z end=2026-11-09T20:34:33.956Z
-versions: exit=0 expected=0 start=2026-11-09T20:34:34.005Z end=2026-11-09T20:34:34.078Z
-production-build: exit=0 expected=0 start=2026-11-09T20:34:34.131Z end=2026-11-09T20:36:27.994Z
-full: exit=0 expected=0 start=2026-11-09T20:36:28.039Z end=2026-11-09T20:39:09.130Z

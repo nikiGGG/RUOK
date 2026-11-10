@@ -1,7 +1,0 @@
-sqlite-positive start=2026-11-09T04:15:42Z end=2026-11-09T04:16:05Z exit=0 expected=success
-postgres-positive start=2026-11-09T04:16:05Z end=2026-11-09T04:16:16Z exit=0 expected=success
-baseline-postgres-lost-write start=2026-11-09T04:16:16Z end=2026-11-09T04:16:33Z exit=0 expected=success
-sqlite-lost-write start=2026-11-09T04:16:33Z end=2026-11-09T04:16:59Z exit=1 expected=failure
-postgres-lost-write start=2026-11-09T04:16:59Z end=2026-11-09T04:17:08Z exit=1 expected=failure
-sqlite-never-ready start=2026-11-09T04:17:08Z end=2026-11-09T04:17:26Z exit=1 expected=failure
-postgres-never-ready start=2026-11-09T04:17:26Z end=2026-11-09T04:17:41Z exit=1 expected=failure

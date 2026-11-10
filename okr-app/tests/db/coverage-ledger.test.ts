@@ -26,7 +26,7 @@ import * as sqliteSchema from '../../src/lib/db/schema/sqlite'
 import * as pgSchema from '../../src/lib/db/schema/postgres'
 
 /**
- * Canonical 25-table inventory from `kitty-specs/.../data-model.md`.
+ * Canonical 25-table RUOK database inventory.
  * Ordered to match the documented "Current tables" list. Physical SQL names.
  */
 const CANONICAL_TABLES = [

@@ -1,7 +1,0 @@
-subject=CN=tls-match
-issuer=CN=RUOK-WP09-Disposable-CA
-notBefore=Nov  9 04:45:59 2026 GMT
-notAfter=Nov 10 04:45:59 2026 GMT
-sha256 Fingerprint=5F:CB:D1:88:94:BE:61:1B:82:34:4F:43:26:F0:37:3A:37:32:B3:D9:0F:E6:A5:C9:71:5F:60:A7:EB:6F:38:6F
-X509v3 Subject Alternative Name: 
-    DNS:tls-match

@@ -1,4 +1,0 @@
-{"name":"environment","command":"node --version && npm --version && df -k /tmp","cwd":"/workspace/okr-app","start":"2026-11-09T20:34:33.463Z","end":"2026-11-09T20:34:33.956Z","code":0,"signal":null,"expected":0}
-{"name":"versions","command":"node -e 'for(const n of [\"better-sqlite3\",\"pg\",\"vitest\",\"drizzle-orm\"])console.log(n+\" \"+JSON.parse(require(\"node:fs\").readFileSync(\"node_modules/\"+n+\"/package.json\")).version)'","cwd":"/workspace/okr-app","start":"2026-11-09T20:34:34.005Z","end":"2026-11-09T20:34:34.078Z","code":0,"signal":null,"expected":0}
-{"name":"production-build","command":"NODE_ENV=production npm run build","cwd":"/workspace/okr-app","start":"2026-11-09T20:34:34.131Z","end":"2026-11-09T20:36:27.994Z","code":0,"signal":null,"expected":0}
-{"name":"full","command":"npm test -- --maxWorkers=1 --retry=0","cwd":"/workspace/okr-app","start":"2026-11-09T20:36:28.039Z","end":"2026-11-09T20:39:09.130Z","code":0,"signal":null,"expected":0}

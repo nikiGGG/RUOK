@@ -1,2 +1,0 @@
-[db-migrate] backend=sqlite mode=migrate
-[db-migrate] OK classification=fresh applied=7 recorded=7 schemaVersion=6

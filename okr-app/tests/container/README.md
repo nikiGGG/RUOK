@@ -51,15 +51,6 @@ A missing/unavailable PostgreSQL backend is a failed full verification, not a
 passing no-SQLite-only scenario. Both live backend positives and controlled
 lost-write/never-ready negatives are required for image evidence. A negative is
 valid only when the intended fault is reached and the script exits nonzero.
-Replayable controls and execution records are in
-`docs/reviews/evidence/database-review-remediation/WP08/`.
-
-**Image-download stop rule:** if any required base, frontend or fixture image
-cannot be downloaded, stop all mission work, report exact image/registry/command
-and the redacted error, and wait for explicit operator direction. Do not replace
-images/registries or alter proxy/TLS/network settings to work around it. Missing
-live execution stays incomplete and blocks acceptance. RISK-2 remains unresolved
-and deferred to the operator's separate CI/CD review.
 
 ## Supplemental host SQLite runtime check
 

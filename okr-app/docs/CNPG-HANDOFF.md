@@ -4,15 +4,6 @@ This is the actionable handoff for deploying the RUOK production image in
 PostgreSQL mode backed by an existing CloudNativePG cluster, and for wiring
 that deployment into the external infrastructure repository.
 
-> **Context only, not an edit target.** The external deployment lives in the
-> repository at `https://git.24lab.space/nikg/my-automatiozation/` (pull
-> request #11). That repository is **not** present in this workspace; this
-> document neither accesses, clones, edits, nor deploys it. The PR is referenced
-> here as comment-provided context for *where* the external manifests and
-> cluster objects are expected to live. All concrete values required by that
-> deployment are **environment inputs** that must be supplied by the operator —
-> none are invented or filled in below.
-
 The RUOK side of the database feature (SQLite + PostgreSQL, migrations,
 readiness, image, backup/recovery) is implemented and tested in this
 repository. This document hands off the **remaining external** work and lists,
@@ -218,20 +209,3 @@ A reviewer/operator can mark the handoff actionable only when:
 - [ ] HTTPS works end-to-end with the correct `ORIGIN`.
 
 ---
-
-## Status: task 115 and the external deployment remain PENDING
-
-This mission authors the handoff and the RUOK-side implementation. The
-following are **not** completed by this repository mission and must **not** be
-marked done:
-
-- The external deployment in the `my-automatiozation` repository (PR #11) —
-  **PENDING** until the external repository is updated with the supplied
-  inputs, the image is pulled, and the cluster is deployed and validated.
-- The broader task-115 outcomes: evaluating **personal goal workflows** in the
-  deployed environment and the **wider usability/privacy evaluation** of the
-  deployed application — **PENDING** until observed on the real deployment.
-
-This repository mission closes only for its own completed implementation scope
-(database feature, image, docs, handoff). Record the external deployment and the
-wider evaluation as pending until they are actually observed.
