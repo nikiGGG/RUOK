@@ -315,6 +315,8 @@ describe('postmerge schema boundary regressions (MR-2 / MR-3)', () => {
 		['inline UNIQUE', `CREATE TABLE system_config (${baseConfig}, UNIQUE(value))`, /unique|constraint/i],
 		['column UNIQUE', `CREATE TABLE system_config (${baseConfig.replace('`value` text NOT NULL', '`value` text NOT NULL UNIQUE')})`, /unique|constraint/i],
 		['named UNIQUE', `CREATE TABLE system_config (${baseConfig}); CREATE UNIQUE INDEX extra_config_value ON system_config(value)`, /index|unique|constraint/i],
+		['primary key NOCASE collation', `CREATE TABLE system_config (${baseConfig.replace('`key` text PRIMARY KEY NOT NULL', '`key` text PRIMARY KEY NOT NULL COLLATE NOCASE')})`, /primary key|index|constraint/i],
+		['primary key descending order', `CREATE TABLE system_config (${baseConfig.replace('`key` text PRIMARY KEY NOT NULL', '`key` text PRIMARY KEY DESC NOT NULL')})`, /primary key|index|constraint/i],
 		['extra foreign key', `CREATE TABLE system_config (${baseConfig}, FOREIGN KEY(value) REFERENCES users(id))`, /foreign key/i]
 	] as const
 
@@ -346,6 +348,8 @@ describe('postmerge schema boundary regressions (MR-2 / MR-3)', () => {
 		['known timestamp without application tables', (db) => { db.prepare('INSERT INTO __drizzle_migrations(hash, created_at) VALUES (?, ?)').run(migrations[0].hash, migrations[0].when) }],
 		['complete matching history without application tables', (db) => { for (const m of migrations) db.prepare('INSERT INTO __drizzle_migrations(hash, created_at) VALUES (?, ?)').run(m.hash, m.when) }],
 		['malformed empty journal', (db) => { db.exec('DROP TABLE __drizzle_migrations; CREATE TABLE __drizzle_migrations (id SERIAL PRIMARY KEY, hash text, created_at numeric)') }],
+		['extra empty-journal PK collation', (db) => { db.exec('DROP TABLE __drizzle_migrations; CREATE TABLE __drizzle_migrations (id SERIAL PRIMARY KEY COLLATE NOCASE, hash text NOT NULL, created_at numeric)') }],
+		['extra empty-journal PK direction', (db) => { db.exec('DROP TABLE __drizzle_migrations; CREATE TABLE __drizzle_migrations (id SERIAL PRIMARY KEY DESC, hash text NOT NULL, created_at numeric)') }],
 		['extra empty-journal UNIQUE', (db) => { db.exec('DROP TABLE __drizzle_migrations; CREATE TABLE __drizzle_migrations (id SERIAL PRIMARY KEY, hash text NOT NULL UNIQUE, created_at numeric)') }],
 		['extra empty-journal CHECK', (db) => { db.exec('DROP TABLE __drizzle_migrations; CREATE TABLE __drizzle_migrations (id SERIAL PRIMARY KEY, hash text NOT NULL, created_at numeric CHECK(created_at < 0))') }],
 		['extra empty-journal foreign key', (db) => { db.exec('DROP TABLE __drizzle_migrations; CREATE TABLE __drizzle_migrations (id SERIAL PRIMARY KEY, hash text NOT NULL, created_at numeric, FOREIGN KEY(hash) REFERENCES users(id))') }],
@@ -367,13 +371,13 @@ describe('postmerge schema boundary regressions (MR-2 / MR-3)', () => {
 			})
 		}
 	}
-	for (const emptyJournal of [false, true]) {
-		it(`migrates fresh storage with ${emptyJournal ? 'an empty valid journal' : 'no journal'} then verifies ready`, async () => {
+	for (const journalIdType of [null, 'SERIAL', 'INTEGER']) {
+		it(`migrates fresh storage with ${journalIdType ? `an empty valid ${journalIdType} journal` : 'no journal'} then verifies ready`, async () => {
 			const f = buildLegacyFixture('fresh')
 			cleanups.push(f.cleanup)
-			if (emptyJournal) {
+			if (journalIdType) {
 				const db = writable(f.path)
-				try { db.exec(journalSql) } finally { db.close() }
+				try { db.exec(journalSql.replace('SERIAL', journalIdType)) } finally { db.close() }
 			}
 			const config = loadConfig({ DATABASE_PATH: f.path })
 			expect((await migrateDatabase(config, { mode: 'migrate', migrationsFolder: SQLITE_FOLDER })).classification).toBe('fresh')

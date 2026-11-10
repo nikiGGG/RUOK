@@ -125,6 +125,17 @@ export function classifyLegacy(
 	const reasons: string[] = []
 	if (current.journalPresent) {
 		reasons.push(...validateJournal(current, migrations))
+		const journalPk = Object.values(current.indexDescriptors ?? {})
+			.find((i) => i.table === JOURNAL_TABLE && i.origin === 'pk')
+		const expectedJournalPk = Object.values(expected.indexDescriptors)
+			.find((i) => i.table === JOURNAL_TABLE && i.origin === 'pk')
+		if (journalPk && expectedJournalPk &&
+			JSON.stringify(journalPk.columns.map(indexKeySignature)) !==
+			JSON.stringify(expectedJournalPk.columns.map(indexKeySignature))) {
+			reasons.push('migration journal primary key definition differs from expected (columns/collation/order)')
+		}
+		// INTEGER PRIMARY KEY uses the rowid and has no autoindex; the column
+		// shape check below still requires its supported PK ordinal and type.
 		// Empty journals are eligible for fresh migration only with the supported
 		// constraint surface too; otherwise the first history INSERT can fail or
 		// leave unsupported restrictions behind after a successful migration.
@@ -141,8 +152,8 @@ export function classifyLegacy(
 		}
 		const journalColumns = current.columns?.[JOURNAL_TABLE]
 		if (journalColumns) {
-			// Drizzle/our migrator use SERIAL; the reference and SQLite-native
-			// journals use INTEGER PRIMARY KEY. Both are supported journal IDs.
+			// Drizzle/our migrator use SERIAL; SQLite-native journals can use
+			// INTEGER PRIMARY KEY. Both are supported journal IDs.
 			const signature = (c: ColumnDescriptor) => columnSignature(
 				c.name === 'id' && c.type.toUpperCase() === 'SERIAL' ? { ...c, type: 'INTEGER' } : c
 			)
@@ -223,6 +234,22 @@ export function classifyLegacy(
 			if (index.table === JOURNAL_TABLE && index.origin === 'pk') continue
 			if (index.unique && index.origin !== 'pk' && !expectedUnique.has(uniqueSignature(index))) {
 				reasons.push(`unsupported UNIQUE constraint on table '${index.table}'`)
+			}
+		}
+	}
+
+	// PK column ordinals do not capture key collation or direction. Autoindex
+	// names are incidental; compare the complete PRAGMA key by owning table.
+	if (current.indexDescriptors && expected.indexDescriptors) {
+		const primaryKeys = (indexes: Record<string, IndexDescriptor>) => new Map(
+			Object.values(indexes).filter((i) => i.origin === 'pk' && i.table !== JOURNAL_TABLE)
+				.map((i) => [i.table, JSON.stringify(i.columns.map(indexKeySignature))])
+		)
+		const actual = primaryKeys(current.indexDescriptors)
+		const reference = primaryKeys(expected.indexDescriptors)
+		for (const table of new Set([...actual.keys(), ...reference.keys()])) {
+			if (actual.get(table) !== reference.get(table)) {
+				reasons.push(`primary key index on table '${table}' definition differs from expected (columns/collation/order)`)
 			}
 		}
 	}
