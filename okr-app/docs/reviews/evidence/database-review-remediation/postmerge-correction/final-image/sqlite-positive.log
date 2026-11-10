@@ -1,0 +1,10 @@
+    local image ID=971dcd56a2de3a49b019b6a025dbbf32d6e30ab74a6f8f9b2587805defc2d867 (not a registry digest)
+ad5a35fb80d9b164462ca6a77bd0028110ddaa893e8ae1b22fdcd7e9fc4ec5d7
+    /api/ready -> 200
+[db-migrate] backend=sqlite mode=migrate
+[db-migrate] OK classification=ready applied=7 recorded=0 schemaVersion=6
+    created objective id=93276ebf-2139-46bc-b8de-d2d1e5c5048b
+    exact objective verified: id=93276ebf-2139-46bc-b8de-d2d1e5c5048b title=WP08 persistence smoke_19fbad7b281e672a
+    /api/ready -> 200
+    exact objective verified: id=93276ebf-2139-46bc-b8de-d2d1e5c5048b title=WP08 persistence smoke_19fbad7b281e672a
+### [sqlite] PASS image=971dcd56a2de3a49b019b6a025dbbf32d6e30ab74a6f8f9b2587805defc2d867

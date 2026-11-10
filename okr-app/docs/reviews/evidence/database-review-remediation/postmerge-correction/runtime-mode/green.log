@@ -1,0 +1,14 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/workspace/okr-app[39m
+
+ [32m✓[39m tests/db/readiness-mode.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 4556[2mms[22m[39m
+   [32m✓[39m readiness-first runtime mode (MR-1) [2m(5)[22m
+     [33m[2m✓[22m[39m verify leaves a fresh file and parent absent across cooldown and retry[33m 1399[2mms[22m[39m
+     [33m[2m✓[22m[39m recovers in verify mode after external migration without restarting the lifecycle[33m 2075[2mms[22m[39m
+     [33m[2m✓[22m[39m an absent mode retains automatic migration and readiness[33m 929[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m   Start at [22m 16:19:43
+[2m   Duration [22m 6.01s[2m (tests 78%, import 13%, transform 9%)[22m
+

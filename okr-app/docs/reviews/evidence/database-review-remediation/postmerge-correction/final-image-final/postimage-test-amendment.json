@@ -1,0 +1,9 @@
+{
+  "image": "cc1cffc284fbb78bd0338d36883ca82ff3e38f33f560291e63525cc889b0a1aa",
+  "image_source_commit": "c6f9f30f7eabf77c3ce33796e70a8e81773647e6",
+  "unchanged_product_inputs": 185,
+  "changed_manifest_paths": [
+    "tests/recovery/postgres-recovery.test.ts"
+  ],
+  "amendment": "Only local native-recovery test timeout/comment; every packaged product input unchanged. Full 251-file pre-amendment check is preserved separately."
+}

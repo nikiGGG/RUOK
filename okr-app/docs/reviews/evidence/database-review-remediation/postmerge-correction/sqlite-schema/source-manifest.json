@@ -1,0 +1,33 @@
+{
+  "scope": "MR-2/MR-3 / FR-002 / T006\u2013T009",
+  "corrective_op": "01M71V7074RWQY0HAMEF8AQ4WX",
+  "source_revision": "5e17c6be60bdda3e727f69d468b1c80875572700",
+  "source_files": {
+    "okr-app/src/lib/db/migrations/contracts.ts": {
+      "pre_change_sha256": "833292d763575d30a13342dcf2b23750449755ba677679fa9d8decd34242393a",
+      "post_change_sha256": "d37f068bb6648dcb646ca60c26681339923df4731ace9c278adb080f3436cc80",
+      "pk_correction_baseline_sha256": "d37f068bb6648dcb646ca60c26681339923df4731ace9c278adb080f3436cc80"
+    },
+    "okr-app/src/lib/db/migrations/sqlite-inspect.ts": {
+      "pre_change_sha256": "00818a8beb9f513024bac23f7779d6c23340be2e61b2e67c7697856de8827741",
+      "post_change_sha256": "690290acec4371e3a11d74ac42a3253d79b0fc70db353aefe86d77502635ba46",
+      "pk_correction_baseline_sha256": "690290acec4371e3a11d74ac42a3253d79b0fc70db353aefe86d77502635ba46"
+    },
+    "okr-app/src/lib/db/migrations/expected-sqlite.ts": {
+      "pre_change_sha256": "80550d8a7e25d0e9ea2b7c7807ba5ac5d85d1c6807a23bfbe6e1e3fbea91a0e6",
+      "post_change_sha256": "1de4a1493a977692948a979db024e5ec3d354b76bc5af85f9b4700492af259bd",
+      "pk_correction_baseline_sha256": "e5e57cfe4fa1c2f387fcb7d448692ee8238e63d0165af138e7314cb73615e44c"
+    },
+    "okr-app/src/lib/db/migrations/fingerprint.ts": {
+      "pre_change_sha256": "515025eccf1960f88830664adb045bc5284ea0e68666a4c9c9de2f7c45d1d5b4",
+      "post_change_sha256": "abdc052d52cc0a0d1252ae0d4c59f97f3e01edd6dd10413b080c05f20f5946f4",
+      "pk_correction_baseline_sha256": "8477bf2758b165bf493533f8ea3962687456b126e994f379e41423aae8a72000"
+    },
+    "okr-app/tests/db/sqlite-integrity.test.ts": {
+      "pre_change_sha256": "7a3a03baee024669c63a9e715e645246a2059dd39221d6204e911119f27ebf83",
+      "post_change_sha256": "ec142a6741f0b5ea3d151b9aad22870e657af56214026ba3dda7c9991477e7fa",
+      "pk_correction_baseline_sha256": "154a1988c9ae406ab8601d3bc3e9c949b5eb47b41fee380b3ed5412363b5055c"
+    }
+  },
+  "pk_correction_baseline_revision": "f2d4bde12236132f0e22661c1e8e8771fb02ed11"
+}

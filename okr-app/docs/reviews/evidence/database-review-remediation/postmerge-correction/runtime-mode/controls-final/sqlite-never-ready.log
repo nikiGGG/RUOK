@@ -1,0 +1,15 @@
+    local image ID=cc1cffc284fbb78bd0338d36883ca82ff3e38f33f560291e63525cc889b0a1aa (not a registry digest)
+48737d7a9c4e29aca17cabb3f5363529f7f403bdf593fbed889c57bb20b999f0
+SETUP: backend=sqlite readiness_deadline_s=15
+    /api/ready -> 200
+SETUP: initial readiness succeeded before fault injection
+[db-migrate] backend=sqlite mode=migrate
+[db-migrate] OK classification=ready applied=7 recorded=0 schemaVersion=6
+    created objective id=5c8be2c7-610a-4384-b370-80a1f8818289
+    exact objective verified: id=5c8be2c7-610a-4384-b370-80a1f8818289 title=WP08 persistence smoke_9cd37b705e12dd87
+time="2026-11-10T20:54:59+04:00" level=warning msg="StopSignal SIGTERM failed to stop container ruok-never-ready-sqlite-183973-11507 in 1 seconds, resorting to SIGKILL"
+CONTROL: application stopped after restart; readiness cannot succeed
+CONTROL: real stopped-container state verified
+POST_FAULT: readiness_deadline_s=5
+FAIL readiness deadline exceeded (5s)
+CONTROL: intended post-fault readiness deadline rejected stopped app

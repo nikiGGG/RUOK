@@ -1,0 +1,10 @@
+    local image ID=cc1cffc284fbb78bd0338d36883ca82ff3e38f33f560291e63525cc889b0a1aa (not a registry digest)
+2ded5a40db206644badc7d77ff2dae6d60c65bfc295fb66ad7b3293c92375c8a
+    /api/ready -> 200
+[db-migrate] backend=sqlite mode=migrate
+[db-migrate] OK classification=ready applied=7 recorded=0 schemaVersion=6
+    created objective id=bd3ad81b-032b-4619-a03b-3ecb2b78425e
+    exact objective verified: id=bd3ad81b-032b-4619-a03b-3ecb2b78425e title=WP08 persistence smoke_de6db58ca539c085
+CONTROL: objective rows deleted after restart
+    /api/ready -> 200
+FAIL original objective ID/title missing or changed

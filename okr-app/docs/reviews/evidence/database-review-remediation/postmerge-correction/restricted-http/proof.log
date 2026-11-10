@@ -1,0 +1,16 @@
+command: node_modules/.bin/esbuild docs/reviews/evidence/database-review-remediation/postmerge-correction/restricted-http/proof.ts --bundle --platform=node --format=esm --packages=external --outfile=node_modules/.cache/review-restricted-http.mjs && node node_modules/.cache/review-restricted-http.mjs
+cwd: /workspace/okr-app
+start: 2026-11-10T16:41:57.097Z
+--- stdout ---
+{"utc":"2026-11-10T16:41:57.645Z","phase":"cleanup complete","database_removed":true,"role_removed":true}
+
+--- stderr ---
+
+  node_modules/.cache/review-restricted-http.mjs  9.1kb
+
+⚡ Done in 5ms
+{"phase":"FAIL","name":"AssertionError","code":"ERR_ASSERTION","assertion":"match"}
+
+end: 2026-11-10T16:41:57.658Z
+exit: 1
+signal: null

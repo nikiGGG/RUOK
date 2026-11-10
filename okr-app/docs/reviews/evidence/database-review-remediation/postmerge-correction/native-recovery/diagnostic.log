@@ -1,0 +1,22 @@
+command: node_modules/.bin/vitest run tests/recovery/postgres-recovery.test.ts --maxWorkers=1 --retry=0 --testTimeout=30000
+cwd: /workspace/okr-app
+start: 2026-11-10T16:49:15.891Z
+--- stdout ---
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/workspace/okr-app[39m
+
+ [32m✓[39m tests/recovery/postgres-recovery.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 1235[2mms[22m[39m
+   [32m✓[39m T031 PostgreSQL native recovery rehearsal [2m(1)[22m
+     [33m[2m✓[22m[39m pg_dump + pg_restore preserves a full migrated installation[33m 1230[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 16:49:17
+[2m   Duration [22m 2.68s[2m (tests 49%, import 29%, transform 22%)[22m
+
+
+--- stderr ---
+
+end: 2026-11-10T16:49:20.538Z
+exit: 0
+signal: null
