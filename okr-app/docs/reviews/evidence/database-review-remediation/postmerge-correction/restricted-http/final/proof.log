@@ -1,0 +1,23 @@
+command: node_modules/.bin/esbuild docs/reviews/evidence/database-review-remediation/postmerge-correction/restricted-http/proof.ts --bundle --platform=node --format=esm --packages=external --outfile=node_modules/.cache/review-restricted-http.mjs && node node_modules/.cache/review-restricted-http.mjs
+cwd: /workspace/okr-app
+start: 2026-11-10T16:55:23.228Z
+--- stdout ---
+{"utc":"2026-11-10T16:55:23.761Z","phase":"external fresh image migration verified","classification":"fresh","migration_count":1,"application_tables":25,"journal_matches_checked_history":true}
+{"utc":"2026-11-10T16:55:23.880Z","phase":"restricted role and active DDL guard verified","db_create":false,"public_create":false,"journal_create":false,"owned_objects":0,"negative_control":"CREATE SCHEMA IF NOT EXISTS rejected by event trigger"}
+{"utc":"2026-11-10T16:55:23.884Z","phase":"data-only role DML verified"}
+{"utc":"2026-11-10T16:55:25.044Z","phase":"HTTP","path":"/api/health","status":200,"request_ms":42.3,"pid":36}
+{"utc":"2026-11-10T16:55:25.076Z","phase":"HTTP","path":"/api/ready","status":503,"request_ms":30.9,"pid":36,"ready":false}
+{"utc":"2026-11-10T16:55:25.334Z","phase":"HTTP","path":"/api/ready","status":200,"request_ms":6.9,"pid":36,"ready":true}
+{"utc":"2026-11-10T16:55:25.338Z","phase":"HTTP","path":"/api/health","status":200,"request_ms":3.9,"pid":36}
+{"utc":"2026-11-10T16:55:25.354Z","phase":"PASS built-image readiness uses no DDL","image_id":"cc1cffc284fbb78bd0338d36883ca82ff3e38f33f560291e63525cc889b0a1aa","pid":36,"same_pid":true,"catalog_and_journal_unchanged":true,"ddl_guard_active":true,"ready_ms":309.1}
+{"utc":"2026-11-10T16:55:25.468Z","phase":"cleanup complete","database_removed":true,"role_removed":true}
+
+--- stderr ---
+
+  node_modules/.cache/review-restricted-http.mjs  10.7kb
+
+⚡ Done in 6ms
+
+end: 2026-11-10T16:55:28.371Z
+exit: 0
+signal: null

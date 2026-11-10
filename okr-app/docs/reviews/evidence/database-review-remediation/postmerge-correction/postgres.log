@@ -1,0 +1,24 @@
+command: npm run test:db:postgres -- --maxWorkers=1 --retry=0
+cwd: /workspace/okr-app
+start: 2026-11-10T16:26:02.268Z
+--- stdout ---
+
+> ruok@0.0.1 test:db:postgres
+> npm run preflight:postgres && DB_BACKEND=postgres vitest run tests/db/postgres.contract.test.ts tests/db/postgres.migration.test.ts tests/db/postgres.operations.test.ts tests/db/schema-parity.test.ts tests/domains/auth/postgres.test.ts tests/domains/goals/postgres.test.ts tests/domains/planning/postgres.test.ts tests/domains/metrics/postgres.test.ts tests/domains/integrations/postgres.test.ts tests/backup/postgres.test.ts tests/recovery/postgres-recovery.test.ts --maxWorkers=1 --retry=0
+
+
+> ruok@0.0.1 preflight:postgres
+> esbuild scripts/require-postgres-test.ts --bundle --platform=node --packages=external --format=esm --outfile=node_modules/.cache/require-postgres-test.mjs && node node_modules/.cache/require-postgres-test.mjs
+
+
+--- stderr ---
+
+  node_modules/.cache/require-postgres-test.mjs  4.5kb
+
+⚡ Done in 3ms
+[require-postgres] Missing PostgreSQL test prerequisites:
+  - RUOK_TEST_PG_ADMIN_URL is not set. Set it to a DBA/owner connection string for a disposable PostgreSQL 18+ server (no password will be printed).
+
+end: 2026-11-10T16:26:02.747Z
+exit: 1
+signal: null

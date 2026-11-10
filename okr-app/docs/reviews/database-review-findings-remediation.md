@@ -5,6 +5,31 @@ Target: `plan/sqlite-postgresql-support`.
 Inspected baseline: `0572599edc3e79dded5893aaaaef6867394a5288`.
 The [historical review](sqlite-postgresql-support-2026-10-26.md) is unchanged.
 
+## Corrective verification after the post-merge audit
+
+The initial [post-merge audit](database-review-findings-remediation-mission-review.md)
+reproduced three HIGH gaps despite passing suites. They are corrected in
+`f2d4bde` and `c6f9f30`; `383050e` adds only a scoped native-recovery test budget.
+Readiness now honors verify mode before I/O. SQLite rejects extra UNIQUE/FK/PK
+semantics and invalid journal-only storage before mutation, while preserving
+supported layouts and valid empty journals.
+
+The [corrective report](evidence/database-review-remediation/postmerge-correction/README.md)
+explains each root cause and replay procedure. Its final runs passed full173,
+SQLite79, PostgreSQL93, application PostgreSQL25, supplemental106 and standalone
+native recovery1 with zero mandatory skips. The full suite also includes SQLite
+application27 and three stability cases. Built HTTP proofs establish verify
+noncreation and same-process recovery, plus restricted PostgreSQL readiness with
+an active no-DDL guard. The immutable image passed both persistence positives
+and four intended fault controls through explicitly documented composite proof.
+
+The [independent corrective review](evidence/database-review-remediation/postmerge-correction/corrective-review.md)
+and checksums preserve the initial failures and bind the final evidence to its
+source/image. The historical WP09 matrix below remains evidence for its recorded
+revision, rather than replacing this corrective record. The Svelte baseline
+remains 18 errors/four warnings with zero new diagnostics. RISK-2 remains
+unresolved and deferred to the operator's separate CI/CD review.
+
 **All six in-scope application findings have executed closure evidence.**
 RISK-2 remains unresolved and explicitly deferred to the operator's separate
 CI/CD review. Required suites have zero failures and mandatory skips in the

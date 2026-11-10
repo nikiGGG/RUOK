@@ -1,0 +1,15 @@
+    local image ID=cc1cffc284fbb78bd0338d36883ca82ff3e38f33f560291e63525cc889b0a1aa (not a registry digest)
+37550fd3cb17b478ac0ceb49dd9f4aab916c6678c591b7db24f7fd81ba24bafe
+SETUP: backend=postgres readiness_deadline_s=15
+    /api/ready -> 200
+SETUP: initial readiness succeeded before fault injection
+[db-migrate] backend=postgres mode=migrate
+[db-migrate] OK classification=ready applied=1 recorded=0 schemaVersion=0
+    created objective id=9f943746-7d2d-4a6d-935e-d01e10ae960c
+    exact objective verified: id=9f943746-7d2d-4a6d-935e-d01e10ae960c title=WP08 persistence smoke_e3075e27dcd97684
+time="2026-11-10T20:55:17+04:00" level=warning msg="StopSignal SIGTERM failed to stop container ruok-never-ready-postgres-183973-13553 in 1 seconds, resorting to SIGKILL"
+CONTROL: application stopped after restart; readiness cannot succeed
+CONTROL: real stopped-container state verified
+POST_FAULT: readiness_deadline_s=5
+FAIL readiness deadline exceeded (5s)
+CONTROL: intended post-fault readiness deadline rejected stopped app

@@ -1,0 +1,104 @@
+command: npm run test:db:postgres -- --maxWorkers=1 --retry=0
+cwd: /workspace/okr-app
+start: 2026-11-10T16:52:42.492Z
+--- stdout ---
+
+> ruok@0.0.1 test:db:postgres
+> npm run preflight:postgres && DB_BACKEND=postgres vitest run tests/db/postgres.contract.test.ts tests/db/postgres.migration.test.ts tests/db/postgres.operations.test.ts tests/db/schema-parity.test.ts tests/domains/auth/postgres.test.ts tests/domains/goals/postgres.test.ts tests/domains/planning/postgres.test.ts tests/domains/metrics/postgres.test.ts tests/domains/integrations/postgres.test.ts tests/backup/postgres.test.ts tests/recovery/postgres-recovery.test.ts --maxWorkers=1 --retry=0
+
+
+> ruok@0.0.1 preflight:postgres
+> esbuild scripts/require-postgres-test.ts --bundle --platform=node --packages=external --format=esm --outfile=node_modules/.cache/require-postgres-test.mjs && node node_modules/.cache/require-postgres-test.mjs
+
+[require-postgres] OK
+[require-postgres] server=18.6 (Debian 18.6-1.pgdg13+2) tools=pg_dump,pg_restore,psql
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/workspace/okr-app[39m
+
+ [32m✓[39m tests/backup/postgres.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 28259[2mms[22m[39m
+   [32m✓[39m backup/restore contract (sqlite->postgres) [2m(7)[22m
+     [33m[2m✓[22m[39m round-trips complete supported content with preserved links[33m 1545[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves other accounts when restoring into one user[33m 1643[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects an unsupported version before any mutation[33m 3490[2mms[22m[39m
+     [33m[2m✓[22m[39m deterministically rejects duplicate names and broken references before mutation[33m 907[2mms[22m[39m
+     [33m[2m✓[22m[39m rolls back the whole restore on a failure after deletion[33m 1032[2mms[22m[39m
+     [33m[2m✓[22m[39m rolls back the whole restore on a failure near the final preference writes[33m 1046[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps exports consistent under concurrent replace restores[33m 1157[2mms[22m[39m
+   [32m✓[39m backup/restore contract (postgres->sqlite) [2m(7)[22m
+     [33m[2m✓[22m[39m round-trips complete supported content with preserved links[33m 1026[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves other accounts when restoring into one user[33m 966[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects an unsupported version before any mutation[33m 1005[2mms[22m[39m
+     [33m[2m✓[22m[39m deterministically rejects duplicate names and broken references before mutation[33m 926[2mms[22m[39m
+     [33m[2m✓[22m[39m rolls back the whole restore on a failure after deletion[33m 1076[2mms[22m[39m
+     [33m[2m✓[22m[39m rolls back the whole restore on a failure near the final preference writes[33m 1343[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps exports consistent under concurrent replace restores[33m 1713[2mms[22m[39m
+   [32m✓[39m backup/restore contract (postgres->postgres) [2m(7)[22m
+     [33m[2m✓[22m[39m round-trips complete supported content with preserved links[33m 1981[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves other accounts when restoring into one user[33m 1284[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects an unsupported version before any mutation[33m 1095[2mms[22m[39m
+     [33m[2m✓[22m[39m deterministically rejects duplicate names and broken references before mutation[33m 1038[2mms[22m[39m
+     [33m[2m✓[22m[39m rolls back the whole restore on a failure after deletion[33m 1329[2mms[22m[39m
+     [33m[2m✓[22m[39m rolls back the whole restore on a failure near the final preference writes[33m 1162[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps exports consistent under concurrent replace restores[33m 1486[2mms[22m[39m
+ [32m✓[39m tests/db/postgres.contract.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 6419[2mms[22m[39m
+   [32m✓[39m persistence contract [postgres] [2m(16)[22m
+     [33m[2m✓[22m[39m inserts and reads back a user[33m 2609[2mms[22m[39m
+     [33m[2m✓[22m[39m maps optional SQL NULL to null (not empty string / false / 0)[33m 333[2mms[22m[39m
+     [33m[2m✓[22m[39m normalizes timestamps to second precision on both backends[33m 361[2mms[22m[39m
+ [32m✓[39m tests/db/postgres.operations.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 3528[2mms[22m[39m
+   [32m✓[39m T030 PostgreSQL operational failures [2m(4)[22m
+     [33m[2m✓[22m[39m releases the migration advisory lock after use (lock cleanup)[33m 682[2mms[22m[39m
+     [33m[2m✓[22m[39m completes concurrent operations through a bounded pool (no deadlock)[33m 1133[2mms[22m[39m
+     [33m[2m✓[22m[39m tracks readiness transitions through the process-wide singleton[33m 740[2mms[22m[39m
+     [33m[2m✓[22m[39m surfaces connection loss as a controlled error (never a fallback)[33m 968[2mms[22m[39m
+ [32m✓[39m tests/domains/planning/postgres.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 4876[2mms[22m[39m
+   [32m✓[39m planning domain contract (postgres) [2m(12)[22m
+     [33m[2m✓[22m[39m finds daily and weekly periods with week/year edge filtering[33m 953[2mms[22m[39m
+     [33m[2m✓[22m[39m lists periods with filters ordered by year/month/week descending[33m 848[2mms[22m[39m
+     [33m[2m✓[22m[39m updates journal/notes on a period (journal endpoint behavior)[33m 690[2mms[22m[39m
+     [33m[2m✓[22m[39m creates tasks with attributes and tags atomically (T018)[33m 611[2mms[22m[39m
+ [32m✓[39m tests/domains/metrics/postgres.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 3976[2mms[22m[39m
+   [32m✓[39m metrics domain contract (postgres) [2m(7)[22m
+     [33m[2m✓[22m[39m creates and lists templates ordered by effectiveFrom descending (T019)[33m 1007[2mms[22m[39m
+     [33m[2m✓[22m[39m selects the active template by effectiveFrom <= date (version selection)[33m 1029[2mms[22m[39m
+     [33m[2m✓[22m[39m upserts flexible daily metric values and reads them back (T019/T020)[33m 652[2mms[22m[39m
+     [33m[2m✓[22m[39m stores null values and preserves per-user isolation (T020)[33m 635[2mms[22m[39m
+ [32m✓[39m tests/domains/auth/postgres.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 3462[2mms[22m[39m
+   [32m✓[39m auth domain contract (postgres) [2m(8)[22m
+     [33m[2m✓[22m[39m creates an account and reads it back with preserved defaults[33m 2056[2mms[22m[39m
+ [32m✓[39m tests/domains/goals/postgres.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 3826[2mms[22m[39m
+   [32m✓[39m goals domain contract (postgres) [2m(6)[22m
+     [33m[2m✓[22m[39m creates objectives and scopes them per user[33m 1090[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves parent links, weight, description and timestamps[33m 985[2mms[22m[39m
+     [33m[2m✓[22m[39m updates and removes objectives with missing-row semantics[33m 670[2mms[22m[39m
+     [33m[2m✓[22m[39m manages key results with ordering, scoreLabel and custom-query links[33m 644[2mms[22m[39m
+ [32m✓[39m tests/domains/integrations/postgres.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 3997[2mms[22m[39m
+   [32m✓[39m application integrations contract (postgres) [2m(7)[22m
+     [33m[2m✓[22m[39m friend requests can be created, accepted and declined with per-user scope[33m 2584[2mms[22m[39m
+     [33m[2m✓[22m[39m AI configuration is upserted per user with a clamped provider[33m 338[2mms[22m[39m
+ [32m✓[39m tests/db/postgres.migration.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 911[2mms[22m[39m
+   [32m✓[39m postgres migration runner (T012, live server) [2m(1)[22m
+     [33m[2m✓[22m[39m runs a fresh migration then a repeated (ready) migration on a disposable database[33m 901[2mms[22m[39m
+ [32m✓[39m tests/recovery/postgres-recovery.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 2415[2mms[22m[39m
+   [32m✓[39m T031 PostgreSQL native recovery rehearsal [2m(1)[22m
+     [33m[2m✓[22m[39m pg_dump + pg_restore preserves a full migrated installation[33m 2412[2mms[22m[39m
+ [32m✓[39m tests/db/schema-parity.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m      Tests [22m [1m[32m93 passed[39m[22m[90m (93)[39m
+[2m   Start at [22m 16:52:45
+[2m   Duration [22m 73.21s[2m (tests 87%, import 12%, transform 1%)[22m
+
+
+--- stderr ---
+
+  node_modules/.cache/require-postgres-test.mjs  4.5kb
+
+⚡ Done in 4ms
+[90mstderr[2m | tests/db/postgres.operations.test.ts[2m > [22m[2mT030 PostgreSQL operational failures[2m > [22m[2msurfaces connection loss as a controlled error (never a fallback)
+[22m[39m[postgres] idle pool error: terminating connection due to administrator command
+
+
+end: 2026-11-10T16:53:58.359Z
+exit: 0
+signal: null

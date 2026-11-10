@@ -1,0 +1,6 @@
+sqlite-positive start=2026-11-10T16:30:28Z end=2026-11-10T16:30:57Z exit=0 expected=success
+postgres-positive start=2026-11-10T16:30:57Z end=2026-11-10T16:31:10Z exit=0 expected=success
+sqlite-lost-write start=2026-11-10T16:31:10Z end=2026-11-10T16:31:30Z exit=1 expected=failure
+postgres-lost-write start=2026-11-10T16:31:30Z end=2026-11-10T16:31:46Z exit=1 expected=failure
+sqlite-never-ready start=2026-11-10T16:31:46Z end=2026-11-10T16:32:05Z exit=1 expected=failure
+postgres-never-ready start=2026-11-10T16:32:05Z end=2026-11-10T16:32:17Z exit=1 expected=failure

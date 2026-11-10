@@ -1,0 +1,121 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/workspace/okr-app[39m
+
+ [31m❯[39m tests/db/sqlite-integrity.test.ts [2m([22m[2m49 tests[22m[2m | [22m[31m4 failed[39m[2m | [22m[33m44 skipped[39m[2m)[22m[33m 396[2mms[22m[39m
+   [2m[90m↓[39m[22m supported layouts remain adoptable (T005) [2m(5)[22m
+     [2m[90m↓[39m[22m keeps a journal-managed migrated database ready
+     [2m[90m↓[39m[22m adopts a db:push schema by recording the history only
+     [2m[90m↓[39m[22m adopts a db:push schema missing an additive column
+     [2m[90m↓[39m[22m adopts an incomplete journal by recording the missing facts
+     [2m[90m↓[39m[22m treats harmless index formatting as equivalent (still ready)
+   [2m[90m↓[39m[22m incompatible index definitions are rejected (DRIFT-2 / T009) [2m(1)[22m
+     [2m[90m↓[39m[22m rejects an expected-name unique index replaced by a nonunique wrong-column index, unchanged
+   [32m✓[39m altered column/constraint definitions are rejected (T009) [2m(6)[22m
+     [2m[90m↓[39m[22m rejects an altered column type
+     [2m[90m↓[39m[22m rejects an altered column nullability
+     [2m[90m↓[39m[22m rejects an altered column default
+     [32m✓[39m rejects an altered primary key[32m 78[2mms[22m[39m
+     [2m[90m↓[39m[22m rejects an altered foreign-key action
+     [2m[90m↓[39m[22m rejects an unsupported CHECK constraint
+   [2m[90m↓[39m[22m journal integrity is validated (T007) [2m(3)[22m
+     [2m[90m↓[39m[22m rejects a corrupt (hash-mismatched) journal record
+     [2m[90m↓[39m[22m rejects a duplicate journal record
+     [2m[90m↓[39m[22m rejects an unknown/future journal record
+   [31m❯[39m postmerge schema boundary regressions (MR-2 / MR-3) [2m(34)[22m
+     [2m[90m↓[39m[22m migrate rejects inline UNIQUE with catalog, journal and data unchanged
+     [2m[90m↓[39m[22m migrate rejects column UNIQUE with catalog, journal and data unchanged
+     [2m[90m↓[39m[22m migrate rejects named UNIQUE with catalog, journal and data unchanged
+[31m     [31m×[31m migrate rejects primary key NOCASE collation with catalog, journal and data unchanged[39m[32m 108[2mms[22m[39m
+[31m     [31m×[31m migrate rejects primary key descending order with catalog, journal and data unchanged[39m[32m 85[2mms[22m[39m
+     [2m[90m↓[39m[22m migrate rejects extra foreign key with catalog, journal and data unchanged
+     [2m[90m↓[39m[22m verify rejects inline UNIQUE with catalog, journal and data unchanged
+     [2m[90m↓[39m[22m verify rejects column UNIQUE with catalog, journal and data unchanged
+     [2m[90m↓[39m[22m verify rejects named UNIQUE with catalog, journal and data unchanged
+[31m     [31m×[31m verify rejects primary key NOCASE collation with catalog, journal and data unchanged[39m[32m 67[2mms[22m[39m
+[31m     [31m×[31m verify rejects primary key descending order with catalog, journal and data unchanged[39m[32m 53[2mms[22m[39m
+     [2m[90m↓[39m[22m verify rejects extra foreign key with catalog, journal and data unchanged
+     [2m[90m↓[39m[22m migrate rejects journal-only unknown row before mutation
+     [2m[90m↓[39m[22m migrate rejects journal-only hash mismatch before mutation
+     [2m[90m↓[39m[22m migrate rejects journal-only duplicate rows before mutation
+     [2m[90m↓[39m[22m migrate rejects journal-only known timestamp without application tables before mutation
+     [2m[90m↓[39m[22m migrate rejects journal-only complete matching history without application tables before mutation
+     [2m[90m↓[39m[22m migrate rejects journal-only malformed empty journal before mutation
+     [2m[90m↓[39m[22m migrate rejects journal-only extra empty-journal UNIQUE before mutation
+     [2m[90m↓[39m[22m migrate rejects journal-only extra empty-journal CHECK before mutation
+     [2m[90m↓[39m[22m migrate rejects journal-only extra empty-journal foreign key before mutation
+     [2m[90m↓[39m[22m migrate rejects journal-only missing journal hash column before mutation
+     [2m[90m↓[39m[22m verify rejects journal-only unknown row before mutation
+     [2m[90m↓[39m[22m verify rejects journal-only hash mismatch before mutation
+     [2m[90m↓[39m[22m verify rejects journal-only duplicate rows before mutation
+     [2m[90m↓[39m[22m verify rejects journal-only known timestamp without application tables before mutation
+     [2m[90m↓[39m[22m verify rejects journal-only complete matching history without application tables before mutation
+     [2m[90m↓[39m[22m verify rejects journal-only malformed empty journal before mutation
+     [2m[90m↓[39m[22m verify rejects journal-only extra empty-journal UNIQUE before mutation
+     [2m[90m↓[39m[22m verify rejects journal-only extra empty-journal CHECK before mutation
+     [2m[90m↓[39m[22m verify rejects journal-only extra empty-journal foreign key before mutation
+     [2m[90m↓[39m[22m verify rejects journal-only missing journal hash column before mutation
+     [2m[90m↓[39m[22m migrates fresh storage with no journal then verifies ready
+     [2m[90m↓[39m[22m migrates fresh storage with an empty valid journal then verifies ready
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 4 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/db/sqlite-integrity.test.ts[2m > [22mpostmerge schema boundary regressions (MR-2 / MR-3)[2m > [22mmigrate rejects primary key NOCASE collation with catalog, journal and data unchanged
+[41m[1m FAIL [22m[49m tests/db/sqlite-integrity.test.ts[2m > [22mpostmerge schema boundary regressions (MR-2 / MR-3)[2m > [22mmigrate rejects primary key descending order with catalog, journal and data unchanged
+[31m[1mAssertionError[22m: expected { catalog: [ { …(4) }, …(53) ], …(2) } to deeply equal { catalog: [ { …(4) }, …(53) ], …(2) }[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -698,7 +698,7 @@[39m
+[2m      {[22m
+[2m        "name": "values",[22m
+[2m        "rows": [],[22m
+[2m      },[22m
+[2m    ],[22m
+[32m-   "journalMode": "delete",[39m
+[31m+   "journalMode": "wal",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/db/sqlite-integrity.test.ts:[2m337:38[22m[39m
+    [90m335|[39m      await expect(migrateDatabase(loadConfig({ DATABASE_PATH: f.path }…
+    [90m336|[39m     } finally {
+    [90m337|[39m      expect(storageSnapshot(f.path)).toEqual(before)
+    [90m   |[39m                                      [31m^[39m
+    [90m338|[39m     }
+    [90m339|[39m    })
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/db/sqlite-integrity.test.ts[2m > [22mpostmerge schema boundary regressions (MR-2 / MR-3)[2m > [22mverify rejects primary key NOCASE collation with catalog, journal and data unchanged
+[41m[1m FAIL [22m[49m tests/db/sqlite-integrity.test.ts[2m > [22mpostmerge schema boundary regressions (MR-2 / MR-3)[2m > [22mverify rejects primary key descending order with catalog, journal and data unchanged
+[31m[1mAssertionError[22m: promise resolved "{ dialect: 'sqlite', …(4) }" instead of rejecting[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Error {[39m
+[32m-   "message": "rejected promise",[39m
+[31m+ {[39m
+[31m+   "appliedCount": 7,[39m
+[31m+   "classification": "ready",[39m
+[31m+   "dialect": "sqlite",[39m
+[31m+   "recorded": 0,[39m
+[31m+   "schemaVersion": 6,[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/db/sqlite-integrity.test.ts:[2m335:116[22m[39m
+    [90m333|[39m     const before = storageSnapshot(f.path)
+    [90m334|[39m     try {
+    [90m335|[39m      await expect(migrateDatabase(loadConfig({ DATABASE_PATH: f.path }…
+    [90m   |[39m                                                                                                                    [31m^[39m
+    [90m336|[39m     } finally {
+    [90m337|[39m      expect(storageSnapshot(f.path)).toEqual(before)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[2m | [22m[33m44 skipped[39m[90m (49)[39m
+[2m   Start at [22m 16:28:42
+[2m   Duration [22m 2.56s[2m (import 50%, transform 32%, tests 18%, worker 1%)[22m
+

@@ -1,0 +1,110 @@
+{
+  "product_commit": "c6f9f30f7eabf77c3ce33796e70a8e81773647e6",
+  "native_test_amendment_commit": "383050ebab7145d923f6aaf51c1b3d22f86a6992",
+  "image": "cc1cffc284fbb78bd0338d36883ca82ff3e38f33f560291e63525cc889b0a1aa",
+  "groups": [
+    {
+      "group": "full",
+      "tests_passed": 173,
+      "mandatory_skips": 0,
+      "evidence": "gates-serial/full.log",
+      "stage": {
+        "name": "full",
+        "command": "npm test -- --maxWorkers=1 --retry=0",
+        "cwd": "/workspace/okr-app",
+        "start": "2026-11-10T16:48:33.016Z",
+        "end": "2026-11-10T16:51:15.719Z",
+        "code": 0,
+        "signal": null,
+        "expected": 0
+      }
+    },
+    {
+      "group": "sqlite",
+      "tests_passed": 79,
+      "mandatory_skips": 0,
+      "evidence": "gates-serial/sqlite.log",
+      "stage": {
+        "name": "sqlite",
+        "command": "npm run test:db:sqlite -- --maxWorkers=1 --retry=0",
+        "cwd": "/workspace/okr-app",
+        "start": "2026-11-10T16:44:34.877Z",
+        "end": "2026-11-10T16:45:45.493Z",
+        "code": 0,
+        "signal": null,
+        "expected": 0
+      }
+    },
+    {
+      "group": "supplemental",
+      "tests_passed": 106,
+      "mandatory_skips": 0,
+      "evidence": "gates-serial/supplemental.log",
+      "stage": {
+        "name": "supplemental",
+        "command": "DB_BACKEND=sqlite node_modules/.bin/vitest run tests/db/sqlite-integrity.test.ts tests/db/readiness-mode.test.ts tests/db/runtime-mode.test.ts tests/db/postgres-no-ddl.test.ts tests/db/availability.test.ts tests/db/sqlite-worker.test.ts tests/verification/command-coverage.test.ts --maxWorkers=1 --retry=0",
+        "cwd": "/workspace/okr-app",
+        "start": "2026-11-10T16:43:49.218Z",
+        "end": "2026-11-10T16:44:34.828Z",
+        "code": 0,
+        "signal": null,
+        "expected": 0
+      }
+    },
+    {
+      "group": "application-postgres",
+      "tests_passed": 25,
+      "mandatory_skips": 0,
+      "evidence": "gates-serial/application-postgres.log",
+      "stage": {
+        "name": "application-postgres",
+        "command": "npm run test:application:postgres -- --maxWorkers=1 --retry=0",
+        "cwd": "/workspace/okr-app",
+        "start": "2026-11-10T16:48:06.830Z",
+        "end": "2026-11-10T16:48:32.959Z",
+        "code": 0,
+        "signal": null,
+        "expected": 0
+      }
+    },
+    {
+      "group": "postgres",
+      "tests_passed": 93,
+      "mandatory_skips": 0,
+      "evidence": "native-recovery/postgres-backend.log",
+      "stage": {
+        "name": "postgres-backend",
+        "command": "npm run test:db:postgres -- --maxWorkers=1 --retry=0",
+        "cwd": "/workspace/okr-app",
+        "start": "2026-11-10T16:52:42.492Z",
+        "end": "2026-11-10T16:53:58.359Z",
+        "code": 0,
+        "signal": null,
+        "expected": 0
+      }
+    },
+    {
+      "group": "native-recovery",
+      "tests_passed": 1,
+      "mandatory_skips": 0,
+      "evidence": "native-recovery/standalone.log",
+      "stage": {
+        "name": "standalone",
+        "command": "npm run test:recovery:postgres -- --maxWorkers=1 --retry=0",
+        "cwd": "/workspace/okr-app",
+        "start": "2026-11-10T16:52:37.137Z",
+        "end": "2026-11-10T16:52:42.433Z",
+        "code": 0,
+        "signal": null,
+        "expected": 0
+      }
+    }
+  ],
+  "included_full_suite_groups": {
+    "application-sqlite": 27,
+    "concurrency-no-init": 3
+  },
+  "build": "gates-serial/production-build.log",
+  "diagnostic_comparison": "gates-serial/diagnostic-comparison.json",
+  "no_assertion_retries": true
+}

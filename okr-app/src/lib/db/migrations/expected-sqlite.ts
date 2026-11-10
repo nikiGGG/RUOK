@@ -69,7 +69,7 @@ function buildReferenceDb(migrations: MigrationMeta[]): Database.Database {
 	const Driver: typeof import('better-sqlite3') = require('better-sqlite3')
 	const db = new Driver(':memory:')
 	db.exec(
-		`CREATE TABLE ${JOURNAL_TABLE} (id INTEGER PRIMARY KEY, hash text NOT NULL, created_at numeric)`
+		`CREATE TABLE ${JOURNAL_TABLE} (id SERIAL PRIMARY KEY, hash text NOT NULL, created_at numeric)`
 	)
 	const insert = db.prepare(`INSERT INTO ${JOURNAL_TABLE} (hash, created_at) VALUES (?, ?)`)
 	for (const m of migrations) {
@@ -121,6 +121,7 @@ export function getExpectedSqliteLayout(migrations: MigrationMeta[]): ExpectedLa
 		additiveIndexes: ADDITIVE_INDEXES,
 		columns,
 		indexDescriptors: ref.indexDescriptors ?? {},
+		journalColumns: ref.columns?.[JOURNAL_TABLE] ?? [],
 		foreignKeys: ref.foreignKeys ?? [],
 		tableChecks: ref.tableChecks ?? {}
 	}

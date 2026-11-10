@@ -113,7 +113,7 @@ function readIndex(
 	sqlite: Database.Database,
 	name: string,
 	table: string,
-	sql: string
+	sql: string | null
 ): IndexDescriptor {
 	const list = sqlite.pragma(`index_list(\`${table}\`)`) as unknown as Array<{
 		name: string
@@ -152,8 +152,9 @@ function readIndex(
 	// migrations use partial indexes, so this is normally null.
 	let predicate: string | null = null
 	if (partial) {
-		const close = sql.lastIndexOf(')')
-		const tail = close >= 0 ? sql.slice(close + 1) : ''
+		const definition = sql ?? ''
+		const close = definition.lastIndexOf(')')
+		const tail = close >= 0 ? definition.slice(close + 1) : ''
 		predicate = normalizeTokens(tail) || null
 	}
 
@@ -198,16 +199,22 @@ export function inspectSqlite(sqlite: Database.Database): DbShape {
 
 	const idxRows = sqlite
 		.prepare(
-			`SELECT name, tbl_name, sql FROM sqlite_master WHERE type = 'index' AND sql IS NOT NULL`
+			`SELECT name, tbl_name, sql FROM sqlite_master WHERE type = 'index'`
 		)
-		.all() as Array<{ name: string; tbl_name: string; sql: string }>
+		.all() as Array<{ name: string; tbl_name: string; sql: string | null }>
 	for (const r of idxRows) {
-		indexes[r.name] = r.sql
+		if (r.sql !== null) indexes[r.name] = r.sql
 		indexDescriptors[r.name] = readIndex(sqlite, r.name, r.tbl_name, r.sql)
 	}
 
 	const journalPresent = Object.prototype.hasOwnProperty.call(tables, JOURNAL_TABLE)
-	const journalRecords = journalPresent ? readJournal(sqlite) : []
+	let journalRecords: JournalRecord[] = []
+	if (journalPresent) {
+		if (!tables[JOURNAL_TABLE].includes('hash') || !tables[JOURNAL_TABLE].includes('created_at')) {
+			throw new Error('Invalid SQLite migration journal structure: missing hash or created_at column')
+		}
+		journalRecords = readJournal(sqlite)
+	}
 
 	return {
 		tables,

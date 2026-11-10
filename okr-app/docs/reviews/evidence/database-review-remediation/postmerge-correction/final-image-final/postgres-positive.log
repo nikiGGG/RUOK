@@ -1,0 +1,10 @@
+    local image ID=cc1cffc284fbb78bd0338d36883ca82ff3e38f33f560291e63525cc889b0a1aa (not a registry digest)
+d1e3fd8337c79632ec76332b6772f6fa2d69214e8957e4fd50478cd17948257a
+    /api/ready -> 200
+[db-migrate] backend=postgres mode=migrate
+[db-migrate] OK classification=ready applied=1 recorded=0 schemaVersion=0
+    created objective id=eafbb5b8-c086-4eb6-affb-d952478937c0
+    exact objective verified: id=eafbb5b8-c086-4eb6-affb-d952478937c0 title=WP08 persistence smoke_581430e3d5c375f4
+    /api/ready -> 200
+    exact objective verified: id=eafbb5b8-c086-4eb6-affb-d952478937c0 title=WP08 persistence smoke_581430e3d5c375f4
+### [postgres] PASS image=cc1cffc284fbb78bd0338d36883ca82ff3e38f33f560291e63525cc889b0a1aa

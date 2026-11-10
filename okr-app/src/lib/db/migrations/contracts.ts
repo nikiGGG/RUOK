@@ -106,7 +106,7 @@ export interface DbShape {
 	journalCreatedAts: number[]
 	/** Semantic column descriptors per table (populated by {@link inspectSqlite}). */
 	columns?: Record<string, ColumnDescriptor[]>
-	/** Semantic named-index descriptors (populated by {@link inspectSqlite}). */
+	/** Semantic descriptors for named and implicit indexes (populated by {@link inspectSqlite}). */
 	indexDescriptors?: Record<string, IndexDescriptor>
 	/** Semantic foreign-key descriptors (populated by {@link inspectSqlite}). */
 	foreignKeys?: ForeignKeyDescriptor[]
@@ -161,8 +161,10 @@ export interface ExpectedLayout {
 	additiveIndexes: Record<string, string>
 	/** Semantic column descriptors per table. */
 	columns: Record<string, ColumnDescriptor[]>
-	/** Semantic named-index descriptors. */
+	/** Semantic descriptors for named and implicit indexes. */
 	indexDescriptors: Record<string, IndexDescriptor>
+	/** Supported internal journal column structure, derived from the reference. */
+	journalColumns: ColumnDescriptor[]
 	/** Semantic foreign-key descriptors. */
 	foreignKeys: ForeignKeyDescriptor[]
 	/** Per-table CHECK-constraint count (0 for every checked table). */
