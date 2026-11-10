@@ -156,6 +156,9 @@ async function withDisposableDb(
 }
 
 describe('T031 PostgreSQL native recovery rehearsal', () => {
+	// This composed prerequisite/migrate/seed/dump/recreate/restore/verify/cleanup
+	// rehearsal needs its own budget: configured connections allow 10s and SQL
+	// statements 30s; Vitest's 5s unit-test default cannot cover the whole flow.
 	it('pg_dump + pg_restore preserves a full migrated installation', async () => {
 		// Fail-closed prerequisite gate (T022): the preflight checks
 		// RUOK_TEST_PG_ADMIN_URL, pg_dump/pg_restore/psql and a reachable PG18.
@@ -235,5 +238,5 @@ describe('T031 PostgreSQL native recovery rehearsal', () => {
 				await restored.close()
 			}
 		})
-	})
+	}, 30_000)
 })
