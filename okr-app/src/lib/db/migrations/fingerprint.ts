@@ -120,12 +120,42 @@ export function classifyLegacy(
 ): LegacyClassification {
 	const tables = userTables(current)
 
-	// A database with no user tables is a fresh install: apply full history.
-	if (tables.length === 0) {
-		return { kind: 'fresh' }
-	}
-
+	// Journal integrity precedes fresh classification: recorded history cannot
+	// justify skipping CREATE statements when the application tables are absent.
 	const reasons: string[] = []
+	if (current.journalPresent) {
+		reasons.push(...validateJournal(current, migrations))
+		// Empty journals are eligible for fresh migration only with the supported
+		// constraint surface too; otherwise the first history INSERT can fail or
+		// leave unsupported restrictions behind after a successful migration.
+		for (const index of Object.values(current.indexDescriptors ?? {})) {
+			if (index.table === JOURNAL_TABLE && index.origin !== 'pk') {
+				reasons.push('unsupported index/UNIQUE constraint on migration journal')
+			}
+		}
+		if ((current.tableChecks?.[JOURNAL_TABLE] ?? 0) !== (expected.tableChecks[JOURNAL_TABLE] ?? 0)) {
+			reasons.push('unsupported CHECK constraint on migration journal')
+		}
+		if (current.foreignKeys?.some((fk) => fk.child === JOURNAL_TABLE)) {
+			reasons.push('unsupported foreign key on migration journal')
+		}
+		const journalColumns = current.columns?.[JOURNAL_TABLE]
+		if (journalColumns) {
+			// Drizzle/our migrator use SERIAL; the reference and SQLite-native
+			// journals use INTEGER PRIMARY KEY. Both are supported journal IDs.
+			const signature = (c: ColumnDescriptor) => columnSignature(
+				c.name === 'id' && c.type.toUpperCase() === 'SERIAL' ? { ...c, type: 'INTEGER' } : c
+			)
+			if (journalColumns.length !== expected.journalColumns.length ||
+				journalColumns.some((c, i) => signature(c) !== signature(expected.journalColumns[i]))) {
+				reasons.push('invalid SQLite migration journal structure')
+			}
+		}
+	}
+	if (tables.length === 0) {
+		if (current.journalCreatedAts.length > 0) reasons.push('nonempty migration journal without application tables')
+		return reasons.length > 0 ? { kind: 'reject', reasons } : { kind: 'fresh' }
+	}
 	const addColumns: AddColumnDelta[] = []
 	const addIndexes: AddIndexDelta[] = []
 
@@ -170,6 +200,7 @@ export function classifyLegacy(
 	// --- Semantic index comparison (definition, not name) ---
 	if (current.indexDescriptors && expected.indexDescriptors) {
 		for (const [name, exp] of Object.entries(expected.indexDescriptors)) {
+			if (exp.origin !== 'c') continue // PK/UNIQUE autoindex names are SQLite implementation details.
 			const cur = current.indexDescriptors[name]
 			if (!cur) continue // missing index handled at name level
 			if (indexSignature(cur) !== indexSignature(exp)) {
@@ -180,11 +211,37 @@ export function classifyLegacy(
 		}
 	}
 
+	// Implicit UNIQUE constraints have no CREATE INDEX SQL. Compare their
+	// ordered key semantics, preserving PK validation through column ordinals.
+	if (current.indexDescriptors && expected.indexDescriptors) {
+		const uniqueSignature = (i: IndexDescriptor) => JSON.stringify([
+			i.table, i.columns.map(indexKeySignature), i.predicate
+		])
+		const expectedUnique = new Set(Object.values(expected.indexDescriptors)
+			.filter((i) => i.unique && i.origin !== 'pk').map(uniqueSignature))
+		for (const index of Object.values(current.indexDescriptors)) {
+			if (index.table === JOURNAL_TABLE && index.origin === 'pk') continue
+			if (index.unique && index.origin !== 'pk' && !expectedUnique.has(uniqueSignature(index))) {
+				reasons.push(`unsupported UNIQUE constraint on table '${index.table}'`)
+			}
+		}
+	}
+
 	// --- Foreign-key comparison ---
 	if (current.foreignKeys && expected.foreignKeys) {
-		const curSig = new Set(current.foreignKeys.map(fkSignature))
+		const expectedCounts = new Map<string, number>()
 		for (const fk of expected.foreignKeys) {
-			if (!curSig.has(fkSignature(fk))) {
+			const sig = fkSignature(fk)
+			expectedCounts.set(sig, (expectedCounts.get(sig) ?? 0) + 1)
+		}
+		for (const fk of current.foreignKeys) {
+			const sig = fkSignature(fk)
+			const remaining = expectedCounts.get(sig) ?? 0
+			if (remaining === 0) reasons.push(`unexpected foreign key ${fk.child}.(${fk.columns.map((c) => c.from).join(',')}) -> ${fk.parent}`)
+			else expectedCounts.set(sig, remaining - 1)
+		}
+		for (const fk of expected.foreignKeys) {
+			if ((expectedCounts.get(fkSignature(fk)) ?? 0) > 0) {
 				reasons.push(
 					`foreign key ${fk.child}.(${fk.columns.map((c) => c.from).join(',')}) -> ${fk.parent} differs from expected (mapping/actions)`
 				)
@@ -205,7 +262,6 @@ export function classifyLegacy(
 	let journalToRecord: MigrationMeta[] = []
 	let journalComplete = false
 	if (current.journalPresent) {
-		reasons.push(...validateJournal(current, migrations))
 		const knownWhen = new Set(current.journalCreatedAts)
 		journalToRecord = migrations.filter((m) => !knownWhen.has(m.when))
 		journalComplete = journalToRecord.length === 0 && migrations.length > 0

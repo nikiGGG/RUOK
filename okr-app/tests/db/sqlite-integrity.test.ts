@@ -296,3 +296,89 @@ describe('journal integrity is validated (T007)', () => {
 		)
 	})
 })
+/** Exact logical storage snapshot, including malformed journal schemas/rows. */
+function storageSnapshot(path: string): unknown {
+	const db = new Database(path, { readonly: true })
+	try {
+		const catalog = db.prepare('SELECT type, name, tbl_name, sql FROM sqlite_master ORDER BY type, name').all()
+		const tables = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name").all() as Array<{ name: string }>
+		const data = tables.map(({ name }) => ({ name, rows: db.prepare(`SELECT * FROM "${name.replaceAll('"', '""')}" ORDER BY rowid`).all() }))
+		return { catalog, data, journalMode: db.pragma('journal_mode', { simple: true }) }
+	} finally {
+		db.close()
+	}
+}
+
+describe('postmerge schema boundary regressions (MR-2 / MR-3)', () => {
+	const baseConfig = '`key` text PRIMARY KEY NOT NULL, `value` text NOT NULL, `is_secret` integer DEFAULT false NOT NULL, `updated_at` integer NOT NULL'
+	const faults = [
+		['inline UNIQUE', `CREATE TABLE system_config (${baseConfig}, UNIQUE(value))`, /unique|constraint/i],
+		['column UNIQUE', `CREATE TABLE system_config (${baseConfig.replace('`value` text NOT NULL', '`value` text NOT NULL UNIQUE')})`, /unique|constraint/i],
+		['named UNIQUE', `CREATE TABLE system_config (${baseConfig}); CREATE UNIQUE INDEX extra_config_value ON system_config(value)`, /index|unique|constraint/i],
+		['extra foreign key', `CREATE TABLE system_config (${baseConfig}, FOREIGN KEY(value) REFERENCES users(id))`, /foreign key/i]
+	] as const
+
+	for (const mode of ['migrate', 'verify'] as const) {
+		for (const [name, sql, reason] of faults) {
+			it(`${mode} rejects ${name} with catalog, journal and data unchanged`, async () => {
+				const f = migrated()
+				const db = writable(f.path)
+				try {
+					db.exec('DROP TABLE system_config')
+					db.exec(sql)
+					db.prepare('INSERT INTO system_config VALUES (?, ?, ?, ?)').run('retained', 'value', 0, 1)
+				} finally { db.close() }
+				const before = storageSnapshot(f.path)
+				try {
+					await expect(migrateDatabase(loadConfig({ DATABASE_PATH: f.path }), { mode, migrationsFolder: SQLITE_FOLDER })).rejects.toThrow(reason)
+				} finally {
+					expect(storageSnapshot(f.path)).toEqual(before)
+				}
+			})
+		}
+	}
+
+	const journalSql = 'CREATE TABLE __drizzle_migrations (id SERIAL PRIMARY KEY, hash text NOT NULL, created_at numeric)'
+	const journalFaults: Array<[string, (db: Database.Database) => void]> = [
+		['unknown row', (db) => { db.prepare('INSERT INTO __drizzle_migrations(hash, created_at) VALUES (?, ?)').run('unknown-corrupt-row', 123) }],
+		['hash mismatch', (db) => { db.prepare('INSERT INTO __drizzle_migrations(hash, created_at) VALUES (?, ?)').run('0'.repeat(64), migrations[0].when) }],
+		['duplicate rows', (db) => { for (let i = 0; i < 2; i++) db.prepare('INSERT INTO __drizzle_migrations(hash, created_at) VALUES (?, ?)').run(migrations[0].hash, migrations[0].when) }],
+		['known timestamp without application tables', (db) => { db.prepare('INSERT INTO __drizzle_migrations(hash, created_at) VALUES (?, ?)').run(migrations[0].hash, migrations[0].when) }],
+		['complete matching history without application tables', (db) => { for (const m of migrations) db.prepare('INSERT INTO __drizzle_migrations(hash, created_at) VALUES (?, ?)').run(m.hash, m.when) }],
+		['malformed empty journal', (db) => { db.exec('DROP TABLE __drizzle_migrations; CREATE TABLE __drizzle_migrations (id SERIAL PRIMARY KEY, hash text, created_at numeric)') }],
+		['extra empty-journal UNIQUE', (db) => { db.exec('DROP TABLE __drizzle_migrations; CREATE TABLE __drizzle_migrations (id SERIAL PRIMARY KEY, hash text NOT NULL UNIQUE, created_at numeric)') }],
+		['extra empty-journal CHECK', (db) => { db.exec('DROP TABLE __drizzle_migrations; CREATE TABLE __drizzle_migrations (id SERIAL PRIMARY KEY, hash text NOT NULL, created_at numeric CHECK(created_at < 0))') }],
+		['extra empty-journal foreign key', (db) => { db.exec('DROP TABLE __drizzle_migrations; CREATE TABLE __drizzle_migrations (id SERIAL PRIMARY KEY, hash text NOT NULL, created_at numeric, FOREIGN KEY(hash) REFERENCES users(id))') }],
+		['missing journal hash column', (db) => { db.exec('DROP TABLE __drizzle_migrations; CREATE TABLE __drizzle_migrations (created_at numeric)') }]
+	]
+	for (const mode of ['migrate', 'verify'] as const) {
+		for (const [name, tamper] of journalFaults) {
+			it(`${mode} rejects journal-only ${name} before mutation`, async () => {
+				const f = buildLegacyFixture('fresh')
+				cleanups.push(f.cleanup)
+				const db = writable(f.path)
+				try { db.exec(journalSql); tamper(db) } finally { db.close() }
+				const before = storageSnapshot(f.path)
+				try {
+					await expect(migrateDatabase(loadConfig({ DATABASE_PATH: f.path }), { mode, migrationsFolder: SQLITE_FOLDER })).rejects.toThrow(/journal|unrecognized SQLite schema/i)
+				} finally {
+					expect(storageSnapshot(f.path)).toEqual(before)
+				}
+			})
+		}
+	}
+	for (const emptyJournal of [false, true]) {
+		it(`migrates fresh storage with ${emptyJournal ? 'an empty valid journal' : 'no journal'} then verifies ready`, async () => {
+			const f = buildLegacyFixture('fresh')
+			cleanups.push(f.cleanup)
+			if (emptyJournal) {
+				const db = writable(f.path)
+				try { db.exec(journalSql) } finally { db.close() }
+			}
+			const config = loadConfig({ DATABASE_PATH: f.path })
+			expect((await migrateDatabase(config, { mode: 'migrate', migrationsFolder: SQLITE_FOLDER })).classification).toBe('fresh')
+			expect((await migrateDatabase(config, { mode: 'verify', migrationsFolder: SQLITE_FOLDER })).classification).toBe('ready')
+			expect(journalRows(f.path)).toEqual(migrations.map((m) => ({ hash: m.hash, created_at: m.when })))
+		})
+	}
+})

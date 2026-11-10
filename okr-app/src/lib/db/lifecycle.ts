@@ -30,6 +30,7 @@ import type { MigrateOptions } from './migrations'
 import { PostgresDatabaseServices } from './adapters/postgres'
 import { SqliteDatabaseServices, runPreparation } from './adapters/sqlite'
 import { loadConfig } from './config'
+import { parseMigrationMode } from './migration-mode'
 
 /** Construct the concrete adapter selected by a validated config. */
 export function createDatabaseServices(config: DatabaseConfig): DatabaseServices {
@@ -175,8 +176,9 @@ export async function getReadiness(): Promise<ReadinessState> {
 export function ensureOpenAttempted(config?: DatabaseConfig): void {
 	if (isDatabaseOpen() || opening) return
 	try {
+		const mode = parseMigrationMode(process.env.MIGRATION_MODE)
 		const cfg = config ?? loadConfig()
-		void openDatabase(cfg).catch((err: unknown) => {
+		void openDatabase(cfg, { mode }).catch((err: unknown) => {
 			// Opening failures surface via readiness; never log secrets.
 			console.error('[lifecycle] database opening attempt failed:', (err as Error).message)
 		})

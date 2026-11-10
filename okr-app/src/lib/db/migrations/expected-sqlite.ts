@@ -121,6 +121,7 @@ export function getExpectedSqliteLayout(migrations: MigrationMeta[]): ExpectedLa
 		additiveIndexes: ADDITIVE_INDEXES,
 		columns,
 		indexDescriptors: ref.indexDescriptors ?? {},
+		journalColumns: ref.columns?.[JOURNAL_TABLE] ?? [],
 		foreignKeys: ref.foreignKeys ?? [],
 		tableChecks: ref.tableChecks ?? {}
 	}
