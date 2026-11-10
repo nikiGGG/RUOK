@@ -1,0 +1,14 @@
+command: node -e 'for(const n of ["better-sqlite3","pg","vitest","drizzle-orm"])console.log(n+" "+JSON.parse(require("node:fs").readFileSync("node_modules/"+n+"/package.json")).version)'
+cwd: /workspace/okr-app
+start: 2026-11-09T20:34:34.005Z
+--- stdout ---
+better-sqlite3 12.5.0
+pg 8.23.1
+vitest 5.0.3
+drizzle-orm 0.45.1
+
+--- stderr ---
+
+end: 2026-11-09T20:34:34.078Z
+exit: 0
+signal: null

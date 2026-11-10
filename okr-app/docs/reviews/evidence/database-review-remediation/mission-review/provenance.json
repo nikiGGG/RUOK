@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "kind": "independent-initial-postmerge-review",
+  "recorded_at_utc": "2026-11-10T04:26:46.204277+00:00",
+  "mission": "database-review-findings-remediation-01M5TGCE",
+  "reviewer_profile": "reviewer-renata",
+  "reviewed_target_head": "10b7bd4f2b0839ebba3dcea65044090519ab61c5",
+  "local_image_id": "76851d5c343ef90ab57a6313db88d73a341e0f53c7380d6052f7cfd87d1fb06d",
+  "identity_kind": "local-image-id-not-registry-manifest-digest",
+  "execution_actor": "parent orchestrator with authorized Podman access",
+  "executed_by_this_reviewer": false,
+  "execution_confirmation": {
+    "schema_reproduction_exit": 0,
+    "verify_mode_wrapper_exit": 0,
+    "actual_target_postmerge_runner_exit": 0,
+    "actual_target_build_exit": 0,
+    "actual_target_full_tests_passed": 173,
+    "source_before_after_exact": true,
+    "postmerge_checksum_validation_exit": 0
+  },
+  "result": "FAIL",
+  "blocking_findings": [
+    "MR-1",
+    "MR-2",
+    "MR-3"
+  ],
+  "source_edits_by_reviewer": false,
+  "corrective_op_separate": "01M71V7074RWQY0HAMEF8AQ4WX",
+  "corrective_result_claimed": false
+}

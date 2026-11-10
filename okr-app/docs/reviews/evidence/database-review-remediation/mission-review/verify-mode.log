@@ -1,0 +1,12 @@
+start=2026-11-10T04:23:03Z
+source_head=10b7bd4f2b0839ebba3dcea65044090519ab61c5
+image_id=76851d5c343ef90ab57a6313db88d73a341e0f53c7380d6052f7cfd87d1fb06d
+mode=verify
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+before_first_ready_file_exists=false
+ready_sample=1 status=503
+ready_sample=2 status=200
+{"mode":"verify","file_created":true,"tables":["__drizzle_migrations","daily_metric_values","daily_metrics","dashboard_widgets","friend_notes","friend_requests","friendships","key_results","metrics_templates","objective_reflections","objectives","plugins","principles","query_execution_logs","saved_queries","sessions","system_config","tags","task_attributes","task_tags","tasks","time_commitments","time_periods","user_ai_config","users","values"],"unexpected_mutation":true}
+final_ready_status=200
+end=2026-11-10T04:23:07Z

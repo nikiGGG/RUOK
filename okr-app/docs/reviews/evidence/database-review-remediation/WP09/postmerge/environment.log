@@ -1,0 +1,14 @@
+command: node --version && npm --version && df -k /tmp
+cwd: /workspace/okr-app
+start: 2026-11-09T20:34:33.463Z
+--- stdout ---
+v22.23.4
+10.9.9
+Filesystem           1K-blocks      Used Available Use% Mounted on
+tmpfs                   262144       400    261744   0% /tmp
+
+--- stderr ---
+
+end: 2026-11-09T20:34:33.956Z
+exit: 0
+signal: null
