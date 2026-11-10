@@ -28,10 +28,10 @@
       "criterion_id": "FR-003",
       "description": "Honor runtime migration mode, perform zero DDL during verification including failure, and support a separately migrated PostgreSQL data-only runtime role.",
       "proof_type": "automated_test",
-      "evidence": "git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/database-review-findings-remediation.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP03/live-capture.json; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/remaining_contracts_after_close_tmpfs.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/postgres-probe-proof/cycle.log",
-      "pass_fail": "pass",
+      "evidence": "okr-app/docs/reviews/database-review-findings-remediation-mission-review.md#mr-1; okr-app/docs/reviews/evidence/database-review-remediation/mission-review/verify-mode.log",
+      "pass_fail": "fail",
       "verified_by": "codex",
-      "verified_at": "2026-11-09T20:05:55.498059+00:00",
+      "verified_at": "2026-11-10T04:28:19.494525+00:00",
       "notes": "Executed proof independently reviewed; earlier failed attempts remain preserved. git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/database-review-findings-remediation.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP03/live-capture.json; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/remaining_contracts_after_close_tmpfs.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/postgres-probe-proof/cycle.log"
     },
     {
