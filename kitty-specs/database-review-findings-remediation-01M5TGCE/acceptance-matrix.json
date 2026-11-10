@@ -2,7 +2,7 @@
   "mission_slug": "database-review-findings-remediation-01M5TGCE",
   "mission_number": "",
   "mission_type": "software-dev",
-  "overall_verdict": "pass",
+  "overall_verdict": "fail",
   "criteria": [
     {
       "criterion_id": "FR-001",
@@ -18,10 +18,10 @@
       "criterion_id": "FR-002",
       "description": "Reject incompatible SQLite indexes, columns, keys, constraints and migration journal without mutation; preserve supported adoption and fresh migration.",
       "proof_type": "automated_test",
-      "evidence": "git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/database-review-findings-remediation.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/baseline_sqlite_index_tmpfs.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/fixed_sqlite_index_tmpfs.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/remaining_contracts_after_close_tmpfs.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP02/manifest.md",
-      "pass_fail": "pass",
+      "evidence": "okr-app/docs/reviews/database-review-findings-remediation-mission-review.md#mr-2; okr-app/docs/reviews/evidence/database-review-remediation/mission-review/schema-boundaries.log",
+      "pass_fail": "fail",
       "verified_by": "codex",
-      "verified_at": "2026-11-09T20:05:51.078124+00:00",
+      "verified_at": "2026-11-10T04:28:15.215354+00:00",
       "notes": "Executed proof independently reviewed; earlier failed attempts remain preserved. git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/database-review-findings-remediation.md; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/baseline_sqlite_index_tmpfs.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/fixed_sqlite_index_tmpfs.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP09/remaining_contracts_after_close_tmpfs.log; git:5b0db88240c551090cf093c93d484f99b8313687:okr-app/docs/reviews/evidence/database-review-remediation/WP02/manifest.md"
     },
     {
