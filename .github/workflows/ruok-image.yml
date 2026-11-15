@@ -40,7 +40,10 @@ on:
   push:
     branches:
       - main
-      - 'feature/**'      # ← included your branch  # Select the PR's source branch in Actions > Run workflow.
+      - 'feature/**'      # build+validate feature-branch images on push
+  # Build the image as a PR check on any pull_request. No registry push.
+  pull_request:
+  # Select the PR's source branch in Actions > Run workflow.
   workflow_dispatch:
 
 concurrency:
@@ -62,11 +65,11 @@ defaults:
 
 jobs:
   # ---------------------------------------------------------------------------
-  # validate-image — manual branch build + smoke checks. NO push capability.
+  # validate-image — PR/manual branch build + smoke checks. NO push capability.
   # ---------------------------------------------------------------------------
   validate-image:
-    name: Validate image (manual)
-    if: github.event_name == 'workflow_dispatch'
+    name: Validate image (PR + manual)
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: read # least-read; intentionally NO packages:write
